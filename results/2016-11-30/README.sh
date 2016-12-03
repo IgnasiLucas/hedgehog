@@ -110,3 +110,38 @@ if [ ! -e coverage_matrix.txt ]; then
    }' > coverage_matrix.txt
 fi
 
+# The coverage_matrix.txt file is 95MB, which is kind of too big. I will summarize
+# it below, counting on each site how many samples cover it with at least 3 reads:
+if [ ! -e summary_coverage.txt ]; then
+   gawk '(NR > 1){
+      N=0
+      for (i=4;i<=NF;i++) {
+         if ($i >= 3) N++
+      }
+      F[N]++
+   }END{
+      for (f in F) print f "\t" F[f]
+   }' coverage_matrix.txt | sort -nrk 1 | gawk 'BEGIN{
+      print "#Num.Samples\tNum.Sites\tAccumulated"
+      ACCUMULATED = 0
+   }{
+      ACCUMULATED += $2
+      print $1 "\t" $2 "\t" ACCUMULATED
+   }'> summary_coverage.txt
+fi
+
+# CONCLUSIONS
+# -----------
+#
+# I did not count the original number of reads directly, but from the pooled.bed
+# file, I estimate a total number of (mapped) reads in the order 273 millions, of
+# which, around 248 million are used to cover sites that get a total depth between
+# 100 and 750. There are 662655 such sites. Thus, if the reads were evenly distributed
+# among samples (50) and sites, each site would get 7.5 reads. In reality, though,
+# there are only 157661 sites covered by at least 40 samples. This is much less than
+# the original number of sites, and the reduction may be explained by the variance
+# in coverage per site. However, this seems much more than the number of variable
+# sites covered by all individuals of either population 1 () or population 2 (). Now,
+# the question is how do the loci covered with some reads compare to the variable
+# sites identified in 2016-11-24. In particular, I would like to see the distribution
+# of the number of variable sites per locus.
