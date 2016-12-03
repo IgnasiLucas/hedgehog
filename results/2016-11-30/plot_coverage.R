@@ -1,0 +1,7 @@
+histogram <- read.table('coverage.txt', col.names=c("cov", "freq", "reads"), header=TRUE)
+attach(histogram)
+png(filename="coverage.png")
+plot(c(0,2000), c(0,14), type='n', xlab='Pooled coverage', ylab='log(Number of loci)')
+lines(cov, log(freq))
+dev.off()
+detach(histogram)

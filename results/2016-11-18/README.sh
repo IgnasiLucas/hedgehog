@@ -198,12 +198,12 @@ for i in 1 2; do
    if [ ! -e pop$i.idepth ]; then
       vcftools --gzvcf snp_indels_q40.vcf.gz --out pop$i --keep population$i.txt --depth &
    fi
-   if [ ! -e pop$i.geno.ld ]; then
-      vcftools --gzvcf snp_indels_q40.vcf.gz --out pop$i --keep population$i.txt --geno-r2 &
-   fi
-   if [ ! -e pop$i.interchrom.geno.ld ]; then
-      vcftools --gzvcf snp_indels_q40.vcf.gz --out pop$i --keep population$i.txt --interchrom-geno-r2 &
-   fi
+#   if [ ! -e pop$i.geno.ld ]; then
+#      vcftools --gzvcf snp_indels_q40.vcf.gz --out pop$i --keep population$i.txt --geno-r2 &
+#   fi
+#   if [ ! -e pop$i.interchrom.geno.ld ]; then
+#      vcftools --gzvcf snp_indels_q40.vcf.gz --out pop$i --keep population$i.txt --interchrom-geno-r2 &
+#   fi
 done
 #wait
 
