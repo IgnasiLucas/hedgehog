@@ -1,10 +1,19 @@
-2016-11-29
+2017-05-09
 ==========
 
-It may be a good idea to take a look at the original bam files and use
-bedtools to get an idea of the number of loci covered per individual and
-the overlap among them.
+Testing different mapping options to determine if we can improve the
+mapping success and the coverage.
 
+2016-11-30
+==========
+
+Using bedtools, I compare the bam files among them, and find the number
+of sites covered by at least 3 reads in N samples. I see, for example that
+157661 sites are covered with at least 3 reads in at least 40 samples, which
+seems to be plenty of information. Let's say that at least 60 bases of every
+read are good enough to detect a variant. If heterozygosity was 0.001, I
+would expect less than 10000 variants per individual. I suspect Freebayes
+is not doing a very good job at identifying variants.
 
 2016-11-24
 ==========
