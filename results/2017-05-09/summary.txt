@@ -1,0 +1,9 @@
+Aligner	Input	Setting	Unique	Multiple	Unmapped
+Bowtie1	whole	conservative	46.41%	6.57%	47.02%
+Bowtie1	whole	sensitive	59.73%	0.00%	40.27%
+Bowtie1	trimmed	conservative	48.96%	13.22%	37.81%
+Bowtie1	trimmed	sensitive	69.10%	0.00%	30.90%
+Bowtie2	whole	conservative	47.22%	34.32%	18.46%
+Bowtie2	whole	sensitive	45.51%	32.63%	21.86%
+Bowtie2	trimmed	conservative	36.70%	47.03%	16.26%
+Bowtie2	trimmed	sensitive	36.36%	45.98%	17.66%
