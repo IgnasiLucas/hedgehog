@@ -1,0 +1,11 @@
+set key left
+set style data histogram
+set style histogram rowstacked
+set style fill solid border lt -1
+set term png large
+set output 'clusters.png'
+plot 'hhog_consens/s5_consens_stats.txt' using 3 title 'filtered by depth', \
+                                      '' using 4 title 'filtered by maxH', \
+                                      '' using 5 title 'filtered by maxN', \
+                                      '' using 6 title 'usable'
+

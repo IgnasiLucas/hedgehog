@@ -1,8 +1,59 @@
+2017-05-25
+==========
+
+The current bam files were created by Kristýna with bowtie. They miss
+read group information, but they are sorted by individual. I should add
+the RG labels and run the freebayes pipeline to compare the results from
+this bam file with those obtained before with a bowtie2-based alignment
+(2016-11-18).
+
+
+2017-05-18
+==========
+
+Running ipyrad on the demultiplexed fastq files, using the reference and
+the de novo assembly of reads that do not map to the reference. ipyrad
+uses the bwa aligner. Apparently, it mapped 129,659,615 reads (40.5%) and
+used 8,667,728 (2.7%) further reads with the de novo assembly pipeline.
+
+
+2017-05-17
+==========
+
+Counting total numbers of raw and mapped reads, per sample. Overall the two
+sequencing runs produced 319,934,047 reads (on average 6,398,680 reads per
+sample, with a range of 717,180 -- 14,805,528). In all, 163290876 (51%) reads
+were mapped with bowtie. 
+
 2017-05-09
 ==========
 
 Testing different mapping options to determine if we can improve the
-mapping success and the coverage.
+mapping success and the coverage. I confirm that bowtie2 is more sensitive,
+and that higher sensitivity leads to a larger proportion of multiple hits
+(ambiguous mapping), and a decrease in unmapped reads, to a lesser extent.
+Trimming the low quality tail of reads decreases the uniqueness of their
+mappings with bowtie2. Unfortunately, bowtie1 does not report the numbers
+of multiply mapped reads with sensitive settings. The best compromise
+between a large portion of unique mappings and a low proportion of unmapped
+reads is achieved using bowtie2 with whole reads and 'conservative' settings:
+47.22% unique mappings, 18.46% unmapped.
+
+To check the possible reasons for the unmapped reads, I manually did the
+following (neither the commands nor the results are saved):
+
+* Extract fastq files for mapped and unmapped reads from one bam file (Er71).
+* Run fastqc on both to compare the qualities.
+* Filter unmapped fastq records by maximum number of expected errors (0.5).
+* BLAST a random subsample of 50 unmapped, high-quality reads to the nr database.
+
+I conclude that the quality of unmapped reads is just slighly lower towards
+the end of the reads. About 50% of the unmapped reads actually hit one or more
+hedgehog sequences (either Erinaceus europeus, as expected, or Atelerix
+albiventris, probably due to database limitations). Most such reads find
+several hits, suggesting that they were unmapped (with bowtie1) due to
+ambiguous mapping. Only one of 50 sequences mapped to a totally different
+organism: a nematode (a parasite?). Contamination is, at most, rare.
 
 2016-11-30
 ==========

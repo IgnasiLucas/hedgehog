@@ -1,0 +1,8 @@
+set style data histograms
+set style histogram rowstacked
+set style fill solid border lt -1
+set term png large
+set output 'mapping_success.png'
+plot 'z.summary.txt' using 5 title 'Mapped', '' using 6 title 'Unmapped, used', \
+     '' using ($4 - $5 - $6) title 'Unmapped, unused', '' using ($3 - $4) title 'Filtered'
+quit

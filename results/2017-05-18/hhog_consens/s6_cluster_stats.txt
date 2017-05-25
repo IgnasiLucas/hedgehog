@@ -1,0 +1,22 @@
+vsearch v2.0.3_linux_x86_64, 251.9GB RAM, 64 cores
+/home/joiglu/miniconda2/lib/python2.7/site-packages/bin/vsearch-linux-x86_64 -cluster_smallmem /data/joiglu/hedgehog/results/2017-05-18/hhog_consens/hhog_catshuf.tmp -strand plus -query_cov 0.75 -minsl 0.5 -id 0.85 -userout /data/joiglu/hedgehog/results/2017-05-18/hhog_consens/hhog.utemp -notmatched /data/joiglu/hedgehog/results/2017-05-18/hhog_consens/hhog.htemp -userfields query+target+qstrand -maxaccepts 1 -maxrejects 0 -fasta_width 0 -threads 0 -fulldp -usersort -log /data/joiglu/hedgehog/results/2017-05-18/hhog_consens/s6_cluster_stats.txt 
+Started  Mon May 22 16:34:33 20172084237379 nt in 20262795 seqs, min 32, max 221, avg 103
+
+
+      Alphabet  nt
+    Word width  8
+     Word ones  8
+        Spaced  No
+        Hashed  No
+         Coded  No
+       Stepped  No
+         Slots  65536 (65.5k)
+       DBAccel  100%
+
+Clusters: 1061858 Size min 1, max 132202, avg 19.1
+Singletons: 178859, 0.9% of seqs, 16.8% of clusters
+
+
+Finished Wed May 24 08:27:49 2017
+Elapsed time 2393:16
+Max memory 22.4GB

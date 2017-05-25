@@ -111,24 +111,29 @@ if [ ! -e coverage_matrix.txt ]; then
 fi
 
 # The coverage_matrix.txt file is 95MB, which is kind of too big. I will summarize
-# it below, counting on each site how many samples cover it with at least 3 reads:
-if [ ! -e summary_coverage.txt ]; then
-   gawk '(NR > 1){
-      N=0
-      for (i=4;i<=NF;i++) {
-         if ($i >= 3) N++
-      }
-      F[N]++
-   }END{
-      for (f in F) print f "\t" F[f]
-   }' coverage_matrix.txt | sort -nrk 1 | gawk 'BEGIN{
-      print "#Num.Samples\tNum.Sites\tAccumulated"
-      ACCUMULATED = 0
-   }{
-      ACCUMULATED += $2
-      print $1 "\t" $2 "\t" ACCUMULATED
-   }'> summary_coverage.txt
-fi
+# it below, counting on each site how many samples cover it with at least 3, 6, or
+# 10 reads:
+for i in 3 5 6 10; do
+   if [ ! -e summary_coverage_min$i.txt ]; then
+      gawk -v MIN=$i '(NR > 1){
+         N=0
+         for (i=4;i<=NF;i++) {
+            if ($i >= (MIN + 0)) N++
+         }
+         F[N]++
+      }END{
+         for (f in F) print f "\t" F[f]
+      }' coverage_matrix.txt | sort -nrk 1 | gawk 'BEGIN{
+         print "#Num.Samples\tNum.Sites\tAccumulated"
+         ACCUMULATED = 0
+      }{
+         ACCUMULATED += $2
+         print $1 "\t" $2 "\t" ACCUMULATED
+      }'> summary_coverage_min$i.txt
+   fi
+done
+
+
 
 # CONCLUSIONS
 # -----------
