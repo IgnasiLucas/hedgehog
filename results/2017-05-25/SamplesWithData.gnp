@@ -1,0 +1,7 @@
+set term png large
+set output 'SamplesWithData.png'
+set xlab 'Number of samples with data'
+set ylab 'Number of sites'
+set key off
+plot 'SamplesWithData.txt' using 1:2 with lines
+quit

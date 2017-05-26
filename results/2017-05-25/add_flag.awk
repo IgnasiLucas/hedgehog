@@ -4,8 +4,10 @@
 # bits that compose the integer indicate the presence of that allele in the
 # sample. For example, a SNP with alleles A and C genotyped in 6 individuals
 # may show allele C in the first one and in the last two. Thus, the bits should
-# be: 100011, which in decimal notation is 1+2+32=35. The second allele may be
-# present in all individuals, but the last one: 111110 = 62.
+# be: 11001, which in decimal notation is 1+16+32=49. The second allele may be
+# present in all individuals, but the last one: 011111 = 62. Note that the "first"
+# bit is on the right, and subsequent ones are added to the left, as it should
+# be. However, the samples are numbered from left to right in the vcf file.
 #
 # This is not practical for hundreds of individuals, and impossible for more than
 # 1022.

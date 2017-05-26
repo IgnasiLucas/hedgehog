@@ -29,6 +29,7 @@ for i in ${SAMPLE[@]}; do
          RGSM=$i
       # I remove unmapped and second reads:
       samtools view -b -F 132 z1.bam > $i.bam
+      rm z1.bam
    fi
 done
 
@@ -37,12 +38,69 @@ if [ ! -e ref.fa ]; then
 fi
 
 if [ ! -e hhog.vcf ]; then
-   freebayes -f ref.fa \
-      --vcf hhog.vcf \
-      --populations populations.txt \
-      --theta 0.01 \
-      --standard-filters \
-      --max-coverage 900 \
-      --genotype-qualities \
-      ./*.bam
+   if [ ! -e z1.vcf ]; then
+      freebayes -f ref.fa \
+         --vcf z1.vcf \
+         --populations populations.txt \
+         --theta 0.01 \
+         --standard-filters \
+         --max-coverage 900 \
+         --genotype-qualities \
+         ./*.bam
+   fi
+   gawk -f add_flag.awk z1.vcf > hhog.vcf
+   rm z1.vcf
 fi
+
+# Now that I have the vcf file, with binary presence flags, I should get some
+# statistics that guide the filtering of variable sites. First, the histogram of the
+# number of samples with data per locus.
+
+if [ ! -e SamplesWithData.txt ]; then
+   echo -e "#withData\tFrequency" > SamplesWithData.txt
+   gawk '(/^[^#]/){
+      split($8, INFO, /;/)
+      for (i in INFO) {
+         if (INFO[i] ~ /^NS=/) {
+            F[substr(INFO[i],4)]++
+         }
+      }
+   }END{
+      for (f = 1; f <= 50; f++) print f "\t" F[f] + 0
+   }' hhog.vcf | sort -nk 1,1 >> SamplesWithData.txt
+fi
+
+if [ ! -e SamplesWithData.png ]; then
+   gnuplot < SamplesWithData.gnp
+fi
+
+# This is the order in which the samples are in hhog.vcf:
+head -n 10000 hhog.vcf | grep "#CHROM" | sed 's/\t/\n/g' | grep "^Er" | gawk '{print NR "\t" $1}' | sort -k 2,2 > z1
+
+# Ordering populations.txt by the same criteria, will produce a parallele list of
+# sample names, with the assigned population:
+
+sort -k 1,1 populations.txt > z2
+
+# now, we paste, order by the original positions in hhog.vcf, and keep the list of
+# populations:
+paste z1 z2 | sort -nk 1,1 | gawk '(/europaeus/){
+      EUROPAEUS += 2^(NR - 1)
+   }(/romanicus/){
+      ROMANICUS += 2^(NR - 1)
+   }(/concolor/){
+      CONCOLOR  += 2^(NR - 1)
+   }(/Atelerix/){
+      ATELERIX  += 2^(NR - 1)
+   }(/Hemiechinus/){
+      HEMIECHINUS += 2^(NR - 1)
+   }(/hybrid/){
+      HYBRID += 2^(NR - 1)
+   }END{
+      print "Europaeus: " EUROPAEUS
+      print "Romanicus: " ROMANICUS
+      print "Concolor : " CONCOLOR
+      print "Atelerix : " ATELERIX
+      print "HemiEchin: " HEMIECHINUS
+      print "Hybrid   : " HYBRID
+   }'
