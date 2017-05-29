@@ -74,6 +74,10 @@ if [ ! -e SamplesWithData.png ]; then
    gnuplot < SamplesWithData.gnp
 fi
 
+# Below I use some commands to find the binary expression of the set of
+# samples from each population. Then I will use that to filter the hhog.vcf
+# according to how many samples from each population have data.
+
 # This is the order in which the samples are in hhog.vcf:
 head -n 10000 hhog.vcf | grep "#CHROM" | sed 's/\t/\n/g' | grep "^Er" | gawk '{print NR "\t" $1}' | sort -k 2,2 > z1
 
@@ -97,10 +101,21 @@ paste z1 z2 | sort -nk 1,1 | gawk '(/europaeus/){
    }(/hybrid/){
       HYBRID += 2^(NR - 1)
    }END{
-      print "Europaeus: " EUROPAEUS
-      print "Romanicus: " ROMANICUS
-      print "Concolor : " CONCOLOR
-      print "Atelerix : " ATELERIX
-      print "HemiEchin: " HEMIECHINUS
-      print "Hybrid   : " HYBRID
+      print "Europaeus\t" EUROPAEUS
+      print "Romanicus\t" ROMANICUS
+      print "Concolor\t" CONCOLOR
+      print "Atelerix\t" ATELERIX
+      print "HemiEchin\t" HEMIECHINUS
+      print "Hybrid\t" HYBRID
    }'
+
+rm z1 z2
+
+# I include this information in the script filtervcf.awk and I require at least 2
+# europaeus, 2 romanicus, and 1 concolor in the output. I get a reduction of the
+# vcf file size of about 50%.
+
+if [ ! -e hhog_min2each.vcf ]; then
+   gawk -f filtervcf.awk hhog.vcf > hhog_min2each.vcf
+fi
+

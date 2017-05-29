@@ -12,7 +12,7 @@ function bits2str(bits, max,        data, mask){
    return data
 }
 
-function countbits(bits){
+function countbits(bits,    data){
    if (bits == 0) return 0
    for (; bits != 0; bits = rshift(bits, 1)) data += and(bits, 1)
    return data
@@ -34,7 +34,7 @@ BEGIN{
          split(INFO[i], BPF, /=|,/)
       }
    }
-   WITHDATA = or(BPF[1], BPF[2]) # assumes biallelic
+   WITHDATA = or(BPF[2], BPF[3]) # dismissing 3rd and subsequent alleles
    EUROPAEUS = countbits(and(EUROBITS, WITHDATA))
    ROMANICUS = countbits(and(ROMABITS, WITHDATA))
    CONCOLOR  = countbits(and(CONCOBITS, WITHDATA))
