@@ -19,9 +19,9 @@ function countbits(bits,    data){
 }
 
 BEGIN{
-   MINEURO   = 2
-   MINROMA   = 2
-   MINCONCO  = 1
+   MINEURO   = 12
+   MINROMA   = 12
+   MINCONCO  = 2
    EUROBITS  = 251293811610204
    ROMABITS  = 566536679968131
    CONCOBITS = 299273322233856

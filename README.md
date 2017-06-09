@@ -1,3 +1,11 @@
+2017-06-09
+==========
+
+Here I want to prepare the analysis with the multispecies coalescent
+model, implemented in RevBayes. I need to format the data from the ipyrad
+analysis and find out the most appropriate base substitution models for
+each locus. 
+
 2017-05-25
 ==========
 
@@ -7,6 +15,12 @@ the RG labels and run the freebayes pipeline to compare the results from
 this bam file with those obtained before with a bowtie2-based alignment
 (2016-11-18).
 
+The results confirm that the data matrix is quite incomplete, to make any
+analysis based on allele frequencies difficult. In this folder I add a
+binary flag to the information field of the vcf file to indicate in what
+samples each allele is present. This makes it easy to filter the vcf file
+by sites covered, for example, in at least 5 individuals from E. romanicus
+and 5 from E. europaeus.
 
 2017-05-18
 ==========
@@ -15,6 +29,8 @@ Running ipyrad on the demultiplexed fastq files, using the reference and
 the de novo assembly of reads that do not map to the reference. ipyrad
 uses the bwa aligner. Apparently, it mapped 129,659,615 reads (40.5%) and
 used 8,667,728 (2.7%) further reads with the de novo assembly pipeline.
+
+After requesting the fixing of a bug, the output included the vcf file.
 
 
 2017-05-17

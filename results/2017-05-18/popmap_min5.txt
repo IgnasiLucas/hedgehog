@@ -48,11 +48,9 @@ Er72_SIE1B europaeus
 Er73_SNG1 Atelerix
 Er74_SP16 europaeus
 Er75_TRC2A concolor
-
-# romanicus:1
-# europaeus:1
-# concolor:1
+# romanicus:7
+# europaeus:7
+# concolor:3
 # hybrid:1
-# Hemiechinus:0
+# Hemiechinus:1
 # Atelerix:0
-

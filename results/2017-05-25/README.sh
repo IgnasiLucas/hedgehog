@@ -115,7 +115,7 @@ rm z1 z2
 # europaeus, 2 romanicus, and 1 concolor in the output. I get a reduction of the
 # vcf file size of about 50%.
 
-if [ ! -e hhog_min2each.vcf ]; then
-   gawk -f filtervcf.awk hhog.vcf > hhog_min2each.vcf
+if [ ! -e hhog_filtered.vcf ]; then
+   gawk -f filtervcf.awk hhog.vcf > hhog_filtered.vcf
 fi
 

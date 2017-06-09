@@ -84,3 +84,36 @@ for STEP in 1 2 3 4 5 6 7; do
       rm z1
    fi
 done
+
+# At the end of the run, ipyrad failed to produce vcf output. I'll try now again:
+
+if [ ! -e params-vcf.txt ]; then
+   ipyrad -p params-hhog.txt -b vcf
+   sed -i "/## \[27\]/c v                        ## [27] [output_formats]: Output formats (see docs)" params-vcf.txt
+fi
+if ipyrad -p params-vcf -r | grep "^step 7" | grep -q hhog; then
+   ipyrad -p params-vcf.txt -s 7
+fi
+
+# I also want to produce output files for loci covered in more samples, say at least
+# 5 europeus, 5 romanicus, and 1 concolor. This was determined at the end of the
+# populations file.
+
+if [ popmap_min5.txt ]; then
+   grep "^Er" popmap.txt > popmap_min5.txt
+   echo "# romanicus:5" >> popmap_min5.txt
+   echo "# europaeus:5" >> popmap_min5.txt
+   echo "# concolor:1"  >> popmap_min5.txt
+   echo "# hybrid:0"    >> popmap_min5.txt
+   echo "# Hemiechinus:0" >> popmap_min5.txt
+   echo "# Atelerix:0"  >> popmap_min5.txt
+fi
+
+if [ ! -e params-min5.txt ]; then
+   ipyrad -p params-hhog.txt -b min5
+   sed -i "/## \[28\]/c popmap_min5.txt               ## [28] [pop_assign_file]: Path to population assignment file" params-min5.txt
+fi
+
+if ipyrad -p params-min5.txt -r | grep "^step 7:" | grep -q hhog; then
+   ipyrad -p params-min5.txt -s 7
+fi
