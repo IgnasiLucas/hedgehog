@@ -1,0 +1,16 @@
+#NEXUS
+
+  Begin taxa;
+  Dimensions ntax=5;
+  Taxlabels
+    Atelerix_sp
+    Hemiechinus_sp
+    Erinaceus_romanicus
+    Erinaceus_europaeus
+    Erinaceus_concolor
+    ;
+  End;
+
+  Begin trees;
+    tree TREE1 = [&R] ((Atelerix_sp,Hemiechinus_sp),(Erinaceus_europaeus,(Erinaceus_romanicus,Erinaceus_concolor)));
+  End;
