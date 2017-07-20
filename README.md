@@ -85,7 +85,7 @@ is not doing a very good job at identifying variants.
 2016-11-24
 ==========
 
-The same conclusions than before are confirmed when including triallelic
+The same conclusions than before are confirmed when including combined
 variants in some statistics. The big picture is one of large genetic distance
 between populations, and little variation within a population. This seems
 to be the reason why little genetic structure is observed.
@@ -106,8 +106,8 @@ loci for not so many reads.
 
 Using freebayes to call variants, and vcftools to summarize them, we
 notice:
-   1. Several types of variants, including SNP, indels, MNP, complex
-      variants, and multiple combinations thereof when variable sites
-      include more than two alleles.
+   1. Several types of variants, including SNP, MNP, complex variants,
+      and multiple combinations thereof. The current freebayes settings
+      seem to have excluded indels.
    2. The vast majority of variable sites are fixed variants among
       populations, rather than variation segregating within populations.

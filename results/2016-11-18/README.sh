@@ -181,5 +181,11 @@ wait
 # are monomorfic for either allele. In population 2 (20 individuals), among the 376 SNPs
 # with complete data, ~47% are monomorfic for the either allele. In addition, we observe
 # a deficit of heterozygotes in more than 17% of sites in both populations (at 0.05
-# significance level).
+# significance level). There are also some sites with an excess of heterozygotes, but not
+# so many.
 #
+# Curiously, though, when looking at the individuals with enough data within each population,
+# the large majority of them have negative inbreeding coefficients, which indicate a lack
+# of homozygous sites, or an excess of heterozygosity. Unfortunately, it is difficult to make
+# sense of these counterintuitive results because they are based on a very limited number
+# of loci.
