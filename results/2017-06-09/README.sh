@@ -31,6 +31,7 @@ if [ ! -e popmap.txt ]; then
       SPECIES["concolor"]    = "Erinaceus_concolor"
       SPECIES["romanicus"]   = "Erinaceus_romanicus"
       SPECIES["europaeus"]   = "Erinaceus_europaeus"
+      SPECIES["hybrid"]      = ""
    }(/^Er/){
       print $1 "_0\t" SPECIES[$2] "\n" $1 "_1\t" SPECIES[$2]
    }' $POPMAP > popmap.txt
@@ -106,3 +107,4 @@ done
 # I find a limit of 8188 characters in the possible length of a command to define
 # a vector of loci names. There are other very good reasons to reduce the number of loci
 # analysed. Start thinking how to select the most informative sites.
+
