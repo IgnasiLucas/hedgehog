@@ -1,0 +1,6 @@
+set term png large
+set output 'SamplesWithData.png'
+set xlab 'Number of samples with data'
+set ylab 'Number of sites'
+plot 'SamplesWithData.txt' using 1:2 with lines title 'Before', '' using 1:3 with lines title 'Afterwards'
+quit
