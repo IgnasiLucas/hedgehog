@@ -218,18 +218,53 @@ fi
 # loci covered in only one or few individuals seem to include a disproportionate
 # amount of variable sites. This is an indication of spurious mapping of some
 # reads, probably due to low base qualities.
-#
-#                              First&Second	    Third	    Total
-# Total number of read pairs	   ---  	241866527	   ---
-# Demultiplexed             	319934047	220662575	540596622
-# Mapped                        227639522	149124470	376763992
-# Nuclear                   	
 
 SAMPLE=(Er26_JUG4 Er27_SK32 Er28_112   Er29_122  Er30_79    Er31_453  Er32_183   Er33_211  Er34_197  Er35_209
         Er36_SK24 Er37_SK27 Er38_LB1   Er39_PL1  Er40_M2    Er41_GR36 Er42_GR35  Er43_SL7  Er44_VOJ1 Er45_BLG3
         Er46_RMN7 Er47_CR4  Er48_BH16  Er49_GR38 Er50_R3    Er51_436  Er52_451   Er53_ASR7 Er54_AU1  Er55_AU7
         Er56_AZ5  Er57_COR4 Er58_FI7   Er59_FR1  Er60_GR5   Er61_GR87 Er62_GR95  Er63_IR6  Er64_IS1  Er65_IS25
         Er66_IT3  Er67_IT5  Er68_PRT1B Er69_R2   Er70_RMN42 Er71_SAR2 Er72_SIE1B Er73_SNG1 Er74_SP16 Er75_TRC2A)
+
+# I count the reads from each sample separately, to parallelize. Take care, it will use 50 threads.
+
+if [ ! -e readcounts.txt ]; then
+   for i in `seq 0 49`; do
+      if [ ! -e z_${SAMPLE[$i]} ]; then
+         ./count_reads.sh ${SAMPLE[$i]} > z_${SAMPLE[$i]} &
+      fi
+   done
+   wait
+   gawk -v OFS="\t" 'BEGIN{
+      print "# Sample: sample name"
+      print "# R1_2016:  Number of demultiplexed first reads in fastq files in 2016."
+      print "# R2_2016:  Number of demultiplexed second reads in fastq files in 2016."
+      print "# RL_2016:  Number of demultiplexed read pairs, according to Sabre log files in 2016."
+      print "# R1_2018:  Number of demultiplexed first reads in fastq files from 2018."
+      print "# R2_2018:  Number of demultiplexed second reads in fastq files from 2018."
+      print "# RL_2018:  Number of demultiplexed read pairs, according to Sabre log files in 2018."
+      print "# M1_2016:  Number of first reads mapped in bam files from 2016."
+      print "# ML_2016:  Number of read pairs mapped, according to bowtie2 log files, in 2016."
+      print "# M1_2018:  Number of first reads mapped in bam files from 2018."
+      print "# ML_2018:  Number of read pairs mapped, according to bowtie2 log files, in 2018."
+      print "# MM_2018:  Number of first reads mapped in merged bam files."
+      print "# MS_2018:  Number of first reads mapped in merged and sorted bam files."
+      print "# MN_2018:  Number of first reads mapped to nuclear contigs in merged and sorted bam files."
+      print "Sample\tR1_2016\tR2_2016\tRL_2016\tR1_2018\tR2_2018\tRL_2018\tM1_2016\tML_2016\tM1_2018\tML_2018\tMM_2018\tMS_2018\tMN_2018"
+   }{
+      R1_2016 += $2;  R2_2016 += $3; RL_2016 += $4
+      R1_2018 += $5;  R2_2018 += $6; RL_2018 += $7
+      M1_2016 += $8;  ML_2016 += $9
+      M1_2018 += $10; ML_2018 += $11
+      MM_2018 += $12; MS_2018 += $13; MN_2018 += $14
+      print $0
+   }END{
+      print "Total\t" R1_2016 "\t" R2_2016 "\t" RL_2016 "\t" \
+                      R1_2018 "\t" R2_2018 "\t" RL_2018 "\t" \
+                      M1_2016 "\t" ML_2016 "\t" M1_2018 "\t" ML_2018 "\t" \
+                      MM_2018 "\t" MS_2018 "\t" MN_2018
+   }' z_* > readcounts.txt
+   rm z_*
+fi
 
 for i in `seq 0 24`; do
    if [ ! -e ${SAMPLE[$i]}.bed ]; then
@@ -258,9 +293,9 @@ if [ ! -e coverage.png ]; then
    R --no-save < plot_coverage.R
 fi
 
-#if [ ! -e pooled_filtered.bed ]; then
-#   gawk '(($4 >= 100) && ($4 <= 750)){print $1 "\t" $2 "\t" $3 "\t" $4}' pooled.bed > pooled_filtered.bed
-#fi
+if [ ! -e pooled_filtered.bed ]; then
+   gawk '(($4 >= 200) && ($4 <= 1000)){print $1 "\t" $2 "\t" $3 "\t" $4}' pooled.bed > pooled_filtered.bed
+fi
 
 # I tried unionbedg, which generates a matrix comparing coverage among the files.
 # However, it splits each record as many times as necessary to distinguish the pieces
@@ -295,7 +330,7 @@ if [ ! -e coverage_matrix.txt ]; then
    bedtools intersect -a pooled_filtered.bed -b `printf "%s.bed " "${SAMPLE[@]}"` -names "${SAMPLE[@]}" -sorted -wo | \
    gawk -v HEADER="$HEADER" 'function printline(POS, COV){
          print POS "\t" COV["Er26_JUG4"]  + 0 "\t" COV["Er27_SK32"] + 0 "\t" COV["Er28_112"]   + 0 "\t" COV["Er29_122"]  + 0 "\t" COV["Er30_79"]    + 0 "\t" COV["Er31_453"]   + 0 "\t" \
-                        COV["Er32_183"]   + 0 "\t" COV["Er33_211"]  + 0 "\t" COV["Er34_197"]   + 0 "\t" COV["Er35_209"]  + 0 "\t" COV["Er36_SK24"]  + 0 "\t" COV["Er37_SK272"] + 0 "\t" \
+                        COV["Er32_183"]   + 0 "\t" COV["Er33_211"]  + 0 "\t" COV["Er34_197"]   + 0 "\t" COV["Er35_209"]  + 0 "\t" COV["Er36_SK24"]  + 0 "\t" COV["Er37_SK27"] + 0 "\t" \
                         COV["Er38_LB1"]   + 0 "\t" COV["Er39_PL1"]  + 0 "\t" COV["Er40_M2"]    + 0 "\t" COV["Er41_GR36"] + 0 "\t" COV["Er42_GR35"]  + 0 "\t" COV["Er43_SL7"]   + 0 "\t" \
                         COV["Er44_VOJ1"]  + 0 "\t" COV["Er45_BLG3"] + 0 "\t" COV["Er46_RMN7"]  + 0 "\t" COV["Er47_CR4"]  + 0 "\t" COV["Er48_BH16"]  + 0 "\t" COV["Er49_GR38"]  + 0 "\t" \
                         COV["Er50_R3"]    + 0 "\t" COV["Er51_436"]  + 0 "\t" COV["Er52_451"]   + 0 "\t" COV["Er53_ASR7"] + 0 "\t" COV["Er54_AU1"]   + 0 "\t" COV["Er55_AU7"]   + 0 "\t" \
