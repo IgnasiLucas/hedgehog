@@ -12,7 +12,7 @@
 # The freq.py script parses a matrix of genotypes and outputs the derived
 # allele frequencies for a set of sites, in each of three populations. The
 # fourth population is the outgroup, which must be fixed for the ancestral
-# population.
+# allele.
 #
 # The use of population-specific allele frequencies to run the abba/baba test
 # is convenient for an optimal use of the data, because it allows us to use
@@ -44,40 +44,59 @@
 # For the moment, I will focus on getting a vcf file and the associated frequency
 # file.
 
+# This is the path to Simon Martin's scripts:
 GENOMICS_GENERAL=~/bin/genomics_general
+LASTDIR=`pwd | sed 's/2018-03-27b/2018-03-27/'`
 
 if [ ! -d estimation ]; then mkdir estimation; fi
 if [ ! -e estimation/variances.png ]; then
    R --save < simulate.R 1> estimation/log 2> estimation/err &
 fi
 
+# I start from the vcf file obtained with freebayes.
 VCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 
 if [ ! -e popmap.txt ]; then
    cp ../2017-05-25/populations.txt ./popmap.txt
 fi
 
+# From the analysis of coverage in the bam files that I did with bedtools on
+# 2018-03-27, I can determine what regions receive either too much or too litle
+# coverage, likely corresponding with regions of repetitive DNA and spurious
+# mapping. They should be excluded from the vcf file.
+
 if [ ! -e thinned.recode.vcf ]; then
-   if [ ! -e filtered.vcf ]; then
-      if [ ! -e flagged.vcf ]; then
-         gunzip -c $VCF > z1.vcf
-         gawk -f add_flag.awk z1.vcf > flagged.vcf
+   if [ ! -e goodregions.bed ]; then
+      if [ -e $LASTDIR/pooled_filtered.bed ]; then
+         echo "track name=\"bamcoverage\" description=\"Fragments covered between 200 and 1000 times among all 50 samples\"" > goodregions.bed
+         cat $LASTDIR/pooled_filtered.bed >> goodregions.bed
+      else
+         echo "File $LASTDIR/pooled_filtered.bed not found."
+         exit
       fi
-      rm z1.vcf
-      gawk -v MINQ=50 -f filtervcf.awk popmap.txt flagged.vcf > filtered.vcf
    fi
-   rm flagged.vcf
-   vcftools --vcf filtered.vcf \
+
+   if [ ! -e flagged.vcf ]; then
+      gunzip -c $VCF > z1.vcf
+      gawk -f add_flag.awk z1.vcf > flagged.vcf
+      rm z1.vcf
+   fi
+
+   vcftools --vcf flagged.vcf \
             --out thinned \
-            --thin 200 \
+            --bed goodregions.bed \
+            --minQ 50.0 \
+            --thin 261 \
             --recode \
             --recode-INFO NS \
             --recode-INFO AN \
             --recode-INFO AF \
             --recode-INFO ABP \
             --recode-INFO BPF
+
+   rm flagged.vcf
+   rm goodregions.bed
 fi
-rm filtered.vcf
 
 # Now, before writing my own script to generate the derived allele frequencies,
 # I will try to apply Simon Martin's pipeline to the thinned.recode.vcf file.
@@ -102,11 +121,13 @@ fi
 
 # I think my script is quite faster, although it can use only one thread. The MINX
 # parameters below set the minimum number of individuals required per population.
-# Populations 1 to 3 are E. romanicus, E. europaeus, and E. concolor. The outgroup
+# Actually, this is the main advantage with respect to Simon Martin's freq.py.
+# Populations 1 to 3 are E. romanicus, E. concolor, and E. europaeus. The outgroup
 # is Hemiechinus. This is defined in the script itself.
 
 if [ ! -e all2.tsv ]; then
-   gawk -v MIN1=5 -v MIN2=5 -v MIN3=4 -v MINOUT=1 -f freq.awk popmap.txt thinned.recode.vcf > all2.tsv
+   #POP1=romanicus, POP2=concolor, POP3=europaeus
+   gawk -v MIN1=1 -v MIN2=1 -v MIN3=1 -v MINOUT=1 -f freq.awk popmap.txt thinned.recode.vcf > all2.tsv
 fi
 
 # I do not reproduce here a manual check: transforming the tsv files to bed files,
@@ -123,3 +144,15 @@ fi
 # the estimate. Even if the standard error of the estimated allele frequency is higher
 # than it would be under high coverage, adding one read from one individual actually
 # lowers the standard error, with respect to the exclusion of that individual.
+#
+# The really important filter is the minimum number of individuals with data per site.
+# Simon Martin's script is not very flexible, and allows only to specify a maximum
+# proportion of missing data, common to all populations. Our populations have different
+# numbers of individuals: 24, 5, and 16. I have checked that the sites with as a
+# complete dataset as possible show evidence of negative D (shared derived allele
+# between romanicus and europaeus). But the estimate becomes noisy and sometimes
+# positive among sites with very unbalanced or incomplete data.
+#
+# To note: according to our only outgroup individual, the ancestral allele is slightly
+# more often the alternative (199549 sites) then the reference (184568) allele. This
+# seems reasonable, since the reference sequence belongs to Erinaceus, the ingroup.

@@ -34,8 +34,8 @@ function countbits(bits,    data){
 BEGIN{
    if (OUTGROUP == "") OUTGROUP = "Hemiechinus"
    if (P1 == "") P1 = "romanicus"
-   if (P2 == "") P2 = "europaeus"
-   if (P3 == "") P3 = "concolor"
+   if (P2 == "") P2 = "concolor"
+   if (P3 == "") P3 = "europaeus"
    if (MIN1 == "") MIN1 = 3
    if (MIN2 == "") MIN2 = 3
    if (MIN3 == "") MIN3 = 3
@@ -43,14 +43,14 @@ BEGIN{
    POPLIST[P1] = 1
    POPLIST[P2] = 1
    POPLIST[P3] = 1
-}(FILENAME == "popmap.txt"){
+}(FILENAME ~ /popmap/){
    POPULATION[$1] = $2
-}(/^#CHROM/){
-   print "scaffold\tposition\t" P1 "\t" P2 "\t" P3 "\t" OUTGROUP
+}((FILENAME ~ /vcf$/) && (/^#CHROM/)){
+   print "scaffold\tposition\t" P1 "\t" P2 "\t" P3 "\t" OUTGROUP "\tN1\tN2\tN3"
    for (i = 0; i <= (NF - 10); i++) {
       BINARY_MASK[POPULATION[$(i + 10)]] += 2^i
    }
-}((FILENAME != "popmap.txt") && (/^[^#]/)){
+}((FILENAME ~ /vcf$/) && (/^[^#]/)){
    split($8, INFO, /;/)
    for (i in INFO) {
       if (INFO[i] ~ /^BPF=/){
@@ -66,12 +66,15 @@ BEGIN{
          NAA[pop] = countbits(AA[pop])
          NBB[pop] = countbits(BB[pop])
          NAB[pop] = countbits(AB[pop])
-         FREQ[pop] = (2 * NBB[pop] + NAB[pop]) / (2 * (NAA[pop] + NAB[pop] + NBB[pop]))
+         N[pop] = NAA[pop] + NAB[pop] + NBB[pop]
+         if (N[pop] > 0) {
+            FREQ[pop] = (2 * NBB[pop] + NAB[pop]) / (2 * N[pop])
+         } else {
+            FREQ[pop] = "NA"
+         }
       }
-      if (((NAA[P1] + NAB[P1] + NBB[P1]) >= MIN1) && \
-          ((NAA[P2] + NAB[P2] + NBB[P2]) >= MIN2) && \
-          ((NAA[P3] + NAB[P3] + NBB[P3]) >= MIN3)) {
-         printf "%s\t%u\t%.4f\t%.4f\t%.4f\t%.4f\n", $1, $2, FREQ[P1], FREQ[P2], FREQ[P3], 0
+      if ((N[P1] >= MIN1) && (N[P2] >= MIN2) && (N[P3] >= MIN3)) {
+         printf "%s\t%u\t%.4f\t%.4f\t%.4f\t%.4f\t%u\t%u\t%u\n", $1, $2, FREQ[P1], FREQ[P2], FREQ[P3], 0, N[P1], N[P2], N[P3]
       }
 
    } else {
@@ -84,12 +87,15 @@ BEGIN{
             NAA[pop] = countbits(AA[pop])
             NAB[pop] = countbits(AB[pop])
             NBB[pop] = countbits(BB[pop])
-            FREQ[pop] = (2 * NBB[pop] + NAB[pop]) / (2 * (NAA[pop] + NAB[pop] + NBB[pop]))
+            N[pop] = NAA[pop] + NAB[pop] + NBB[pop]
+            if (N[pop] > 0) {
+               FREQ[pop] = (2 * NBB[pop] + NAB[pop]) / (2 * N[pop])
+            } else {
+               FREQ[pop] = "NA"
+            }
          }
-         if (((NAA[P1] + NAB[P1] + NBB[P1]) > MIN1) && \
-             ((NAA[P2] + NAB[P2] + NBB[P2]) > MIN2) && \
-             ((NAA[P3] + NAB[P3] + NBB[P3]) > MIN3)) {
-            printf "%s\t%u\t%.4f\t%.4f\t%.4f\t%.4f\n", $1, $2, FREQ[P1], FREQ[P2], FREQ[P3], 0
+         if ((N[P1] >= MIN1) && (N[P2] >= MIN2) && (N[P3] >= MIN3)) {
+            printf "%s\t%u\t%.4f\t%.4f\t%.4f\t%.4f\t%u\t%u\t%u\n", $1, $2, FREQ[P1], FREQ[P2], FREQ[P3], 0, N[P1], N[P2], N[P3]
          }
       }
    }

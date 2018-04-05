@@ -31,7 +31,7 @@ Er55_AU7 romanicus
 Er56_AZ5 europaeus
 Er57_COR4 europaeus
 Er58_FI7 europaeus
-Er59_FR1 europaeus
+Er59_FR1 wrong	europaeus
 Er60_GR5 romanicus
 Er61_GR87 romanicus
 Er62_GR95 romanicus
@@ -40,7 +40,7 @@ Er64_IS1 concolor
 Er65_IS25 Hemiechinus
 Er66_IT3 romanicus
 Er67_IT5 europaeus
-Er68_PRT1B europaeus
+Er68_PRT1B wrong	europaeus
 Er69_R2 romanicus
 Er70_RMN42 romanicus
 Er71_SAR2 europaeus
