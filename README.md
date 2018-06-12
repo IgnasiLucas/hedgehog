@@ -5,9 +5,8 @@ Preparation of a vcf file for abba/baba test. I want to optimize
 the selection of sites so that there is enough data to perform the
 abba/baba test. The strategy is not to rely on the general filters
 available in vcftools, but to select sites with data for: the Hemichinus
-sample (required for the test), at least 5 E. romanicus, at least 5 E.
-europaeus, and 2 concolor. Afterwards, sites may have to be thinned out
-to avoid linked SNPs.
+sample (required for the test), and for any number of individuals from
+the other three populations.
 
 2018-03-27
 ==========
@@ -17,14 +16,6 @@ re-run the alignments and ipyrad analysis. Kristýna has already
 updated a vcf file. Here I just want to compare the new vcf file
 to the old one, to evaluate how much more complete the data matrix
 is after sequencing more.
-
-I did not produce summary files or plots. But the comparison data
-is available in the file comparison.txt. For 725790 variable sites,
-it specifies the variant quality and the number of samples with data
-in sites where the Hemichinus sample was originally covered, both
-before and after the addition of the last batch of sequence data.
-The effect is very noticeable.
-
 
 2017-06-09
 ==========

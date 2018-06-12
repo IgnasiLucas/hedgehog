@@ -33,9 +33,7 @@ fi
 # and the quality of the variant was at least 50.
 
 HEMICHINUS_POSITION_BEFORE=$( head -n 6000 $BEFORE | gawk '(/^#CHROM/){for (i = 0; i <= NF - 10; i++) {if ($(i + 10) == "Er65_IS25") print i}}' )
-echo "Hemichinus is sample number $HEMICHINUS_POSITION_BEFORE"
 HEMICHINUS_FLAG=$( echo "2 ^ $HEMICHINUS_POSITION_BEFORE" | bc )
-echo "The corresponding binary number is $HEMICHINUS_FLAG"
 
 if [ ! -e comparison.txt ]; then
    if [ ! -e hemichinus_sites.txt ]; then
@@ -149,6 +147,7 @@ if [ ! -e comparison.txt ]; then
    rm z1 z2
 fi
 
+if [ -e beforeafter.diff.sites_in_files ]; then rm beforeafter.diff.sites_in_files; fi
 if [ -e common_before.recode.vcf ]; then rm common_before.recode.vcf; fi
 if [ -e common_after.recode.vcf ];  then rm common_after.recode.vcf;  fi
 
@@ -266,35 +265,37 @@ if [ ! -e readcounts.txt ]; then
    rm z_*
 fi
 
-for i in `seq 0 24`; do
-   if [ ! -e ${SAMPLE[$i]}.bed ]; then
-      samtools view -f 64 -F 260 -b -u $AFTERBAM/${SAMPLE[$i]}'_msnc.bam' | bedtools merge -d 10 -c 3 -o count -i stdin > ${SAMPLE[$i]}.bed &
-   fi
-done
-wait
-for i in `seq 25 49`; do
-   if [ ! -e ${SAMPLE[$i]}.bed ]; then
-      samtools view -f 64 -F 260 -b -u $AFTERBAM/${SAMPLE[$i]}'_msnc.bam' | bedtools merge -d 10 -c 3 -o count -i stdin > ${SAMPLE[$i]}.bed &
-   fi
-done
-wait
-
-if [ ! -e pooled.bed ]; then
-   samtools merge -u - $AFTERBAM/*_msnc.bam | samtools view -f 64 -F 260 -bu - | bedtools merge -d 10 -c 3 -o count -i stdin > pooled.bed
-fi
-
-# Once I have the set of loci ever covered by a sample, I notice the distribution
-# of coverage quite irregular. I want to plot it.
-if [ ! -e coverage.png ]; then
-   if [ ! -e coverage.txt ]; then
-      gawk '{F[$4]++}END{for (f in F) print f "\t" F[f]}' pooled.bed | sort -nk 1 | \
-      gawk 'BEGIN{print "Coverage\tFrequency\tReads"}{S += $1 * $2; print $1 "\t" $2 "\t" S}' > coverage.txt
-   fi
-   R --no-save < plot_coverage.R
-fi
-
 if [ ! -e pooled_filtered.bed ]; then
+   if [ ! -e pooled.bed ]; then
+      for i in `seq 0 24`; do
+         if [ ! -e ${SAMPLE[$i]}.bed ]; then
+            samtools view -f 64 -F 260 -b -u $AFTERBAM/${SAMPLE[$i]}'_msnc.bam' | bedtools merge -d 10 -c 3 -o count -i stdin > ${SAMPLE[$i]}.bed &
+         fi
+      done
+      wait
+      for i in `seq 25 49`; do
+         if [ ! -e ${SAMPLE[$i]}.bed ]; then
+            samtools view -f 64 -F 260 -b -u $AFTERBAM/${SAMPLE[$i]}'_msnc.bam' | bedtools merge -d 10 -c 3 -o count -i stdin > ${SAMPLE[$i]}.bed &
+         fi
+      done
+      wait
+
+      samtools merge -u - $AFTERBAM/*_msnc.bam | samtools view -f 64 -F 260 -bu - | bedtools merge -d 10 -c 3 -o count -i stdin > pooled.bed
+      rm Er*.bed
+   fi
+
+   # Once I have the set of loci ever covered by a sample, I notice the distribution
+   # of coverage quite irregular. I want to plot it.
+   if [ ! -e coverage.png ]; then
+      if [ ! -e coverage.txt ]; then
+         gawk '{F[$4]++}END{for (f in F) print f "\t" F[f]}' pooled.bed | sort -nk 1 | \
+         gawk 'BEGIN{print "Coverage\tFrequency\tReads"}{S += $1 * $2; print $1 "\t" $2 "\t" S}' > coverage.txt
+      fi
+      R --no-save < plot_coverage.R
+   fi
+
    gawk '(($4 >= 200) && ($4 <= 1000)){print $1 "\t" $2 "\t" $3 "\t" $4}' pooled.bed > pooled_filtered.bed
+   if [ -e pooled.bed ]; then rm pooled.bed; fi
 fi
 
 # I tried unionbedg, which generates a matrix comparing coverage among the files.
@@ -325,54 +326,58 @@ fi
 # number of reads that had been merged by the proportion of the length originally spanned by
 # those reads that actually overlap: $9 * $10 / ($8 - $7).
 
-if [ ! -e coverage_matrix.txt ]; then
-   HEADER="#CHR\tSTART\tEND"`printf "\t%s" "${SAMPLE[@]}"`
-   bedtools intersect -a pooled_filtered.bed -b `printf "%s.bed " "${SAMPLE[@]}"` -names "${SAMPLE[@]}" -sorted -wo | \
-   gawk -v HEADER="$HEADER" 'function printline(POS, COV){
-         print POS "\t" COV["Er26_JUG4"]  + 0 "\t" COV["Er27_SK32"] + 0 "\t" COV["Er28_112"]   + 0 "\t" COV["Er29_122"]  + 0 "\t" COV["Er30_79"]    + 0 "\t" COV["Er31_453"]   + 0 "\t" \
-                        COV["Er32_183"]   + 0 "\t" COV["Er33_211"]  + 0 "\t" COV["Er34_197"]   + 0 "\t" COV["Er35_209"]  + 0 "\t" COV["Er36_SK24"]  + 0 "\t" COV["Er37_SK27"] + 0 "\t" \
-                        COV["Er38_LB1"]   + 0 "\t" COV["Er39_PL1"]  + 0 "\t" COV["Er40_M2"]    + 0 "\t" COV["Er41_GR36"] + 0 "\t" COV["Er42_GR35"]  + 0 "\t" COV["Er43_SL7"]   + 0 "\t" \
-                        COV["Er44_VOJ1"]  + 0 "\t" COV["Er45_BLG3"] + 0 "\t" COV["Er46_RMN7"]  + 0 "\t" COV["Er47_CR4"]  + 0 "\t" COV["Er48_BH16"]  + 0 "\t" COV["Er49_GR38"]  + 0 "\t" \
-                        COV["Er50_R3"]    + 0 "\t" COV["Er51_436"]  + 0 "\t" COV["Er52_451"]   + 0 "\t" COV["Er53_ASR7"] + 0 "\t" COV["Er54_AU1"]   + 0 "\t" COV["Er55_AU7"]   + 0 "\t" \
-                        COV["Er56_AZ5"]   + 0 "\t" COV["Er57_COR4"] + 0 "\t" COV["Er58_FI7"]   + 0 "\t" COV["Er59_FR1"]  + 0 "\t" COV["Er60_GR5"]   + 0 "\t" COV["Er61_GR87"]  + 0 "\t" \
-                        COV["Er62_GR95"]  + 0 "\t" COV["Er63_IR6"]  + 0 "\t" COV["Er64_IS1"]   + 0 "\t" COV["Er65_IS25"] + 0 "\t" COV["Er66_IT3"]   + 0 "\t" COV["Er67_IT5"]   + 0 "\t" \
-                        COV["Er68_PRT1B"] + 0 "\t" COV["Er69_R2"]   + 0 "\t" COV["Er70_RMN42"] + 0 "\t" COV["Er71_SAR2"] + 0 "\t" COV["Er72_SIE1B"] + 0 "\t" COV["Er73_SNG1"]  + 0 "\t" \
-                        COV["Er74_SP16"]  + 0 "\t" COV["Er75_TRC2A"] + 0
-   }BEGIN{
-      print HEADER
-   }(NR == 1){
-      POS = $1 "\t" $2 "\t" $3
-   }($1 "\t" $2 "\t" $3 != POS){
-      printline(POS,COV)
-      delete COV
-      POS = $1 "\t" $2 "\t" $3
-      COV[$5] = $9 * $10 / ($8 - $7)
-   }($1 "\t" $2 "\t" $3 == POS){
-      COV[$5] = $9 * $10 / ($8 - $7)
-   }END{
-      printline(POS,COV)
-   }' > coverage_matrix.txt
+if [ ! -e summary_coverage_min10.txt ]; then
+   if [ ! -e coverage_matrix.txt ]; then
+      HEADER="#CHR\tSTART\tEND"`printf "\t%s" "${SAMPLE[@]}"`
+      bedtools intersect -a pooled_filtered.bed -b `printf "%s.bed " "${SAMPLE[@]}"` -names "${SAMPLE[@]}" -sorted -wo | \
+      gawk -v HEADER="$HEADER" 'function printline(POS, COV){
+            print POS "\t" COV["Er26_JUG4"]  + 0 "\t" COV["Er27_SK32"] + 0 "\t" COV["Er28_112"]   + 0 "\t" COV["Er29_122"]  + 0 "\t" COV["Er30_79"]    + 0 "\t" COV["Er31_453"]   + 0 "\t" \
+                           COV["Er32_183"]   + 0 "\t" COV["Er33_211"]  + 0 "\t" COV["Er34_197"]   + 0 "\t" COV["Er35_209"]  + 0 "\t" COV["Er36_SK24"]  + 0 "\t" COV["Er37_SK27"] + 0 "\t" \
+                           COV["Er38_LB1"]   + 0 "\t" COV["Er39_PL1"]  + 0 "\t" COV["Er40_M2"]    + 0 "\t" COV["Er41_GR36"] + 0 "\t" COV["Er42_GR35"]  + 0 "\t" COV["Er43_SL7"]   + 0 "\t" \
+                           COV["Er44_VOJ1"]  + 0 "\t" COV["Er45_BLG3"] + 0 "\t" COV["Er46_RMN7"]  + 0 "\t" COV["Er47_CR4"]  + 0 "\t" COV["Er48_BH16"]  + 0 "\t" COV["Er49_GR38"]  + 0 "\t" \
+                           COV["Er50_R3"]    + 0 "\t" COV["Er51_436"]  + 0 "\t" COV["Er52_451"]   + 0 "\t" COV["Er53_ASR7"] + 0 "\t" COV["Er54_AU1"]   + 0 "\t" COV["Er55_AU7"]   + 0 "\t" \
+                           COV["Er56_AZ5"]   + 0 "\t" COV["Er57_COR4"] + 0 "\t" COV["Er58_FI7"]   + 0 "\t" COV["Er59_FR1"]  + 0 "\t" COV["Er60_GR5"]   + 0 "\t" COV["Er61_GR87"]  + 0 "\t" \
+                           COV["Er62_GR95"]  + 0 "\t" COV["Er63_IR6"]  + 0 "\t" COV["Er64_IS1"]   + 0 "\t" COV["Er65_IS25"] + 0 "\t" COV["Er66_IT3"]   + 0 "\t" COV["Er67_IT5"]   + 0 "\t" \
+                           COV["Er68_PRT1B"] + 0 "\t" COV["Er69_R2"]   + 0 "\t" COV["Er70_RMN42"] + 0 "\t" COV["Er71_SAR2"] + 0 "\t" COV["Er72_SIE1B"] + 0 "\t" COV["Er73_SNG1"]  + 0 "\t" \
+                           COV["Er74_SP16"]  + 0 "\t" COV["Er75_TRC2A"] + 0
+      }BEGIN{
+         print HEADER
+      }(NR == 1){
+         POS = $1 "\t" $2 "\t" $3
+      }($1 "\t" $2 "\t" $3 != POS){
+         printline(POS,COV)
+         delete COV
+         POS = $1 "\t" $2 "\t" $3
+         COV[$5] = $9 * $10 / ($8 - $7)
+      }($1 "\t" $2 "\t" $3 == POS){
+         COV[$5] = $9 * $10 / ($8 - $7)
+      }END{
+         printline(POS,COV)
+      }' > coverage_matrix.txt
+   fi
+
+  # The coverage_matrix.txt file is 95MB, which is kind of too big. I will summarize
+   # it below, counting on each site how many samples cover it with at least 1, 2... or
+   # 10 reads:
+   for i in 1 2 3 4 5 6 7 8 9 10 ; do
+      if [ ! -e summary_coverage_min$i.txt ]; then
+         gawk -v MIN=$i '(NR > 1){
+            N=0
+            for (i=4;i<=NF;i++) {
+               if ($i >= (MIN + 0)) N++
+            }
+            F[N]++
+         }END{
+            for (f in F) print f "\t" F[f]
+         }' coverage_matrix.txt | sort -nrk 1 | gawk 'BEGIN{
+            print "#Num.Samples\tNum.Sites\tAccumulated"
+            ACCUMULATED = 0
+         }{
+            ACCUMULATED += $2
+            print $1 "\t" $2 "\t" ACCUMULATED
+         }' > summary_coverage_min$i.txt
+      fi
+   done
 fi
 
-# The coverage_matrix.txt file is 95MB, which is kind of too big. I will summarize
-# it below, counting on each site how many samples cover it with at least 1, 2... or
-# 10 reads:
-for i in 1 2 3 4 5 6 7 8 9 10 ; do
-   if [ ! -e summary_coverage_min$i.txt ]; then
-      gawk -v MIN=$i '(NR > 1){
-         N=0
-         for (i=4;i<=NF;i++) {
-            if ($i >= (MIN + 0)) N++
-         }
-         F[N]++
-      }END{
-         for (f in F) print f "\t" F[f]
-      }' coverage_matrix.txt | sort -nrk 1 | gawk 'BEGIN{
-         print "#Num.Samples\tNum.Sites\tAccumulated"
-         ACCUMULATED = 0
-      }{
-         ACCUMULATED += $2
-         print $1 "\t" $2 "\t" ACCUMULATED
-      }'> summary_coverage_min$i.txt
-   fi
-done
+if [ -e coverage_matrix.txt ]; then rm coverage_matrix.txt; fi
