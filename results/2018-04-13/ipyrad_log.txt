@@ -1,0 +1,467 @@
+
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': '1', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': '1', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': '2', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': '2', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:41
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:42
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:42
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:42
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': '1', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:42
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': '1', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:47
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:47
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:47
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': '2', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 16:47
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 25, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': '2', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': ['both', 'params-hhog2016.txt', 'params-hhog2018.txt'], 'ipcluster': None, 'cores': 0, 'params': None, 'branch': None, 'steps': '', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:03
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '3', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:07
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-18 17:12
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 06:02
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 06:02
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '4', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 06:30
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 06:30
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '5', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 08:36
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 08:52
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 08:53
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '6', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 09:48
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 09:52
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-19 10:18
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-24 15:28
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-04-24 15:28
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '7', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 19:52
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': ['both', 'params-hhog2016.txt', 'params-hhog2018.txt'], 'ipcluster': None, 'cores': 0, 'params': None, 'branch': None, 'steps': '', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:01
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '7', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')2018-05-15 20:02:00,583 	pid=5692 	[assembly.py]	ERROR 	IPyradWarningExit:     Output files already created for this Assembly in:
+    /data/joiglu/hedgehog/results/2018-04-13/both_outfiles
+    To overwrite, rerun using the force argument. 
+    
+
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:05
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:05
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2016.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-hhog2018.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': ['both', 'params-hhog2016.txt', 'params-hhog2018.txt'], 'ipcluster': None, 'cores': 0, 'params': None, 'branch': None, 'steps': '', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': True, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-both.txt', 'branch': None, 'steps': None, 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.23]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2018-05-15 20:06
+  Using args {'preview': False, 'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 24, 'params': 'params-both.txt', 'branch': None, 'steps': '7', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Linux', 'pascual-RS920-E7-RS8', '3.16.0-77-generic', '#99~14.04.1-Ubuntu SMP Tue Jun 28 19:17:10 UTC 2016', 'x86_64')
