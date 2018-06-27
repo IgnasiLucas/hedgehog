@@ -156,3 +156,14 @@ fi
 # To note: according to our only outgroup individual, the ancestral allele is slightly
 # more often the alternative (199549 sites) then the reference (184568) allele. This
 # seems reasonable, since the reference sequence belongs to Erinaceus, the ingroup.
+#
+# Kristyna noticed that the estimate of the D statistic is higher when using all1.tsv,
+# which includes fewer loci. Below, I generate several tsv files with different minimum
+# number of individuals per population, to see what's going on.
+
+for i in 1 2 3 4 5; do
+   if [ ! -e all_min$i.tsv ]; then
+      #POP1=romanicus, POP2=concolor, POP3=europaeus
+      gawk -v MIN1=$i -v MIN2=$i -v MIN3=$i -v MINOUT=1 -f freq.awk popmap.txt thinned.recode.vcf > all_min$i.tsv
+   fi
+done
