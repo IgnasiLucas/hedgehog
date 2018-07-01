@@ -25,19 +25,69 @@
 #
 # There is a file already available, with extension "012" and created by
 # vcftools, where genotypes have been translated into counts of the major
-# allele. That is the data. Equation 2 in Alexander et al. (2009) gives the
-# loglikelihood function. The likelihood of genotype g at one locus and
-# one individual is:
+# allele. That is the data.
 #
-#                         2!
-# L(Q,P) = P(g|Q,P) = ---------- · [SUM q_k · p_k]^g · [SUM q_k · (1 - p_k)]^(2-g)
-#                      g!(2-g)!      k                   k
+# I am interested in the probability of each ancestry at each locus. Note
+# that chromosomes may have different ancestries. Thus, I could estimate
+# either the probability of ancestry k contributing to either copy of the
+# locus, or the expected number of copies (between 0 and 2) contributed
+# by the ancestry.
 #
-# That is, the probability of finding g major alleles in a genotype equals
-# the binomial probability of g successes out of 2, when the probability
-# of an individual success is the probability of inheriting one such allele
-# from any ancestry.
+# Let's divide genotype g in homologous copies g0 and g1, each one being
+# either the major or the minor allele. The probability of g0 coming from
+# ancestry k is:
 #
-# I am interested in the probability of a specific ancestry
-# in each locus, given the data and the major allele frequency in each ancestry,
-# P.
+#               P(g0 | k0) · P(k0)
+# P(k0 | g0) = --------------------
+#                     P(g0)
+#
+# Where P(g0 | k0) is the frequency of allele g0 in ancestral population k,
+# P(k0) is just the estimated contribution of k to the current individual,
+# and P(g0) is the total probability of allele g0, across the K ancestries.
+#
+# The expected number of locus copies contributed by ancestry k would be
+# P(k0 | g0) + P(k1 | g1). Otherwise, the overall probability that ancestry
+# k contributed at least one allele to the genotype would be:
+#
+# P(k0 | g0) · P(not k1 | g1) + P(not k0 | g0) · P(k1 | g1) + P(k0 | g0) · P(k1 | g1)
+#
+# All of these can be calculated once I calculate the P(k0 | g0) and P(k1 | g1)
+# for each k. For K=4, that is 8 probabilities per locus. For this I need
+# The genotypes, the P and the Q matrices. While this could be done in R, I
+# believe python will be better. The result should be a file like the P matrix,
+# with as many lines as loci, with 2K columns for the alelle-specific ancestry
+# probabilities, K columns for the expected number of alleles contributed by
+# each ancestry, K columns for the probability of at least one allele contributed
+# by each ancestry, and any additional columns. For example, the log odds
+# between each ancestry and the next best one would make K additional columns
+# useful for graphical representations. I will include contig and position.
+# And all these, for each individual.
+
+# I took the following files from Kristyna's folder 05-06-2018, with minor
+# modifications of names or format. K4.p and K4.Q are Admixture's output.
+# genotypes.012 was named out.012. The SampleNames.txt is the first
+# column of erinaceus.ped, and positions.txt is the second column of
+# erinaceus.map (with ":" substituted by tab):
+for file in K4.P K4.Q genotypes.012 SampleNames.txt positions.txt; do
+   if [ ! -e $file ]; then
+      echo "File $file not found."
+      exit
+   fi
+done
+
+for ind in `cat SampleNames.txt`; do
+   if [ ! -e $ind.out ]; then
+      python AncestryProfile.py -i $ind \
+                                -I SampleNames.txt \
+                                -k 4 \
+                                -p K4.P \
+                                -q K4.Q \
+                                -g genotypes.012 \
+                                -m positions.txt \
+                                -o $ind.out
+   fi
+done
+
+# I expect the alternative ancestries of a hybrid individual to be well
+# separated in alternative blocks along the contigs. However, it does not
+# need to be the case.
