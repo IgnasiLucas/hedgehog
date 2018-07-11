@@ -62,23 +62,55 @@
 # between each ancestry and the next best one would make K additional columns
 # useful for graphical representations. I will include contig and position.
 # And all these, for each individual.
-
+#
+# When the observed allele frequency is 0.5, I don't know which allele's frequency
+# Admixture reports. This is like not knowing what the genotype is, out of two
+# options. I could calculate the two sets of posterior ancestry probabilities
+# corresponding to the two possible genotypes, and then choose the genotype that
+# makes the most likely overall ancestry of that individual (according to Admixture)
+# also the most probable one a posteriori in that particular site.
+#
 # I took the following files from Kristyna's folder 05-06-2018, with minor
 # modifications of names or format. K4.p and K4.Q are Admixture's output.
 # genotypes.012 was named out.012. The SampleNames.txt is the first
 # column of erinaceus.ped, and positions.txt is the second column of
-# erinaceus.map (with ":" substituted by tab):
-for file in K4.P K4.Q genotypes.012 SampleNames.txt positions.txt; do
+# erinaceus.map (with ":" substituted by tab). The popmap.txt is from 2018-03-27b.
+
+for file in K4.P K4.Q genotypes.012 SampleNames.txt positions.txt popmap.txt; do
    if [ ! -e $file ]; then
       echo "File $file not found."
       exit
    fi
 done
 
+# Here, I want to see if the ancestry groups identified correspond to the
+# known populations.
+if [ ! -e summary_Q.txt ]; then
+   echo "Expected number of individuals from each ancestry:" > summary_Q.txt
+   gawk '{for (i = 1; i <= NF; i++) {N[i] += $i}}END{for (i in N) print i "\t" N[i]}' K4.Q | sort -nk 1,1 >> summary_Q.txt
+   for k in 1 2 3 4; do
+      for sampleIndex in `gawk -v K=$k '($K > 0.5){print NR}' K4.Q`; do
+         head -n $sampleIndex SampleNames.txt | tail -n 1 >> z$k.txt
+      done
+      echo "Individuals with more than 50% ancestry $k:" >> summary_Q.txt
+      grep -f z$k.txt popmap.txt >> summary_Q.txt
+      rm z$k.txt
+   done
+fi
+# With K=4, the program Admixture correctly identified E. concolor and E. romanicus.
+# The species E. europaeus is split in two pupulations, a western and an eastern one,
+# I think. From the expected number of individuals from each ancestry, the expected
+# current allele frequency can be estimated for each locus in K4.P. I manually checked
+# that the predicted allele frequencies are usually above 0.5. That is, Admixture is
+# actually using the major allele to report allele frequencies, just as claimed in the
+# paper. It is important to take into account that the file 'genotypes.012' is not
+# expressed as number of major alleles, but probably as number of alternative alleles.
+# That is, I need to translate the genotypes.
+
 for ind in `cat SampleNames.txt`; do
    if [ ! -e $ind.out ]; then
       python AncestryProfile.py -i $ind \
-                                -I SampleNames.txt \
+                                -s SampleNames.txt \
                                 -k 4 \
                                 -p K4.P \
                                 -q K4.Q \
