@@ -122,4 +122,79 @@ done
 
 # I expect the alternative ancestries of a hybrid individual to be well
 # separated in alternative blocks along the contigs. However, it does not
-# need to be the case.
+# need to be the case. Some SNPs should be very informative of the ancestry
+# while others will not.
+#
+# There are 1747 contigs with data. Only 189 of them have at least 100 SNPs. I will
+# plot only those for the hybrid individual. I get plots as well from one individual
+# representative of each ancestry group, for comparison. I choose the individual
+# in each group with the least number of missing genotype values.
+
+MINIMUM=200   # Minimum number of SNPs in a contig to plot the ancestry profile.
+for sample in Er51_436 Er53_ASR7 Er66_IT3 Er37_SK27 Er30_79; do
+   if [ ! -d $sample ]; then mkdir $sample; fi
+   touch $sample/NotPlotted.txt
+   for contig in `cut -f 1 $sample.out | uniq`; do
+      if [ ! -e $sample/$contig.png ] && ! grep -q $contig $sample/NotPlotted.txt; then
+         NUM_SNPS=`grep $contig $sample.out | tee $sample/zdata.txt | wc -l`
+         if [ $NUM_SNPS -ge $MINIMUM ]; then
+            if [ ! -e $sample/$contig.png ]; then
+               gnuplot -e "contig='$contig'; infile='$sample/zdata.txt'; outfile='$sample/$contig.png'" PlotAncestryProfile.gnp
+            fi
+         else
+            if ! grep -q $contig $sample/NotPlotted.txt; then
+               echo "Adding contig $contig to $sample/NotPlotted.txt."
+               cat $sample/zdata.txt >> $sample/NotPlotted.txt
+            fi
+         fi
+         rm $sample/zdata.txt
+      fi
+   done
+done
+
+# Finally, I want a list of loci where the contribution of ancestry group 1
+# to the hybrid individual (with group 3 background) is probable enough.
+# Say, with logodds > 3.0
+
+MIN_LOGODDS=3
+if [ ! -e Er37_SK27.europaeus_SNPs.txt ]; then
+   gawk -v MINLOD=$MIN_LOGODDS '($3 >= MINLOD){print $0}' Er37_SK27.out > Er37_SK27.europaeus_SNPs.txt
+fi
+
+
+# CONCLUSIONS
+# ===========
+#
+# The contribution of an europaeus ancestry to the genome of the hybrid
+# individual is scattered along more than 2000 loci in 788 contigs. After
+# inspecting visually the ancestry profiles of 189 contigs with at least
+# 100 SNPs each, I have not seen a block of europaeus ancestry spanning
+# more than two SNPs. About 81% of loci with europaeus ancestry also show
+# signs of romanicus ancestry. This can be caused by either heterozygosity
+# or by a similar estimated allele frequency in both ancestries.
+#
+
+if [ ! -e summary.txt ]; then
+   echo -e "#Number of loci probably contributed by each ancestry (log odds > 3.0)" > summary.txt
+   echo -e "#Sample\tAnc.1\tAnc.2\tAnc.3\tAnc.4" >> summary.txt
+   for sample in `cat SampleNames.txt`; do
+      gawk -v SAMPLE=$sample '{
+         for (i=3; i<=NF; i++) {
+            if ($i > 3) N[i-2]++
+         }
+      }END{
+         printf("%10s\t%i\t%i\t%i\t%i\n", SAMPLE, N[1] + 0, N[2] + 0, N[3] + 0, N[4] + 0)
+      }' $sample.out >> z1
+   done
+   sort -nrk 4 -rk 2 -rk 5 -rk 3 z1 >> summary.txt
+   rm z1
+fi
+
+# The final summary table shows that in addition to the hybrid individual,
+# there is only one more with mixed ancestries. This is Er72_SIE1B, an E.
+# europaeus with some loci potentially contributed by the western population
+# of the same species. This table matches the prior, K4.Q, quite well, as
+# it should.
+#
+# Overall, I understand this to mean that there are at least some alleles quite
+# specific and informative of the specific ancestries.

@@ -1,0 +1,8 @@
+set term png large
+set output outfile
+set title contig
+
+plot infile using 2:3 with lines title '1', \
+     '' using 2:4 with lines title '2', \
+     '' using 2:5 with lines title '3', \
+     '' using 2:6 with lines title '4'
