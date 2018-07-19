@@ -1,3 +1,39 @@
+2018-07-19
+==========
+
+When trying to compare the SNPs identified as having europaeus ancestry
+in the hybrid individual with the sites that show signal of historic
+introgression between E. roumanicus and E. europaeus, Kristyna realized
+that very few of those SNPs were included in the abba/baba analysis. In
+this folder, I find out that most of those sites were arbitrarily excluded
+from the abba/baba test because they were too close to other SNPs.
+
+
+2018-06-30
+==========
+
+I wrote the script AncestryProfile.py, which takes the output files from
+Admixture and uses an empirical Bayes approach to estimate the posterior
+probability of each locus to have at least one allele coming from each
+ancestry group. I run this script on all individuals, although I am only
+interested in the hybrid between E. europaeus and E. romanicus. The script
+seems to work well. Most of the genome show levels of ancestry probability
+equal to the prior, which is the genome-wide contribution estimated by
+Admixture. But highly informative SNPs produce spikes in the profile.
+
+The main result is that the ~8% of E. europaeus ancestry in the hybrid
+individual, is not clustered in discrete genomic blocks. Rather, the SNPs
+with evidence of europaeus ancestry are scattered along the genome, very
+mixed with romanicus-specific alleles. This suggests extensive recombination
+and a more complex family history of this hybrid individual than just a
+third generation of back-crossing.
+
+2018-04-13
+==========
+
+I run ipyrad with the whole dataset. The results are available, but not
+further used, yet.
+
 2018-03-27b
 ===========
 
@@ -7,6 +43,11 @@ abba/baba test. The strategy is not to rely on the general filters
 available in vcftools, but to select sites with data for: the Hemichinus
 sample (required for the test), and for any number of individuals from
 the other three populations.
+
+The script freq2.awk takes a vcf file with the "binary presence flag"
+field in the INFO section (see 2017-05-25) as input and produces
+a table of allele frequencies in the requested populations for
+abba/baba analysis.
 
 2018-03-27
 ==========

@@ -1,0 +1,6 @@
+        64 sites removed because of low quality.
+       297 sites removed because in regions with abnormal coverage.
+      1512 sites removed while thinning the vcf out to reduce linkage disequilibrium issues.
+       160 sites were left in the vcf for the abba/baba test.
+  ---------
+      2033 total, which should be equal to 2033 sites with europaeus ancestry in hybrid.
