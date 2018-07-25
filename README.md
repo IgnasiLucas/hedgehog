@@ -1,3 +1,11 @@
+2018-07-25
+==========
+
+On 2018-07-24, Kristyna repeated the filtering of the original vcf file.
+The new filtered vcf file should be the common starting point of all
+downstream analysis. Here, I just add the BPF label to the INFO field
+of that vcf file.
+
 2018-07-19
 ==========
 
@@ -48,6 +56,11 @@ The script freq2.awk takes a vcf file with the "binary presence flag"
 field in the INFO section (see 2017-05-25) as input and produces
 a table of allele frequencies in the requested populations for
 abba/baba analysis.
+
+The filtering of the vcf file performed in this folder is superseded
+by a common filtering strategy applied to the original vcf for all
+downstream analyses. Thus, the thin.recode.vcf and all .tsv results
+were erased from this folder. See 2018-07-25.
 
 2018-03-27
 ==========

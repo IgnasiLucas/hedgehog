@@ -54,6 +54,10 @@ if [ ! -e estimation/variances.png ]; then
 fi
 
 # I start from the vcf file obtained with freebayes.
+# [2018-07-25. In retrospect, it was a mistake to start filtering the
+# original vcf file, because Kristyna had already filtered it, and as
+# a consequence, downstream analyses diverged and could not be compared.
+# The vcf obtained here were later substituted and erased. See 2018-07-25.]
 VCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 
 if [ ! -e popmap.txt ]; then
