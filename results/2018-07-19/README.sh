@@ -124,3 +124,38 @@ if [ ! -e summary.txt ]; then
    printf "  ---------\n" >> summary.txt
    printf "%10d total, which should be equal to 2033 sites with europaeus ancestry in hybrid.\n" $(( $LOW_Q + $BAD_REGIONS + $THINNED + $IN_VCF )) >> summary.txt
 fi
+
+# CONCLUSIONS
+# ===========
+#
+# These are the results.
+#
+#        64 sites removed because of low quality.
+#       297 sites removed because in regions with abnormal coverage.
+#      1512 sites removed while thinning the vcf out to reduce linkage disequilibrium issues.
+#       160 sites were left in the vcf for the abba/baba test.
+#  ---------
+#      2033 total, which should be equal to 2033 sites with europaeus ancestry in hybrid.
+#
+#
+# After talking with Kristyna, we decided to re-do the filtering of the original vcf file
+# and repeat all downstream analyses from the newly filtered vcf. She applied the following
+# filters in 24-07-2018:
+#
+#   vcftools --gzvcf $SOURCE/merged.vcf.gz \
+#            --keep popmap \
+#            --recode \
+#            --maf 0.01 \
+#            --max-maf 0.95 \
+#            --remove-indels \
+#            --min-alleles 2 \
+#            --max-alleles 2 \
+#            --maxDP 200 \
+#            --minDP 4 \
+#            --minQ 50 \
+#	    --thin 261 \
+#            --max-missing 0.75 \
+#            --recode-INFO-all \
+#            --out $DATADIR/all
+#
+

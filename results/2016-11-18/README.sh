@@ -13,7 +13,7 @@ if [ ! -e $DATADIR/populations.txt ]; then
    exit
 fi
 
-# Preliminary explortaion of the qualities and types of variation in the
+# Preliminary exploration of the qualities and types of variation in the
 # megapool.vcf (42GB), shows that a large amount of variants include more
 # than one alternative alleles, each of potentially many different kinds.
 # I considered retaining only biallelic variants. However, given that there

@@ -109,6 +109,8 @@ used 8,667,728 (2.7%) further reads with the de novo assembly pipeline.
 
 After requesting the fixing of a bug, the output included the vcf file.
 
+These results were not used, and superseded, anyways, by 2018-04-13. I
+erase them.
 
 2017-05-17
 ==========
