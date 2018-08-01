@@ -1,25 +1,23 @@
 Expected number of individuals from each ancestry:
-1	8.85791
-2	5.00019
-3	21.92
-4	4.22186
+1	14.3091
+2	21.6477
+3	5.04318
 Individuals with more than 50% ancestry 1:
 Er29_122 europaeus
+Er30_79 europaeus
 Er31_453 europaeus
 Er33_211 europaeus
 Er34_197 europaeus
 Er51_436 europaeus
 Er52_451 europaeus
 Er54_AU1 europaeus
+Er56_AZ5 europaeus
+Er57_COR4 europaeus
+Er63_IR6 europaeus
 Er71_SAR2 europaeus
 Er72_SIE1B europaeus
+Er74_SP16 europaeus
 Individuals with more than 50% ancestry 2:
-Er38_LB1 concolor
-Er49_GR38 concolor
-Er53_ASR7 concolor
-Er64_IS1 concolor
-Er75_TRC2A concolor
-Individuals with more than 50% ancestry 3:
 Er26_JUG4 romanicus
 Er27_SK32 romanicus
 Er28_112 romanicus
@@ -42,8 +40,9 @@ Er60_GR5 romanicus
 Er66_IT3 romanicus
 Er69_R2 romanicus
 Er70_RMN42 romanicus
-Individuals with more than 50% ancestry 4:
-Er30_79 europaeus
-Er56_AZ5 europaeus
-Er63_IR6 europaeus
-Er74_SP16 europaeus
+Individuals with more than 50% ancestry 3:
+Er38_LB1 concolor
+Er49_GR38 concolor
+Er53_ASR7 concolor
+Er64_IS1 concolor
+Er75_TRC2A concolor

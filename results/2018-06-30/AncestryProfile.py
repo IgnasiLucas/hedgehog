@@ -120,5 +120,9 @@ for locus in range(NumLoci):
             AtLeastOne[i] = 0.9999999999999999
          LogOdds.append(math.log(AtLeastOne[i]) - math.log(1.0 - AtLeastOne[i]))
 
-   args.output.write('{}\t{}\t{:f}\t{:f}\t{:f}\t{:f}\n'.format(Chromosome[locus], Position[locus], LogOdds[0], LogOdds[1], LogOdds[2], LogOdds[3]))
+   outstring = '{}\t{}'.format(Chromosome[locus], Position[locus])
+   for i in range(K):
+      outstring += '\t{:f}'.format(LogOdds[i])
+
+   args.output.write(outstring + '\n')
 

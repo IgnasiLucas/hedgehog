@@ -29,13 +29,6 @@ seems to work well. Most of the genome show levels of ancestry probability
 equal to the prior, which is the genome-wide contribution estimated by
 Admixture. But highly informative SNPs produce spikes in the profile.
 
-The main result is that the ~8% of E. europaeus ancestry in the hybrid
-individual, is not clustered in discrete genomic blocks. Rather, the SNPs
-with evidence of europaeus ancestry are scattered along the genome, very
-mixed with romanicus-specific alleles. This suggests extensive recombination
-and a more complex family history of this hybrid individual than just a
-third generation of back-crossing.
-
 2018-04-13
 ==========
 

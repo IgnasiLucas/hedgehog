@@ -8,11 +8,20 @@
 # allele frequencies in the ancestral populations. The dataset consisted
 # on 67459 SNPs from a filtered vcf file, and 40 individuals. Howevere,
 # there were some missing values. In one of the input files to the admixture
-# program, I count 2252611 genotypes available and 445749 missing genotypes.
+# program, I counted 2252611 genotypes available and 445749 missing genotypes.
 # The number of parameters estimated is 67459 * K allele frequencies and
 # K * 40 contributions from each ancestral population to each individual.
 # For K = 4, which I think was the most appropriate one, this means there
-# are 269996 parameters.
+# were 269996 parameters.
+#
+# Later on, we changed the filtering strategy of the vcf file, being more
+# stringent in the quality of the variable site and the minimum distance
+# between them, but more permissive in the quality of individual genotypes.
+# This prevented many genotypes from being ignored. See Kristyna's folder
+# 24-07-2018 for details. Currently, as 2018-07-26, the Admixture analysis
+# in Kristyna's folder 05-06-2018 was run with 316489 variable sites, and
+# 41 individuals. That makes almost 13 million genotypes (12976049), of
+# which 15% (1942947) are missing.
 #
 # Here, I want to estimate the posterior probability of each ancestry in
 # each locus, using as priors the genome-wide contributions of each ancestry
@@ -22,10 +31,6 @@
 # the hybrid individual has a certain portion of E. europaeus ancestry,
 # I would like to know what are the loci in its genome that more probably
 # come from that ancestry.
-#
-# There is a file already available, with extension "012" and created by
-# vcftools, where genotypes have been translated into counts of the major
-# allele. That is the data.
 #
 # I am interested in the probability of each ancestry at each locus. Note
 # that chromosomes may have different ancestries. Thus, I could estimate
@@ -69,27 +74,41 @@
 # corresponding to the two possible genotypes, and then choose the genotype that
 # makes the most likely overall ancestry of that individual (according to Admixture)
 # also the most probable one a posteriori in that particular site.
-#
-# I took the following files from Kristyna's folder 05-06-2018, with minor
-# modifications of names or format. K4.p and K4.Q are Admixture's output.
-# genotypes.012 was named out.012. The SampleNames.txt is the first
-# column of erinaceus.ped, and positions.txt is the second column of
-# erinaceus.map (with ":" substituted by tab). The popmap.txt is from 2018-03-27b.
 
-for file in K4.P K4.Q genotypes.012 SampleNames.txt positions.txt popmap.txt; do
-   if [ ! -e $file ]; then
-      echo "File $file not found."
-      exit
-   fi
-done
+ADMIXTURE_DIR=/data/kristyna/hedgehog/results_2018/05-06-2018
+POPMAP_FILE=/data/joiglu/hedgehog/results/2018-03-27b/popmap.txt
+
+if [ ! -e genotypes.012 ]; then
+   ln -s $ADMIXTURE_DIR/out.012 genotypes.012
+fi
+
+if [ ! -e K3.P ]; then
+   ln -s $ADMIXTURE_DIR/erinaceus_41.3.P K3.P
+fi
+
+if [ ! -e K3.Q ]; then
+   ln -s $ADMIXTURE_DIR/erinaceus_41.3.Q K3.Q
+fi
+
+if [ ! -e SampleNames.txt ]; then
+   cut -f 1 $ADMIXTURE_DIR/erinaceus_41.ped > SampleNames.txt
+fi
+
+if [ ! -e positions.txt ]; then
+   cut -f 2 $ADMIXTURE_DIR/erinaceus_41.map | sed 's/:/\t/' > positions.txt
+fi
+
+if [ ! -e popmap.txt ]; then
+   ln $POPMAP_FILE popmap.txt
+fi
 
 # Here, I want to see if the ancestry groups identified correspond to the
 # known populations.
 if [ ! -e summary_Q.txt ]; then
    echo "Expected number of individuals from each ancestry:" > summary_Q.txt
-   gawk '{for (i = 1; i <= NF; i++) {N[i] += $i}}END{for (i in N) print i "\t" N[i]}' K4.Q | sort -nk 1,1 >> summary_Q.txt
-   for k in 1 2 3 4; do
-      for sampleIndex in `gawk -v K=$k '($K > 0.5){print NR}' K4.Q`; do
+   gawk '{for (i = 1; i <= NF; i++) {N[i] += $i}}END{for (i in N) print i "\t" N[i]}' K3.Q | sort -nk 1,1 >> summary_Q.txt
+   for k in 1 2 3; do
+      for sampleIndex in `gawk -v K=$k '($K > 0.5){print NR}' K3.Q`; do
          head -n $sampleIndex SampleNames.txt | tail -n 1 >> z$k.txt
       done
       echo "Individuals with more than 50% ancestry $k:" >> summary_Q.txt
@@ -107,13 +126,14 @@ fi
 # expressed as number of major alleles, but probably as number of alternative alleles.
 # That is, I need to translate the genotypes.
 
-for ind in `cat SampleNames.txt`; do
+#for ind in `cat SampleNames.txt`; do
+for ind in Er37_SK27 Er55_AU7 Er50_R3 Er26_JUG4; do
    if [ ! -e $ind.out ]; then
       python AncestryProfile.py -i $ind \
                                 -s SampleNames.txt \
-                                -k 4 \
-                                -p K4.P \
-                                -q K4.Q \
+                                -k 3 \
+                                -p K3.P \
+                                -q K3.Q \
                                 -g genotypes.012 \
                                 -m positions.txt \
                                 -o $ind.out
@@ -131,7 +151,7 @@ done
 # in each group with the least number of missing genotype values.
 
 MINIMUM=200   # Minimum number of SNPs in a contig to plot the ancestry profile.
-for sample in Er51_436 Er53_ASR7 Er66_IT3 Er37_SK27 Er30_79; do
+for sample in Er37_SK27 Er55_AU7 Er50_R3 Er26_JUG4; do
    if [ ! -d $sample ]; then mkdir $sample; fi
    touch $sample/NotPlotted.txt
    for contig in `cut -f 1 $sample.out | uniq`; do
@@ -153,7 +173,7 @@ for sample in Er51_436 Er53_ASR7 Er66_IT3 Er37_SK27 Er30_79; do
 done
 
 # Finally, I want a list of loci where the contribution of ancestry group 1
-# to the hybrid individual (with group 3 background) is probable enough.
+# to the hybrid individual (with group 2 background under K=3) is probable enough.
 # Say, with logodds > 3.0
 
 MIN_LOGODDS=3
@@ -176,25 +196,21 @@ fi
 
 if [ ! -e summary.txt ]; then
    echo -e "#Number of loci probably contributed by each ancestry (log odds > 3.0)" > summary.txt
-   echo -e "#Sample\tAnc.1\tAnc.2\tAnc.3\tAnc.4" >> summary.txt
+   echo -e "#Sample\tAnc.1\tAnc.2\tAnc.3" >> summary.txt
    for sample in `cat SampleNames.txt`; do
-      gawk -v SAMPLE=$sample '{
-         for (i=3; i<=NF; i++) {
-            if ($i > 3) N[i-2]++
-         }
-      }END{
-         printf("%10s\t%i\t%i\t%i\t%i\n", SAMPLE, N[1] + 0, N[2] + 0, N[3] + 0, N[4] + 0)
-      }' $sample.out >> z1
+      if [ -e $sample.out ]; then
+         gawk -v SAMPLE=$sample '{
+            for (i=3; i<=NF; i++) {
+               if ($i > 3) N[i-2]++
+            }
+         }END{
+            printf("%10s\t%i\t%i\t%i\t%i\n", SAMPLE, N[1] + 0, N[2] + 0, N[3] + 0, N[4] + 0)
+         }' $sample.out >> z1
+      fi
    done
    sort -nrk 4 -rk 2 -rk 5 -rk 3 z1 >> summary.txt
    rm z1
 fi
 
-# The final summary table shows that in addition to the hybrid individual,
-# there is only one more with mixed ancestries. This is Er72_SIE1B, an E.
-# europaeus with some loci potentially contributed by the western population
-# of the same species. This table matches the prior, K4.Q, quite well, as
-# it should.
-#
 # Overall, I understand this to mean that there are at least some alleles quite
 # specific and informative of the specific ancestries.
