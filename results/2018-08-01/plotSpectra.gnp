@@ -1,0 +1,8 @@
+set term png large
+set output 'AFS.png'
+set xrange [0:0.5]
+set logscale y
+set title 'Allele Frequency Spectra'
+plot 'EurSpectrum.txt' using 1:2 with lines title 'E. europaeus', \
+     'RouSpectrum.txt' using 1:2 with lines title 'E. roumanicus', \
+     'ConSpectrum.txt' using 1:2 with lines title 'E. concolor'
