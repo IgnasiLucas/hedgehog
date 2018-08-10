@@ -78,8 +78,8 @@
 ADMIXTURE_DIR=/data/kristyna/hedgehog/results_2018/05-06-2018
 POPMAP_FILE=/data/joiglu/hedgehog/results/2018-03-27b/popmap.txt
 
-if [ ! -e genotypes.012 ]; then
-   ln -s $ADMIXTURE_DIR/out.012 genotypes.012
+if [ ! -e genotypes_vcfOrder.012 ]; then
+   ln -s $ADMIXTURE_DIR/out.012 genotypes_vcfOrder.012
 fi
 
 if [ ! -e K3.P ]; then
@@ -95,7 +95,36 @@ if [ ! -e SampleNames.txt ]; then
 fi
 
 if [ ! -e positions.txt ]; then
-   cut -f 2 $ADMIXTURE_DIR/erinaceus_41.map | sed 's/:/\t/' > positions.txt
+   # Note that here it is essential to use the .bim file, and not the .map file, since
+   # they have different orders, and the .bim one is the one specifying the positions of
+   # the variable sites in the binary .bed file used by admixture.
+   cut -f 2 $ADMIXTURE_DIR/erinaceus_41.bim | sed 's/:/\t/' > positions.txt
+fi
+
+# Apparently, plink messes up the order of the genomic positions, because it does not
+# consider more than 26 chromosomes. Thus, the genotypes in the 012 output of vcftools
+# are not ordered in the same way as those actually used by admixture. And the genotypes
+# used by admixture are in a binary file, difficult to parse. The best option is to change
+# the order of the columns of the .012 file to match those in the binary .bed file. Below,
+# I add line numbers to the list of positions in the wrong order. Then, I sequentially
+# search for the positions in the right order, and use their line number to append the
+# corresponding genotypes to a new genotypes file. It's very slow!
+
+if [ ! -e genotypes.012 ]; then
+   if [ ! -e positions_vcfOrder.txt ]; then
+      # I add a tab at the end of the line to match it later, when searching.
+      nl $ADMIXTURE_DIR/out.012.pos | gawk '{print $1 "\t" $2 "\t" $3 "\t"}' > positions_vcfOrder.txt
+   fi
+   NUMLOCI=`cat positions.txt | wc -l`
+   cut -f 1 genotypes_vcfOrder.012 > genotypes.012
+   for locus in `seq 1 $NUMLOCI`; do
+      head -n $locus positions.txt | tail -n 1 | gawk '{print $1 "\t" $2 "\t"}' > pattern.txt
+      VCFORDER=`grep -Ff pattern.txt positions_vcfOrder.txt | cut -f 1`
+      cut -f $(( $VCFORDER + 1 )) genotypes_vcfOrder.012 > z1
+      paste genotypes.012 z1 > z2
+      mv z2 genotypes.012
+      rm z1 pattern.txt
+   done
 fi
 
 if [ ! -e popmap.txt ]; then
@@ -117,7 +146,7 @@ if [ ! -e summary_Q.txt ]; then
    done
 fi
 # With K=4, the program Admixture correctly identified E. concolor and E. romanicus.
-# The species E. europaeus is split in two pupulations, a western and an eastern one,
+# The species E. europaeus was split in two populations, a western and an eastern one,
 # I think. From the expected number of individuals from each ancestry, the expected
 # current allele frequency can be estimated for each locus in K4.P. I manually checked
 # that the predicted allele frequencies are usually above 0.5. That is, Admixture is
@@ -153,13 +182,18 @@ done
 MINIMUM=200   # Minimum number of SNPs in a contig to plot the ancestry profile.
 for sample in Er37_SK27 Er55_AU7 Er50_R3 Er26_JUG4; do
    if [ ! -d $sample ]; then mkdir $sample; fi
+   if [ ! -d $sample/LOD ]; then mkdir $sample/LOD; fi
+   if [ ! -d $sample/ENum ]; then mkdir $sample/ENum; fi
    touch $sample/NotPlotted.txt
-   for contig in `cut -f 1 $sample.out | uniq`; do
+   for contig in `cut -f 1 $sample.out | sort | uniq`; do
       if [ ! -e $sample/$contig.png ] && ! grep -q $contig $sample/NotPlotted.txt; then
          NUM_SNPS=`grep $contig $sample.out | tee $sample/zdata.txt | wc -l`
          if [ $NUM_SNPS -ge $MINIMUM ]; then
-            if [ ! -e $sample/$contig.png ]; then
-               gnuplot -e "contig='$contig'; infile='$sample/zdata.txt'; outfile='$sample/$contig.png'" PlotAncestryProfile.gnp
+            if [ ! -e $sample/LOD/$contig.png ]; then
+               gnuplot -e "contig='$contig'; infile='$sample/zdata.txt'; outfile='$sample/LOD/$contig.png'" PlotAncestryProfile.gnp
+            fi
+            if [ ! -e $sample/ENum/$contig.png ]; then
+               gnuplot -e "contig='$contig'; infile='$sample/zdata.txt'; outfile='$sample/ENum/$contig.png'" PlotExpectedAlleleNumber.gnp
             fi
          else
             if ! grep -q $contig $sample/NotPlotted.txt; then

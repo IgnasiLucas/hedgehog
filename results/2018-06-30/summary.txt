@@ -1,6 +1,6 @@
 #Number of loci probably contributed by each ancestry (log odds > 3.0)
 #Sample	Anc.1	Anc.2	Anc.3
- Er26_JUG4	0	312052	3543	0
- Er37_SK27	21205	90879	0	0
-  Er55_AU7	10823	308128	0	0
-   Er50_R3	6603	311327	0	0
+ Er26_JUG4	0	316110	1493	0
+ Er37_SK27	28996	95586	0	0
+  Er55_AU7	5976	315880	0	0
+   Er50_R3	3	315801	0	0

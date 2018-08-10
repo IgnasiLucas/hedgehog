@@ -1,6 +1,6 @@
 Expected number of individuals from each ancestry:
-1	14.3091
-2	21.6477
+1	14.3092
+2	21.6476
 3	5.04318
 Individuals with more than 50% ancestry 1:
 Er29_122 europaeus

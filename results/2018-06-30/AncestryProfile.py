@@ -12,7 +12,7 @@ parser.add_argument("-s", "--samples", type=argparse.FileType('r'), help="Text f
 parser.add_argument("-k", "--groups", type=int, default=4, help="Number of ancestry groups. Default: 4.")
 parser.add_argument("-p", "--frequencies", type=argparse.FileType('r'), help="Admixture's output file with allele frequencies in every position (rows) and ancestry groups (columns).")
 parser.add_argument("-q", "--contributions", type=argparse.FileType('r'), help="Admixture's output file with proportion of ancestry contributed by each ancestry (columns) to each individual (columns).")
-parser.add_argument("-g", "--genotypes", type=argparse.FileType('r'), help="Matrix of genotypes, coded as number of major alleles (0, 1, 2; -1 for missing data), with positions in columns and samples in rows. First column specifies the sample's index.")
+parser.add_argument("-g", "--genotypes", type=argparse.FileType('r'), help="Matrix of genotypes, coded as number of alternative alleles (0, 1, 2; -1 for missing data), with positions in columns and samples in rows. First column specifies the sample's index.")
 parser.add_argument("-m", "--positions", type=argparse.FileType('r'), help="File with two columns: chromosome or contig name and position within, for each locus.")
 parser.add_argument("-o", "--output", type=argparse.FileType('w'), default="z1.out", help="Output file.")
 
@@ -49,6 +49,7 @@ TargetIndividualIndex = Samples.index(args.individual)
 ##################################################################
 
 def GetGenotype(AltAlleleCount, index):
+   '''Turns the genotype expressed as count of alternative alleles, into the number of most frequent alleles'''
    if AltAlleleCount[index] == -1:
       return -1
    if AltAlleleCount[index] == 1:
@@ -70,9 +71,9 @@ def CalculatePosterior(genotype, allele, freqArray, priorArray, ancestry):
    if genotype == 0:
       return (1.0 - freqArray[ancestry]) * priorArray[ancestry] / sum(priorArray * (1.0 - freqArray))
    if genotype == 1:
-      if allele == 0:
+      if allele == 0: # less frequent allele
          return (1.0 - freqArray[ancestry]) * priorArray[ancestry] / sum(priorArray * (1.0 - freqArray))
-      if allele == 1:
+      if allele == 1: # most frequent alllel, the frequency of which is reported.
          return freqArray[ancestry] * priorArray[ancestry] / sum(priorArray * freqArray)
    if genotype == 2:
       return freqArray[ancestry] * priorArray[ancestry] / sum(priorArray * freqArray)
@@ -92,7 +93,7 @@ for locus in range(NumLoci):
    for ancestry in range(K):
       PostAncProb[0][ancestry] = CalculatePosterior(genotype, 0, P[locus, :], Q[TargetIndividualIndex, :], ancestry)
       PostAncProb[1][ancestry] = CalculatePosterior(genotype, 1, P[locus, :], Q[TargetIndividualIndex, :], ancestry)
-   if genotype == 3:   # In this case, GetGenotype returned a tuple, and I need to choose one of the two values.
+   if genotype == 3:   # In this case, CalculatePosterior returned a tuple, and I need to choose one of the two values.
       MLAncestry = Q[TargetIndividualIndex, :].argmax()
       ExpCopies0 = [PostAncProb[0][x][0] + PostAncProb[1][x][0] for x in range(K)]
       MostProb0 = ExpCopies0.index(max(ExpCopies0))
@@ -119,10 +120,13 @@ for locus in range(NumLoci):
          if AtLeastOne[i] >= 1.0:
             AtLeastOne[i] = 0.9999999999999999
          LogOdds.append(math.log(AtLeastOne[i]) - math.log(1.0 - AtLeastOne[i]))
+   ExpectedAlleles = [ PostAncProb[0][x] + PostAncProb[1][x] for x in range(K) ]
 
    outstring = '{}\t{}'.format(Chromosome[locus], Position[locus])
    for i in range(K):
       outstring += '\t{:f}'.format(LogOdds[i])
+   for i in range(K):
+      outstring += '\t{:f}'.format(ExpectedAlleles[i])
 
    args.output.write(outstring + '\n')
 

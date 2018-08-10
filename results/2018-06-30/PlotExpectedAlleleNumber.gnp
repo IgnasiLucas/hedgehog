@@ -1,0 +1,10 @@
+set term png large
+set output outfile
+set multiplot title contig layout 3,1
+set key off
+set title 'Ancestry 1'
+plot infile using 2:6 with lines
+set title 'Ancestry 2'
+plot infile using 2:7 with lines
+set title 'Ancestry 3'
+plot infile using 2:8 with lines
