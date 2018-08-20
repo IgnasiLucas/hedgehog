@@ -39,7 +39,7 @@ for year in 2016 2018; do
    for sample in ${SAMPLE[@]}; do
       if [ ! -e $sample'_'$year'_dups.hist' ]; then
          samtools view -h -u -F 260 -f 128 $BAMROOT$year/bam/$sample'_'$year.bam | \
-         samtools sort -O SAM - | \
+         samtools sort -O SAM -T $sample - | \
          gawk 'BEGIN{
             CONTIG = "NW_006803924.1"
             POSITION = 1
@@ -60,11 +60,16 @@ for year in 2016 2018; do
             F[N]++
             SUM = 0
             for (n = 1; n <= MAX_N; n++) {
-               print n "\t" F[n] "\t" SUM + n * F[n]
+               SUM += n * F[n]
+               print n "\t" F[n] "\t" SUM
             }
-         }' > $sample'_'$year'_dups.hist'
+         }' > $sample'_'$year'_dups.hist' && echo "#end" >> $sample'_'$year'_dups.hist'
+         sleep 3
+         # samtools seems to not finish some jobs. I add the sleep statement and the
+         # echo to make sure it works.
       fi
    done
+   wait
 done
 
 # The main concern about PCR duplicates pointed out in the blog mentioned above
@@ -190,6 +195,16 @@ for pop in europaeus roumanicus concolor; do
       vcftools --vcf $VCFFILE \
                --out $pop \
                --keep $pop.txt \
-               --hardy
+               --hardy &
    fi
-fi
+done
+
+wait
+
+
+# CONCLUSIONS
+#
+# I don't know why I'm not printing AB=0.5 for each sample. In any case, the dispersion of
+# AB values per sample makes it clear that I should use an empirical Bayes approach: the
+# prior AB is 0.5, and the qüestion is if there is much data to believe a departure from
+# that expectation.
