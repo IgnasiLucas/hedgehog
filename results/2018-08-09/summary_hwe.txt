@@ -1,0 +1,7 @@
+# These are numbers of sites polymorphic within a population that show significatn deficit
+# or excess of heterozygous individuals, or not, at 0.05 significance level, according to
+# the tests performed by vcftools. Sites may be counted more than once, when polymorphic in
+# more than one population.
+Heterozygous deficit:  37784 (16.1252%)
+Heterozyous excess:     1695 (0.7234%)
+In HW equilibrium:    194837 (83.1514%)
