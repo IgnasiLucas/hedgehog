@@ -38,35 +38,8 @@ SAMPLE=(Er26_JUG4 Er27_SK32 Er28_112   Er29_122  Er30_79    Er31_453  Er32_183  
 for year in 2016 2018; do
    for sample in ${SAMPLE[@]}; do
       if [ ! -e $sample'_'$year'_dups.hist' ]; then
-         samtools view -h -u -F 260 -f 128 $BAMROOT$year/bam/$sample'_'$year.bam | \
-         samtools sort -O SAM -T $sample - | \
-         gawk 'BEGIN{
-            CONTIG = "NW_006803924.1"
-            POSITION = 1
-            N = 0
-            MAX_N = 1
-         }(/^[^@]/){
-            if (($3 == CONTIG) && ($4 == POSITION)) {
-               N++
-            } else {
-               if (N > MAX_N) MAX_N = N
-               F[N]++
-               N = 1
-               CONTIG = $3
-               POSITION = $4
-            }
-         }END{
-            if (N > MAX_N) MAX_N = N
-            F[N]++
-            SUM = 0
-            for (n = 1; n <= MAX_N; n++) {
-               SUM += n * F[n]
-               print n "\t" F[n] "\t" SUM
-            }
-         }' > $sample'_'$year'_dups.hist' && echo "#end" >> $sample'_'$year'_dups.hist'
+         ./GetDuplicates.sh $BAMROOT$year/bam/$sample'_'$year.bam $sample $year > $sample'_'$year'_dups.hist' &
          sleep 3
-         # samtools seems to not finish some jobs. I add the sleep statement and the
-         # echo to make sure it works.
       fi
    done
    wait
@@ -274,6 +247,10 @@ fi
 # from 2016 have the highest levels of duplicates (between 5.8 and 7.8 %). The subsequent
 # 25 samples from 2016 have 2.1 and 3.2 % duplicates. And all samples from 2018 have only
 # between 0.4 and 0.7%.
+#
+# I realize I subestimate the real number of duplicates, because several second reads belong
+# to first reads from the same locus. I am counting duplicates where the second reads map, not
+# where the first ones do.
 #
 # The allele balance (AB) in heterozygous sites is the proportion of each allele's observations.
 # It should be around 50% of each allele. PCR duplicates increase the proportion of observations
