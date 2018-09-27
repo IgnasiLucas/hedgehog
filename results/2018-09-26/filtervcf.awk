@@ -1,15 +1,29 @@
 # Usage:
 #
-#   gawk -f filtervcf.awk [-v MINQ=<INT>] popmap.txt input.vcf > output.vcf
+#   gawk -f filtervcf.awk [-v MINQ=<INT>] [-v EUR=<int>] [-v ROU=<int>] [-v CON=<int>] [-v HEM=<int>] popmap.txt input.vcf > output.vcf
 #
-# This instance is hard-coded to filter sites where the populations
-# specified in the BEGIN block include as many individuals covered as
-# indicated there. Change the BEGIN block below to use it in a different
-# context. The name of the population map, "popmap.txt" is also hard
-# coded. It should have two columns: sample id, and population name.
-# The sample names must be exactly the same as in the header of the
-# input vcf file. Population names must coincide with those specified
-# in the BEGIN block.
+# This simple script filters a vcf file with individuals from four
+# different populations, the names of which are hardcoded for the sake of
+# the present project: europaeus, roumanicus, concolor, Hemiechinus. The
+# main filter selects sites where a minimum number of individuals from each
+# population have genotype data (genotype is not "./."). You can specify the
+# minimum number of individuals from each population using the options:
+#    -v EUR=<int>
+#    -v ROU=<int>
+#    -v CON=<int>
+#    -v HEM=<int>
+# Defaults are: 10 europaeus, 10 roumanicus, 4 concolor and 0 Hemiechinus.
+# Note that the name of the file specifying the distribution of samples among
+# populations must include the string "popmap", and must be given before the
+# input vcf file in the command line. The popmap file must have one individual
+# per line, with two fields: its name (as used in the vcf file) and the name of
+# the population where it belongs (as used in this script).
+#
+# The script also checks that the quality of the variable site is above a minimum,
+# if MINQ is set, via "-v MINQ=<int>". And it also requires sites to be bi-allelic.
+#
+# The input vcf file must include the binary presence flag (BPF field in the
+# INFO section. See add_flag.awk for instructions.
 
 function bits2str(bits, max,        data, mask){
    if (bits == 0)
@@ -32,12 +46,12 @@ function countbits(bits,    data){
 }
 
 BEGIN{
-   MIN["europaeus"]   = 10
-   MIN["roumanicus"]  = 10
-   MIN["concolor"]    = 4
-   MIN["Hemiechinus"] = 0
+   if (EUR == 0) {MIN["europaeus"]   = 10} else {MIN["europaeus"]   = EUR}
+   if (ROU == 0) {MIN["roumanicus"]  = 10} else {MIN["roumanicus"]  = ROU}
+   if (CON == 0) {MIN["concolor"]    =  4} else {MIN["concolor"]    = CON}
+   if (HEM == 0) {MIN["Hemiechinus"] =  0} else {MIN["Hemiechinus"] = HEM}
 
-}(FILENAME == "popmap.txt"){
+}(FILENAME ~ /popmap/){
    POPULATION[$1] = $2
 }
 (/^##/){
