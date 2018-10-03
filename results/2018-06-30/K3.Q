@@ -1,1 +1,1 @@
-/data/kristyna/hedgehog/results_2018/05-06-2018/erinaceus_41.3.Q
+/data/kristyna/hedgehog/results_2018/05-06-2018/old/erinaceus_41.3.Q

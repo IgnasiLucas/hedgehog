@@ -1,3 +1,40 @@
+2018-09-26
+==========
+
+To address the problem detected on 2018-08-01, namely, the low accuracy of
+allele frequency estimates in E. concolor population, I re-do the filtering
+of the vcf file. Using our own scripts, we require either 5 or 4 E. concolor
+individuals to have data. This reduces the number of sites to 43301 or 135043,
+respectively, when also requiring at least 10 genotypes from both E. roumanicus
+and E. europaeus. Kristýna uses these filtered vcf files to run again the
+Admixture analysis. She finds that the small introgression signal from E. concolor
+into (now two) individuals of E. roumanicus did not disappear.
+
+2018-08-09
+==========
+
+Here, I check the effect of PCR duplicates. I count the number of second
+reads that map in the same place, in all libraries; I look at the allele
+count balance in individual libraries, and check Hardy-Weinberg statistics
+The conclusion is that PCR duplicates are actually removing heterozygous
+genotypes from the populations. In all, 16% sites show excess of homozygosity
+in at least one population. However, allele frequencies should not be biased.
+
+2018-08-01
+==========
+
+With the new filtering strategy, we find that one E. roumanicus individual
+shows evidence of a small contribution by E. concolor. Introgression from
+E. concolor is extremely unlikely, and the signal may be due to residual
+incomplete lineage sorting (Barbora). Here, I look at what sites are giving
+that signal, and make sure it is not an artifact. I confirm that there are
+a few thousand sites, scattered across contigs where the presumably admixed
+individual is heterozygous while the rest of E. roumanicus and E. concolor
+specimens are (almost) fixed for alternative alleles. I also notice that many
+of those sites do not include data for all 5 E. concolor individuals, and
+I hypthesize that the lack of accuracy in allele frequency estimation there
+is contributing to the signal.
+
 2018-07-25
 ==========
 
