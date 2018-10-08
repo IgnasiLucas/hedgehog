@@ -9,11 +9,12 @@
 
 GZVCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 ADD_FLAG_DIR=../../bin
-INDLIST=/data/kristyna/hedgehog/results_2018/24-07-2018/popmap
+INDLIST=/data/kristyna/hedgehog/results_2018/05-06-2018/r10e10c4/popmap_erinaceus
 
 if [ ! -e IndList.txt ]; then
-   # This file is just the list of samples, after removing 5 with low quality data. 45 left.
-   cp $INDLIST IndList.txt
+   # This file is just the list of samples to be used, after removing some with low
+   # quality data and excluding the two samples from diferen genera (Atelerix and Hemiechinus).
+   cut -f 1 $INDLIST > IndList.txt
 fi
 for rou in 10 15; do
    for eur in 10 15; do
