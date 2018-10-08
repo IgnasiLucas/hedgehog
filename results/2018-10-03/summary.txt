@@ -1,0 +1,16 @@
+#Sample	Ancestral_1	Ancestral_2	Percent1_(SNPs)	Percent2_(SNPs)	Percent1_(bases)	Percent2_(bases)
+
+Er37_SK27	roumanicus	europaeus	0.7739	0.2261	0.7708	0.2292	     2	-60570.0241
+Er55_AU7	roumanicus	europaeus	0.9999	0.0001	0.9999	0.0001	    10	-39802.4697
+Er26_JUG4	roumanicus	concolor	0.9298	0.0702	0.9297	0.0703	 20000	-200438.3352
+Er27_SK32	roumanicus	concolor	0.9772	0.0228	0.9771	0.0229	 20000	-133610.5999
+
+Er37_SK27	roumanicus	europaeus	0.7749	0.2251	0.7720	0.2280	     3	-60794.4737
+Er55_AU7	roumanicus	europaeus	0.9995	0.0005	0.9995	0.0005	   100	-40190.6369
+Er26_JUG4	roumanicus	concolor	0.9490	0.0510	0.9480	0.0520	 10000	-178165.1337
+Er27_SK32	roumanicus	concolor	0.9833	0.0167	0.9828	0.0172	 10000	-111102.1675
+
+Er37_SK27	roumanicus	europaeus	0.7758	0.2242	0.7728	0.2272	     4	-61035.9923
+Er55_AU7	roumanicus	europaeus	0.9994	0.0006	0.9995	0.0005	   200	-40576.0041
+Er26_JUG4	roumanicus	concolor	0.9683	0.0317	0.9670	0.0330	  5000	-159934.3865
+Er27_SK32	roumanicus	concolor	0.9906	0.0094	0.9901	0.0099	  5000	-92351.1147
