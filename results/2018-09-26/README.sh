@@ -24,9 +24,11 @@ MAX_MISSING=63
 
 if [ ! -e NotErinaceus.txt ]; then
    # The Atelerix and Hemiechinus individuals cannot take part in the Admixture analysis,
-   # and should be excluded.
-   echo Er65_IS25 >  NotErinaceus.txt
-   echo Er73_SNG1 >> NotErinaceus.txt
+   # and should be excluded. Also, Er59_FR1 and Er68_PRT1B seem to have problems.
+   echo Er65_IS25  >  NotErinaceus.txt
+   echo Er73_SNG1  >> NotErinaceus.txt
+   echo Er59_FR1   >> NotErinaceus.txt
+   echo Er68_PRT1B >> NotErinaceus.txt
 fi
 
 # The binary flags that indicate presence of alleles in individuals are only meaningful
