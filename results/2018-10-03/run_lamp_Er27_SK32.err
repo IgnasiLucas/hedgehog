@@ -1,0 +1,36 @@
+./run_lamp.sh: line 23: 44729 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 46190 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen000002»: El fitxer o directori no existeix
+del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 51251 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen250000»: El fitxer o directori no existeix
+del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 58940 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen000010»: El fitxer o directori no existeix
+del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 64242 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23:  4155 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  4613 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23:  5621 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  7474 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen000050»: El fitxer o directori no existeix
+del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  4581 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23:  6151 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  7835 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23:  8986 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  9385 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23:  9952 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 10493 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen000500»: El fitxer o directori no existeix
+del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 10582 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23: 11112 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 11119 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23: 11782 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 11957 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23: 12078 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 12312 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+./run_lamp.sh: line 23: 12431 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8: 12592 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er27_SK32/gen000100»: El fitxer o directori no existeix

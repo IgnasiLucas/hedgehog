@@ -1,0 +1,8 @@
+populations=2
+genofile=../geno.txt
+posfile=../positions.txt
+pfile=../Anc1.P.txt,../Anc2.P.txt
+ancestralsamplesize=17,4
+alpha=0.960462,0.039538
+generations=1000000
+recombrate=1.0e-8

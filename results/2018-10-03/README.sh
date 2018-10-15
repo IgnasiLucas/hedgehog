@@ -29,17 +29,39 @@
 # file. I will take advantage of the binary presence flags to speed it up. The only
 # thing I need from the Admixture output is the proportions of ancestries in each
 # individual.
+#
+# After a few runs, I see that the results depende quite a bit on the amount of recombination
+# expected. And we don't really know how long ago the admixture happened in the lineage
+# of some individuals. I would like to run the whole analysis for several values of the
+# number of generations since admixture.
 
 ADMIXTURE_DIR=/data/kristyna/hedgehog/results_2018/05-06-2018/r10e10c4
 VCF_FILE=../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
 ADMIXED=(  Er37_SK27   Er55_AU7  Er26_JUG4  Er27_SK32 )
 ANCEST1=( roumanicus roumanicus roumanicus roumanicus )
 ANCEST2=(  europaeus  europaeus   concolor   concolor )
-# This is the minimum number of SNPs per contig to analyse the contig.
+
+# This is the minimum number of SNPs per contig to analyse the contig:
 MIN_LOCI=50
-#GENERATIONS=( 2 10 20000 20000 )
-#GENERATIONS=( 3 100 10000 10000 )
-GENERATIONS=( 4 200 5000 5000 )
+
+# And this, the number of largest contigs to represent graphically.
+MAX_CONTIGS=50
+
+# I want to runt LAMP for a different set of values of the number-of-generations
+# parameter, for each individual. Because I iterate over individuals below, it
+# is not straight forward to tell the script what values to iterate over for each
+# individual. It can be done with "eval", but indirect references are supposed
+# to be preferred. E.g.: "A=B; B=3; echo ${!A}" outputs 3. However indirect references
+# do now work well with arrays, because "${!name[@]}" expands to the list of keys
+# in the array 'name', not to the array it may be indirectly referring to. Maybe the
+# simplest solution is to use an associative array, with the list of values for each
+# individual introduced as a string, that can later be split.
+
+declare -A GENERATIONS
+GENERATIONS[Er37_SK27]='2;3;4;5;6;7;8;9;10;25;50'
+GENERATIONS[Er55_AU7]='2;5;10;25;50;100;250;500;1000;2500;5000;10000;25000;50000;100000;250000;500000;1000000'
+GENERATIONS[Er26_JUG4]='2;5;10;25;50;100;250;500;1000;2500;5000;10000;25000;50000;100000;250000;500000;1000000'
+GENERATIONS[Er27_SK32]='2;5;10;25;50;100;250;500;1000;2500;5000;10000;25000;50000;100000;250000;500000;1000000'
 
 if [ ! -e popmap.txt ]; then
    cp ../2018-09-26/popmap.txt ./
@@ -49,12 +71,16 @@ if [ ! -e Q3.txt ]; then
    paste $ADMIXTURE_DIR/out.012.indv $ADMIXTURE_DIR/erinaceus_41_r10e10c4.3.Q > Q3.txt
 fi
 
-for ind in Er37_SK27 Er55_AU7 Er26_JUG4 Er27_SK32; do
+for ind in ${ADMIXED[@]}; do
    if [ ! -d $ind ]; then mkdir $ind; fi
 done
 
-for contig in `grep '^##contig=<ID=' $VCF_FILE | sed -r 's/(##contig=<ID=|,length=[0-9]+>)//g'`; do
-   for ind in Er37_SK27 Er55_AU7 Er26_JUG4 Er27_SK32; do
+if [ ! -e contig.dict ]; then
+   gawk '(/^##contig=<ID=/){split($1,A,/[=,>]/); print A[3] "\t" A[5]}' $VCF_FILE > contig.dict
+fi
+
+for contig in $(cut -f 1 contig.dict); do
+   for ind in ${ADMIXED[@]}; do
       if [ ! -d $ind/$contig ]; then mkdir $ind/$contig; fi
    done
 done
@@ -67,17 +93,14 @@ if [ ! -e lamp_preparation.log ]; then
         -f prepare_lamp.awk popmap.txt $VCF_FILE > lamp_preparation.log
 fi
 
+# This is meant to remove from analysis contigs without data.
 find . -type d -empty -delete
 
-if [ ! -e contig.dict ]; then
-   gawk '(/^##contig=<ID=/){split($1,A,/[=,>]/); print A[3] "\t" A[5]}' $VCF_FILE > contig.dict
-fi
-
-for ind in Er37_SK27 Er55_AU7 Er26_JUG4 Er27_SK32; do
+for ind in ${ADMIXED[@]}; do
    # This creates a joint site frequency spectrum for the two ancestral
    # populations of each admixed individual. Just out of curiosity.
    if [ ! -e $ind/joint_SFS.txt ]; then
-      find $ind/ -mindepth 1 -type d -exec paste '{}'/Anc1.P.txt '{}'/Anc2.P.txt \; | \
+      find $ind/ -mindepth 1 -name 'NW*' -type d -exec paste '{}'/Anc1.P.txt '{}'/Anc2.P.txt \; | \
       gawk '{
          F[sprintf("%.1f\t%.1f", $1,$2)]++
       }END{
@@ -89,49 +112,65 @@ for ind in Er37_SK27 Er55_AU7 Er26_JUG4 Er27_SK32; do
       }' > $ind/joint_SFS.txt
    fi
 
-   if [ ! -e $ind/configuration.txt ]; then
-      echo "populations=2"                    > $ind/configuration.txt
-      echo "genofile=geno.txt"               >> $ind/configuration.txt
-      echo "posfile=positions.txt"           >> $ind/configuration.txt
-      echo "pfile=Anc1.P.txt,Anc2.P.txt"     >> $ind/configuration.txt
-      ASZ1=`grep -E "^ ?$ind" lamp_preparation.log | gawk '{printf("%.0f",$5)}'`
-      ASZ2=`grep -E "^ ?$ind" lamp_preparation.log | gawk '{printf("%.0f",$6)}'`
-      echo "ancestralsamplesize=$ASZ1,$ASZ2" >> $ind/configuration.txt
-      ALPH=`grep "^$ind" Q3.txt | gawk '{print $3}'`
-      BETA=0`echo "1.0 - $ALPH" | bc -l`
-      echo "alpha=$ALPH,$BETA"               >> $ind/configuration.txt
-      GEN=`for i in 0 1 2 3; do echo -e "${ADMIXED[$i]}\t${GENERATIONS[$i]}"; done | grep $ind | cut -f 2`
-      echo "generations=$GEN"                >> $ind/configuration.txt
-      echo "recombrate=1.0e-9"               >> $ind/configuration.txt
-   fi
-   for contig in `find $ind/ -mindepth 1 -type d`; do
-      cd $contig
-         cp ../configuration.txt ./configuration.txt
-         if [ `cat positions.txt | wc -l` -ge $MIN_LOCI ] && [ ! -e ancestry_lamp4.out ]; then
-            lamp configuration.txt 1> lamp.log 2> lamp.err
-         fi
-      cd ../..
+   # I should also remove now contigs with fewer positions than the minimum.
+   for contig in $(find $ind -type d -name 'NW*'); do
+      if [ $(cat $contig/positions.txt | wc -l) -lt $MIN_LOCI ]; then
+         rm -r $contig
+      fi
    done
-   if [ ! -e $ind/summary.txt ]; then
-      ./summarize_lamp.sh $ind contig.dict | sort -nrk 2,2 > $ind/summary.txt
-   fi
+
+   GEN_STRING=${GENERATIONS[$ind]}
+   GEN_ARRAY=( ${GEN_STRING//;/ } )   # This substitutes all ";" for " " in GEN_STRING
+   for gen in ${GEN_ARRAY[@]}; do
+#      if [ ! -e $(printf "%s/summary_gen%06i.txt" $ind $gen) ]; then
+         ./run_lamp.sh $ind $gen 1> run_lamp_$ind.log 2> run_lamp_$ind.err &
+#      fi
+   done
+   wait
 done
 
-if [ ! -e summary.txt ]; then
-   echo -e "#Sample\tAncestral_1\tAncestral_2\tPercent1_(SNPs)\tPercent2_(SNPs)\tPercent1_(bases)\tPercent2_(bases)" > summary.txt
-fi
-echo "" >> summary.txt
-for i in 0 1 2 3; do
-   LOGL=`find ${ADMIXED[$i]} -name lamp.log -exec tail -n 1 '{}' \; | gawk '{split($4,A,/=/); S += A[2]}END{printf("%.4f\n", S)}'`
-   gawk -v IND=${ADMIXED[$i]} -v ANC1=${ANCEST1[$i]} -v ANC2=${ANCEST2[$i]} -v GEN=${GENERATIONS[$i]} -v LOGL=$LOGL '{
-      WSUM_CONTIG_1 += $2 * $4
-      WSUM_CONTIG_2 += $2 * $5
-      TOTAL_CONTIG  += $2
-      WSUM_SNP_1    += $3 * $4
-      WSUM_SNP_2    += $3 * $5
-      TOTAL_SNP     += $3
-   }END{
-      printf("%s\t%s\t%s\t%.4f\t%.4f\t%.4f\t%.4f\t% 6i\t% 8.4f\n", IND, ANC1, ANC2, WSUM_SNP_1 / TOTAL_SNP, WSUM_SNP_2 / TOTAL_SNP, \
-        WSUM_CONTIG_1 / TOTAL_CONTIG, WSUM_CONTIG_2 / TOTAL_CONTIG, GEN, LOGL)
-   }' ${ADMIXED[$i]}/summary.txt >> summary.txt
+LONGEST=$(sort -nrk 2,2 contig.dict | head -n 1 | cut -f 1)
+for ind in ${ADMIXED[@]}; do
+   GEN_STRING=${GENERATIONS[$ind]}
+   GEN_ARRAY=( ${GEN_STRING//;/ } )
+   for gen in ${GEN_ARRAY[@]}; do
+      if [ ! -e $(printf "%s/mosaic%06i.png" $ind $gen) ]; then
+         SCALE=$(echo "$(file $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $LONGEST $gen) | cut -d ' ' -f 5) / $(sort -nrk 2,2 contig.dict | head -n 1 | cut -f 2)" | bc -l)
+         HEIGHT=$(file $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $LONGEST $gen) | cut -d ' ' -f 6)
+         if [ ! -e $(printf "%s/args%06i.txt" $ind $gen) ]; then
+            for contig in $(sort -nrk 2,2 contig.dict | head -n $MAX_CONTIGS | cut -f 1); do
+               if [[ -e $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $contig $gen) ]] && [[ ! -e $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen) ]]; then
+                  WIDTH=$(echo -e "scale=0\n$(grep $contig contig.dict | cut -f 2) * $SCALE" | bc -l)
+                  convert $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $contig $gen) -resize ${WIDTH}x${HEIGHT}! -quality 100 $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen)
+                  echo $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen) >> $(printf "%s/args%06i.txt" $ind $gen)
+               fi
+            done
+            printf -- "-append %s/mosaic%06i.png" $ind $gen >> $(printf "%s/args%06i.txt" $ind $gen)
+         fi
+         xargs --arg-file=$(printf "%s/args%06i.txt" $ind $gen) convert -background black
+      fi
+      rm $(printf "%s/args%06i.txt" $ind $gen)
+   done
 done
+
+if [[ ! -e summary.txt ]] || [[ -n $(find . -name 'summary_gen*' -newer summary.txt) ]]; then
+   echo -e "#Sample\tAncestral_1\tAncestral_2\tPercent1_(SNPs)\tPercent2_(SNPs)\tPercent1_(bases)\tPercent2_(bases)\tGenerations\tLogLikelihood" > summary.txt
+   for i in 0 1 2 3; do
+      GEN_STRING=${GENERATIONS[${ADMIXED[$i]}]}
+      GEN_ARRAY=( ${GEN_STRING//;/ } )
+      for gen in ${GEN_ARRAY[@]}; do
+         LOGL=`find $(printf "%s/*/gen%06i" ${ADMIXED[$i]} $gen) -name lamp.log -exec tail -n 1 '{}' \; | gawk '{split($4,A,/=/); S += A[2]}END{printf("%.4f\n", S)}'`
+         gawk -v IND=${ADMIXED[$i]} -v ANC1=${ANCEST1[$i]} -v ANC2=${ANCEST2[$i]} -v GEN=$gen -v LOGL=$LOGL '{
+            WSUM_CONTIG_1 += $2 * $4
+            WSUM_CONTIG_2 += $2 * $5
+            TOTAL_CONTIG  += $2
+            WSUM_SNP_1    += $3 * $4
+            WSUM_SNP_2    += $3 * $5
+            TOTAL_SNP     += $3
+         }END{
+            printf("%s\t%s\t%s\t%.4f\t%.4f\t%.4f\t%.4f\t% 8i\t% 13.4f\n", IND, ANC1, ANC2, WSUM_SNP_1 / TOTAL_SNP, WSUM_SNP_2 / TOTAL_SNP, \
+              WSUM_CONTIG_1 / TOTAL_CONTIG, WSUM_CONTIG_2 / TOTAL_CONTIG, GEN, LOGL)
+         }' $(printf "%s/summary_gen%06i.txt" ${ADMIXED[$i]} $gen) >> summary.txt
+      done
+   done
+fi
