@@ -1,0 +1,3 @@
+#Population_1	Population_2	Population_3a	Popualtion_3b	f
+concolor	roumanicus	eastern	western	europaeus	0.039173128275714	0.023184483179669	0.00165504219518459
+concolor	roumanicus	western	eastern	europaeus	0.039173128275714	0.023184483179669	0.00471800603783438
