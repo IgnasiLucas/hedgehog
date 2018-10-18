@@ -22,13 +22,15 @@ GZVCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 ADD_FLAG_DIR=../../bin
 MAX_MISSING=63
 
-if [ ! -e NotErinaceus.txt ]; then
+if [ ! -e AtelerixAndWrong.txt ]; then
    # The Atelerix and Hemiechinus individuals cannot take part in the Admixture analysis,
-   # and should be excluded. Also, Er59_FR1 and Er68_PRT1B seem to have problems.
-   echo Er65_IS25  >  NotErinaceus.txt
-   echo Er73_SNG1  >> NotErinaceus.txt
-   echo Er59_FR1   >> NotErinaceus.txt
-   echo Er68_PRT1B >> NotErinaceus.txt
+   # and should be excluded. Also, Er59_FR1 and Er68_PRT1B seem to have problems. However,
+   # the Hemiechinus individual is used as an outgroup in abba/baba test, and needs to be
+   # in the vcf file used for that analysis.
+#   echo Er65_IS25  >  NotErinaceus.txt    # Hemiechinus
+   echo Er73_SNG1  >> AtelerixAndWrong.txt    # Atelerix
+   echo Er59_FR1   >> AtelerixAndWrong.txt    # wrong
+   echo Er68_PRT1B >> AtelerixAndWrong.txt    # wrong
 fi
 
 # The binary flags that indicate presence of alleles in individuals are only meaningful
@@ -40,10 +42,10 @@ fi
 # by composition. Otherwise, there is over 1.4 million sites and most individuals have
 # very high levels of missing data.
 
-if [ ! -e Erinaceus_flagged.vcf ]; then
+if [ ! -e ErinaceusAndHemiechinus_flagged.vcf ]; then
    vcftools --gzvcf $GZVCF \
             --stdout \
-            --remove NotErinaceus.txt \
+            --remove AtelerixAndWrong.txt \
             --maf 0.01 \
             --max-maf 0.95 \
             --remove-indels \
@@ -55,11 +57,19 @@ if [ ! -e Erinaceus_flagged.vcf ]; then
             --thin 261 \
             --recode \
             --recode-INFO-all | \
-   gawk -f $ADD_FLAG_DIR/add_flag.awk > Erinaceus_flagged.vcf
+   gawk -f $ADD_FLAG_DIR/add_flag.awk > ErinaceusAndHemiechinus_flagged.vcf
 fi
 
-if [ ! -e Erinaceus_r10e10c4.vcf ]; then
-   gawk -f filtervcf.awk -v ROU=10 -v EUR=10 -v CON=4 popmap.txt Erinaceus_flagged.vcf > Erinaceus_r10e10c4.vcf
+if [ ! -e ErinaceusAndHemiechinus_r10e10c4.vcf ]; then
+   # This is vcf file is just an intermediate file to determine the proportion of missing
+   # sites per individual. Not to be used in subsequent analyses. It can be erased.
+   gawk -f filtervcf.awk -v ROU=10 -v EUR=10 -v CON=4 popmap.txt ErinaceusAndHemiechinus_flagged.vcf > ErinaceusAndHemiechinus_r10e10c4.vcf
+fi
+
+if [ ! -e ErinaceusAndHemiechinus_r1e1c1h1.vcf ]; then
+   # This is the vcf file meant to be used for the abba/baba test, including only sites
+   # with at least 1 Hemiechinus, 1 roumanicus, 1 europaeus, and 1 concolor.
+   gawk -f filtervcf.awk -v HEM=1 -v ROU=1 -v EUR=1 CON=1 popmap.txt ErinaceusAndHemiechinus_flagged.vcf > ErinaceusAndHemiechinus_r1e1c1h1.vcf
 fi
 
 if [ ! -e missingness.txt ]; then
@@ -78,11 +88,16 @@ if [ ! -e missingness.txt ]; then
       for (i in SAMPLE) {
          printf("%s\t%.4f\n", SAMPLE[i], MISSING[SAMPLE[i]] / TOTAL)
       }
-   }' Erinaceus_r10e10c4.vcf | sort -nrk 2,2 > missingness.txt
+   }' ErinaceusAndHemiechinus_r10e10c4.vcf | sort -nrk 2,2 > missingness.txt
 fi
 
 if [ ! -e missing_$MAX_MISSING.txt ]; then
    gawk -v MAX=$MAX_MISSING.txt '($2 > MAX/100){print $1}' missingness.txt > missing_$MAX_MISSING.txt
+fi
+
+if [ ! -e NotErinaceus.txt ]; then
+   cp AtelerixAndWrong.txt NotErinaceus.txt
+   echo Er65_IS25      >>  NotErinaceus.txt
 fi
 
 if [ ! -e Erinaceus_MaxMissing$MAX_MISSING\_flagged.vcf ]; then

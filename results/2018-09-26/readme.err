@@ -4,7 +4,7 @@ VCFtools - 0.1.16
 
 Parameters as interpreted:
 	--gzvcf /data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
-	--remove NotErinaceus.txt
+	--remove AtelerixAndWrong.txt
 	--recode-INFO-all
 	--maf 0.01
 	--max-alleles 2
@@ -39,10 +39,10 @@ Warning: Expected at least 2 parts in INFO entry: ID=CIGAR,Number=A,Type=String,
 Warning: Expected at least 2 parts in FORMAT entry: ID=GQ,Number=1,Type=Float,Description="Genotype Quality, the Phred-scaled marginal (or unconditional) probability of the called genotype">
 Warning: Expected at least 2 parts in FORMAT entry: ID=GL,Number=G,Type=Float,Description="Genotype Likelihood, log10-scaled likelihoods of the data given the called genotype for each possible genotype generated from the reference and alternate alleles given the sample ploidy">
 Excluding individuals in 'exclude' list
-After filtering, kept 46 out of 50 Individuals
+After filtering, kept 47 out of 50 Individuals
 Outputting VCF file...
-After filtering, kept 1405613 out of a possible 21052826 Sites
-Run Time = 929.00 seconds
+After filtering, kept 1507820 out of a possible 21052826 Sites
+Run Time = 1069.00 seconds
 
 VCFtools - 0.1.16
 (C) Adam Auton and Anthony Marcketta 2009
@@ -88,4 +88,4 @@ Excluding individuals in 'exclude' list
 After filtering, kept 41 out of 50 Individuals
 Outputting VCF file...
 After filtering, kept 1403514 out of a possible 21052826 Sites
-Run Time = 848.00 seconds
+Run Time = 856.00 seconds
