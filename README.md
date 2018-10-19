@@ -1,3 +1,39 @@
+2018-10-15
+==========
+I run the abba/baba test and the estimation of the proportion of the genome that
+is introgressed. I use as input the most recent filtering of the vcf file, including
+data from at least one individual of each population. I also split the E. europaeus
+spcies in two populations, according to Admixture (and guessing the origin of two
+individuals included in this analysis that were absent in the Admixture one). I
+think I mostly confirm Kristýna's results. The D statistic, measuring the excess
+of the ABBA pattern over the BABA one, is positive (0.15) and highly significant,
+meaning that there must have been introgression between E. roumanicus and E. europaeus.
+The signal is still strong when using only the eastern population of E. europaeus,
+but disappears when using only the western one. The proportion of the genome that
+is introgressed is low (below 4%, and probably below 1%), and the estimate depends
+on the specific statistic used.
+
+2018-10-08
+==========
+Simple update of the R script that creates the graphs from the Admixture output.
+The goal was simply to order individuals in a reasonable way.
+
+2018-10-03
+==========
+In the past (2018-06-30) I have used my own script to identify genomic regions
+of admixture in individuals known to be admixed. However, my script did not take
+recombination into account, as if all loci were independent. There exist several
+programs that take recombination into account. The oldest of them do not require
+phased haplotypes. I was unable to install SABER. I use LAMP instead. Some contigs
+did not produce results (segmentation fault), but most did. I run LAMP with several
+values for the time-since-admixture parameter, because for 3 of the 4 putatively
+admixed individuals we don't know when admixture happened. Results are quite
+consistent for a large range of those values. LAMP runs separately for each contig
+and produces an image with ancestries represented as colors along a chromosome.
+I joined the images corresponding to the 50 largest contigs to visualize the
+most important results.
+
+
 2018-09-26
 ==========
 
