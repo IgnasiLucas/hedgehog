@@ -33,7 +33,13 @@
 # After a few runs, I see that the results depende quite a bit on the amount of recombination
 # expected. And we don't really know how long ago the admixture happened in the lineage
 # of some individuals. I would like to run the whole analysis for several values of the
-# number of generations since admixture.
+# number of generations since admixture. What I do know, or at least can estimate, is
+# the average recombination rate between a pair of SNPs per generation. Er37_SK27 is a
+# backcross: one of its parents was a hybrid, and it is the recombination in that parent
+# what produced all the blocks of alternative ancestry. Note that it is not necessary
+# to know the phase in order to count the number of crossovers in a single parent. From
+# previous runs of LAMP, I approximately count 5 clear breakpoints within the first 50
+# contigs, which mean a recombination rate per base per generation of 1.0e-8.
 
 ADMIXTURE_DIR=/data/kristyna/hedgehog/results_2018/05-06-2018/r10e10c4
 VCF_FILE=../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
