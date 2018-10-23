@@ -155,23 +155,20 @@ if [ ! -e FakeScaffold_freqs.tsv ]; then
    }(FILENAME == "FakeScaffold_lengths.txt"){
       FAKELEN[$1] = $2
    }(FILENAME == "contig_lengths.txt"){
-      if (CUMMUL < FAKELEN[FAKESCAF]) {
-         SCAF[$1] = FAKESCAF
-         OFFSET[$1] = CUMMUL + 0
-         CUMMUL += $2
-      } else {
+      if (CUMMUL == FAKELEN[FAKESCAF]){
          FAKESCAF++
          CUMMUL = 0
-         SCAF[$1] = FAKESCAF
-         OFFSET[$1] = CUMMUL
       }
+      SCAF[$1] = FAKESCAF
+      OFFSET[$1] = CUMMUL + 0
+      CUMMUL += $2
    }(FILENAME ~ /.tsv$/){
       if (FNR == 1) print $0
       if (FNR > 1) {
          FAKEPOS = $2 + OFFSET[$1]
          $1 = SCAF[$1]
          $2 = FAKEPOS
-         print $0
+         print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
       }
    }' FakeScaffold_lengths.txt contig_lengths.txt $FREQUENCIES > FakeScaffold_freqs.tsv
 fi
@@ -182,21 +179,13 @@ if [ ! -e Fake_ancestry_blocks.bed ]; then
    }(FILENAME == "FakeScaffold_lengths.txt"){
       FAKELEN[$1] = $2
    }(FILENAME == "contig_lengths.txt"){
-      if (CUMMUL < FAKELEN[FAKESCAF]) {
-         SCAF[$1] = FAKESCAF
-         OFFSET[$1] = CUMMUL + 0
-         CUMMUL += $2
-      } else {
-         if (CUMMUL == FAKELEN[FAKESCAF]){
-            FAKESCAF++
-            CUMMUL = 0
-            SCAF[$1] = FAKESCAF
-            OFFSET[$1] = CUMMUL
-         } else {
-            print "Error: scaffold " FAKESCAF ", accumulated length " CUMMUL ", presumed length " FAKELEN[FAKESCAF]
-            exit
-         }
+      if (CUMMUL == FAKELEN[FAKESCAF]) {
+         FAKESCAF++
+         CUMMUL = 0
       }
+      SCAF[$1] = FAKESCAF
+      OFFSET[$1] = CUMMUL + 0
+      CUMMUL += $2
    }(FILENAME == "ancestry_blocks.bed"){
       FAKESTART = $2 + OFFSET[$1]
       FAKEEND   = $3 + OFFSET[$1]
@@ -206,7 +195,7 @@ if [ ! -e Fake_ancestry_blocks.bed ]; then
       print $1 "\t" $2 "\t" $3 "\t" $4
    }' FakeScaffold_lengths.txt contig_lengths.txt ancestry_blocks.bed > Fake_ancestry_blocks.bed
 fi
-exit
+
 if [ ! -e Fake_admixed.bed ]; then
    grep admixed Fake_ancestry_blocks.bed > Fake_admixed.bed
 fi
@@ -221,7 +210,6 @@ if [ ! -e Fake_admixed_freqs.tsv ]; then
    rm Fake_admixed_SNP_positions.txt
 fi
 
-
 # I use a version of the abba_baba.R that does not run the jackknive method, which slows it down
 # very much and is not necessary to generate a null distribution of D values.
 
@@ -232,11 +220,11 @@ echo $ORIGINAL
 echo $FAKE
 
 if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
-   for i in $(seq 1 10); do
+   for i in $(seq 1 10000); do
       # Shuffle the Fake_admixed.bed
-      bedtools shuffle -noOverlapping -seed 11071980 -i Fake_admixed.bed -g FakeScaffold_length.txt > A.bed
+      bedtools shuffle -noOverlapping -seed $i -i Fake_admixed.bed -g FakeScaffold_lengths.txt | sort -nk 1,1 -k 2,2 > A.bed
       # Get the its complement.
-      bedtools complement -i A.bed -g FakeScaffold_length.txt > B.bed
+      bedtools complement -i A.bed -g FakeScaffold_lengths.txt > B.bed
       # Get the corresponding frequencies files.
       bedtools intersect -wa -a Fake_SNPs.bed -b A.bed -sorted | cut -f 1,3 > A_pos.txt
       bedtools intersect -wa -a Fake_SNPs.bed -b B.bed -sorted | cut -f 1,3 > B_pos.txt
@@ -250,6 +238,7 @@ if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
       R -q --no-save <estimate_f.R --args B.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> null_f2.txt
    done
    paste null_D1.txt null_D2.txt | gawk '{F[sprintf("%.3f", $1 - $2)]++}END{for (f in F) print f "\t" F[f]}' | sort -nk 1,1 > null_diff_D.txt
+   echo -e "Diff\tf_hom\tf_d\tf" > null_diff_f.txt
    paste null_f1.txt null_f2.txt | gawk '{
       F1[sprintf("%.3f", $6 - $14)]++
       F2[sprintf("%.3f", $7 - $15)]++
@@ -258,7 +247,7 @@ if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
       Z[sprintf("%.3f", $7 - $15)]++
       Z[sprintf("%.3f", $8 - $16)]++
    }END{
-      print "Diff\tf_hom\tf_d\tf"
       for (z in Z) print z "\t" F1[z] + 0 "\t" F2[z] + 0 "\t" F3[z] + 0
-   }' | sort -nk 1,1 > null_diff_f.txt
+   }' | sort -nk 1,1 >> null_diff_f.txt
+   rm A.bed B.bed A_pos.txt B_pos.txt A.tsv B.tsv
 fi
