@@ -79,7 +79,7 @@ if [ ! -e crweh1.tsv ]; then
         -v P4="western" \
         -v OUTGROUP="Hemiechinus" \
         -v MIN1=1 -v MIN2=1 -v MIN3=1 -v MIN4=1 -v MINOUT=1 \
-        -f $FREQ2_AWK popmap_split.txt $VCF > crweh1.tsv
+        -f $FREQ2_AWK popmap_split.txt $VCF | grep -v 999.9999 > crweh1.tsv
 fi
 
 # I found that Simon Martin estimates several flavours of the f statistic. For some of them
