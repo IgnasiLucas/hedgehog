@@ -1,4 +1,4 @@
 #f statistic in regions where Er37_SK27 has mixed ancestry
-concolor	roumanicus	eastern	western	europaeus	0.0399633501332019	0.023679998262805	0.0445895933112661
+concolor	roumanicus	eastern	western	europaeus	0.0396230746893586	0.0234706381319312	0.0440765187017691
 #f statistic in regions where E437_SK27 only has E. roumanicus ancestry:
-concolor	roumanicus	eastern	western	europaeus	0.0392628308368117	0.0231973463229491	0.0423014910961786
+concolor	roumanicus	eastern	western	europaeus	0.0351540026186308	0.0207189929264293	0.0375753810169617

@@ -72,8 +72,8 @@ if [ ! -e admixed_freqs.tsv ]; then
                }($2 == TYPE){
                   LAST = $1
                }($2 != TYPE){
-                  # We could assign the recombination point to the midpoint between SNPs...
-#                 LAST = sprintf("%.0f", (LAST + $1) / 2)
+                  # I assign the recombination point to the midpoint between SNPs.
+                  LAST = sprintf("%.0f", (LAST + $1) / 2)
                   print CONTIG "\t" START "\t" LAST "\t" TYPE
                   START = LAST
                   LAST = START
@@ -96,13 +96,17 @@ if [ ! -e admixed_freqs.tsv ]; then
       gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' $FREQUENCIES > SNPs.bed
    fi
    bedtools intersect -wa -a SNPs.bed -b admixed.bed -sorted | cut -f 1,3 > admixed_SNP_positions.txt
+   sed -r -i 's/$/\t/' admixed_SNP_positions.txt
    head -n 1 $FREQUENCIES > admixed_freqs.tsv
    grep -F -f admixed_SNP_positions.txt $FREQUENCIES >> admixed_freqs.tsv
 #   rm admixed_SNP_positions.txt
 fi
 
 if [ ! -e roumanicus_freqs.tsv ]; then
-   grep -v -F -f admixed_SNP_positions.txt $FREQUENCIES > roumanicus_freqs.tsv
+   bedtools intersect -wa -a SNPs.bed -b roumanicus.bed -sorted | cut -f 1,3 > roumanicus_SNP_positions.txt
+   sed -r -i 's/$/\t/' roumanicus_SNP_positions.txt
+   head -n 1 $FREQUENCIES > roumanicus_freqs.tsv
+   grep -F -f roumanicus_SNP_positions.txt $FREQUENCIES >> roumanicus_freqs.tsv
 fi
 
 if [ ! -e D.txt ]; then
@@ -133,7 +137,11 @@ fi
 # to be a limit in how large the chromosome can be. Let's try with two.
 
 if [ ! -e FakeScaffold_lengths.txt ]; then
-   MAX_LENGTH=$(gawk '{S += $2}END{printf("%.0f\n", S/2)}' contig_lengths.txt)
+   cut -f 1 ancestry_blocks.bed | uniq > z_contigs_used.txt
+   sed -r -i 's/$/\t/' z_contigs_used.txt
+   grep -F -f z_contigs_used.txt contig_lengths.txt > used_contig_lengths.txt
+   rm z_contigs_used.txt
+   MAX_LENGTH=$(gawk '{S += $2}END{printf("%.0f\n", S/2)}' used_contig_lengths.txt)
    gawk -v MAXLEN=$MAX_LENGTH 'BEGIN{
       SCAF = 1
    }{
@@ -146,68 +154,101 @@ if [ ! -e FakeScaffold_lengths.txt ]; then
       }
    }END{
       if (LEN <= MAXLEN) print SCAF "\t" LEN
-   }' contig_lengths.txt > FakeScaffold_lengths.txt
+   }' used_contig_lengths.txt > FakeScaffold_lengths.txt
+fi
+
+if [ ! -e Fake_admixed_freqs.tsv ]; then
+   gawk 'BEGIN{
+      FAKE_SCAF = 1
+   }(FILENAME == "FakeScaffold_lengths.txt"){
+      FAKE_LEN[$1] = $2
+   }(FILENAME == "used_contig_lengths.txt"){
+      if (CUMMUL == FAKE_LEN[FAKE_SCAF]){
+         FAKE_SCAF++
+         CUMMUL = 0
+      }
+      SCAF[$1] = FAKE_SCAF
+      OFFSET[$1] = CUMMUL + 0
+      CUMMUL += $2
+   }(FILENAME == "admixed_freqs.tsv"){
+      if (FNR == 1) print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
+      if (FNR > 1) {
+         print SCAF[$1] "\t" $2 + OFFSET[$1] "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
+      }
+   }' FakeScaffold_lengths.txt used_contig_lengths.txt admixed_freqs.tsv > Fake_admixed_freqs.tsv
+fi
+
+if [ ! -e Fake_roumanicus_freqs.tsv ]; then
+   gawk 'BEGIN{
+      FAKE_SCAF = 1
+   }(FILENAME == "FakeScaffold_lengths.txt"){
+      FAKE_LEN[$1] = $2
+   }(FILENAME == "used_contig_lengths.txt"){
+      if (CUMMUL == FAKE_LEN[FAKE_SCAF]){
+         FAKE_SCAF++
+         CUMMUL = 0
+      }
+      SCAF[$1] = FAKE_SCAF
+      OFFSET[$1] = CUMMUL + 0
+      CUMMUL += $2
+   }(FILENAME == "roumanicus_freqs.tsv"){
+      if (FNR == 1) print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
+      if (FNR > 1) {
+         print SCAF[$1] "\t" $2 + OFFSET[$1] "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
+      }
+   }' FakeScaffold_lengths.txt used_contig_lengths.txt roumanicus_freqs.tsv > Fake_roumanicus_freqs.tsv
 fi
 
 if [ ! -e FakeScaffold_freqs.tsv ]; then
-   gawk 'BEGIN{
-      FAKESCAF = 1
-   }(FILENAME == "FakeScaffold_lengths.txt"){
-      FAKELEN[$1] = $2
-   }(FILENAME == "contig_lengths.txt"){
-      if (CUMMUL == FAKELEN[FAKESCAF]){
-         FAKESCAF++
-         CUMMUL = 0
-      }
-      SCAF[$1] = FAKESCAF
-      OFFSET[$1] = CUMMUL + 0
-      CUMMUL += $2
-   }(FILENAME ~ /.tsv$/){
-      if (FNR == 1) print $0
-      if (FNR > 1) {
-         FAKEPOS = $2 + OFFSET[$1]
-         $1 = SCAF[$1]
-         $2 = FAKEPOS
-         print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7
-      }
-   }' FakeScaffold_lengths.txt contig_lengths.txt $FREQUENCIES > FakeScaffold_freqs.tsv
+   tail -n +2 Fake_admixed_freqs.tsv > z1
+   tail -n +2 Fake_roumanicus_freqs.tsv > z2
+   head -n  1 Fake_admixed_freqs.tsv > FakeScaffold_freqs.tsv
+   cat z1 z2 | sort -nk 1,1 -k 2,2 >> FakeScaffold_freqs.tsv
+fi
+
+if [ ! -e Fake_SNPs.bed ]; then
+   # This is just the coordinates of the SNPs with data, in bed format. I need it later
+   # to intersect it with the shuffled blocks.
+   gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' FakeScaffold_freqs.tsv > Fake_SNPs.bed
 fi
 
 if [ ! -e Fake_ancestry_blocks.bed ]; then
    gawk 'BEGIN{
+      NEWSCAF = 1
+      getline <"ancestry_blocks.bed"
       FAKESCAF = 1
+      FAKESTART = 0
+      FAKEEND = $3
+      TYPE = $4
    }(FILENAME == "FakeScaffold_lengths.txt"){
       FAKELEN[$1] = $2
-   }(FILENAME == "contig_lengths.txt"){
-      if (CUMMUL == FAKELEN[FAKESCAF]) {
-         FAKESCAF++
+   }(FILENAME == "used_contig_lengths.txt"){
+      if (CUMMUL == FAKELEN[NEWSCAF]) {
+         NEWSCAF++
          CUMMUL = 0
       }
-      SCAF[$1] = FAKESCAF
+      SCAF[$1] = NEWSCAF
       OFFSET[$1] = CUMMUL + 0
       CUMMUL += $2
    }(FILENAME == "ancestry_blocks.bed"){
-      FAKESTART = $2 + OFFSET[$1]
-      FAKEEND   = $3 + OFFSET[$1]
-      $1 = SCAF[$1]
-      $2 = FAKESTART
-      $3 = FAKEEND
-      print $1 "\t" $2 "\t" $3 "\t" $4
-   }' FakeScaffold_lengths.txt contig_lengths.txt ancestry_blocks.bed > Fake_ancestry_blocks.bed
+      if ((SCAF[$1] == FAKESCAF) && ($4 == TYPE)) {
+         FAKEEND = $3 + OFFSET[$1]
+      } else {
+         print FAKESCAF "\t" FAKESTART "\t" FAKEEND "\t" TYPE
+         FAKESCAF = SCAF[$1]
+         FAKESTART = $2 + OFFSET[$1]
+         FAKEEND = $3 + OFFSET[$1]
+         TYPE = $4
+      }
+   }END{
+      if ((SCAF[$1] == FAKESCAF) && ($4 == TYPE)) {
+         print FAKESCAF "\t" FAKESTART "\t" FAKEEND "\t" TYPE
+      }
+   }' FakeScaffold_lengths.txt used_contig_lengths.txt ancestry_blocks.bed > Fake_ancestry_blocks.bed
 fi
 
 if [ ! -e Fake_admixed.bed ]; then
    grep admixed Fake_ancestry_blocks.bed > Fake_admixed.bed
-fi
-
-if [ ! -e Fake_admixed_freqs.tsv ]; then
-   if [ ! -e Fake_SNPs.bed ]; then
-      gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' FakeScaffold_freqs.tsv > Fake_SNPs.bed
-   fi
-   bedtools intersect -wa -a Fake_SNPs.bed -b Fake_admixed.bed -sorted | cut -f 1,3 > Fake_admixed_SNP_positions.txt
-   head -n 1 FakeScaffold_freqs.tsv > Fake_admixed_freqs.tsv
-   grep -F -f Fake_admixed_SNP_positions.txt FakeScaffold_freqs.tsv >> Fake_admixed_freqs.tsv
-   rm Fake_admixed_SNP_positions.txt
 fi
 
 # I use a version of the abba_baba.R that does not run the jackknive method, which slows it down
@@ -220,26 +261,22 @@ echo $ORIGINAL
 echo $FAKE
 
 if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
-   for i in $(seq 1 10000); do
-      # Shuffle the Fake_admixed.bed
-      bedtools shuffle -noOverlapping -seed $i -i Fake_admixed.bed -g FakeScaffold_lengths.txt | sort -nk 1,1 -k 2,2 > A.bed
-      # Get the its complement.
-      bedtools complement -i A.bed -g FakeScaffold_lengths.txt > B.bed
-      # Get the corresponding frequencies files.
-      bedtools intersect -wa -a Fake_SNPs.bed -b A.bed -sorted | cut -f 1,3 > A_pos.txt
-      bedtools intersect -wa -a Fake_SNPs.bed -b B.bed -sorted | cut -f 1,3 > B_pos.txt
-      head -n 1 FakeScaffold_freqs.tsv | tee A.tsv > B.tsv
-      grep -F -f A_pos.txt FakeScaffold_freqs.tsv >> A.tsv
-      grep -F -f B_pos.txt FakeScaffold_freqs.tsv >> B.tsv
-      # Estimate D and fs, and the differences.
-      R -q --no-save <abba_baba_noJack.R --args A.tsv concolor roumanicus europaeus | grep -vP "^[#>\+]" >> null_D1.txt
-      R -q --no-save <abba_baba_noJack.R --args B.tsv concolor roumanicus europaeus | grep -vP "^[#>\+]" >> null_D2.txt
-      R -q --no-save <estimate_f.R --args A.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> null_f1.txt
-      R -q --no-save <estimate_f.R --args B.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> null_f2.txt
-   done
-   paste null_D1.txt null_D2.txt | gawk '{F[sprintf("%.3f", $1 - $2)]++}END{for (f in F) print f "\t" F[f]}' | sort -nk 1,1 > null_diff_D.txt
+   if [ ! -e null_D.txt ] || [ ! -e null_f.txt ]; then
+      for i in $(seq 1 50); do
+         ./get_nulls.sh $i &
+      done
+      wait
+
+      for i in $(seq 1 50); do
+         paste null_D1_$i.txt null_D2_$i.txt >> null_D.txt
+         paste null_f1_$i.txt null_f2_$i.txt >> null_f.txt
+         rm null_D1_$i.txt null_D2_$i.txt null_f1_$i.txt null_f2_$i.txt A_$i.* B_$i.* A_pos_$i.txt B_pos_$i.txt
+      done
+   fi
+
+   gawk '{F[sprintf("%.3f", $1 - $2)]++}END{F["0.000"] += F["-0.000"]; delete F["-0.000"]; for (f in F) print f "\t" F[f]}' null_D.txt | sort -nk 1,1 > null_diff_D.txt
    echo -e "Diff\tf_hom\tf_d\tf" > null_diff_f.txt
-   paste null_f1.txt null_f2.txt | gawk '{
+   gawk '{
       F1[sprintf("%.3f", $6 - $14)]++
       F2[sprintf("%.3f", $7 - $15)]++
       F3[sprintf("%.3f", $8 - $16)]++
@@ -247,7 +284,10 @@ if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
       Z[sprintf("%.3f", $7 - $15)]++
       Z[sprintf("%.3f", $8 - $16)]++
    }END{
+      F1["0.000"] += F1["-0.000"]; delete F1["-0.000"]
+      F2["0.000"] += F2["-0.000"]; delete F1["-0.000"]
+      F3["0.000"] += F3["-0.000"]; delete F1["-0.000"]
+      delete Z["-0.000"]
       for (z in Z) print z "\t" F1[z] + 0 "\t" F2[z] + 0 "\t" F3[z] + 0
-   }' | sort -nk 1,1 >> null_diff_f.txt
-   rm A.bed B.bed A_pos.txt B_pos.txt A.tsv B.tsv
+   }' null_f.txt | sort -nk 1,1 >> null_diff_f.txt
 fi
