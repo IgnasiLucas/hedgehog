@@ -51,7 +51,7 @@ ANCEST2=(  europaeus  europaeus   concolor   concolor )
 MIN_LOCI=50
 
 # And this, the number of largest contigs to represent graphically.
-MAX_CONTIGS=50
+MAX_CONTIGS=100
 
 # I want to runt LAMP for a different set of values of the number-of-generations
 # parameter, for each individual. Because I iterate over individuals below, it
@@ -142,20 +142,21 @@ for ind in ${ADMIXED[@]}; do
    for gen in ${GEN_ARRAY[@]}; do
       if [ ! -e $(printf "%s/mosaic%06i.png" $ind $gen) ]; then
          SCALE=$(echo "$(file $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $LONGEST $gen) | cut -d ' ' -f 5) / $(sort -nrk 2,2 contig.dict | head -n 1 | cut -f 2)" | bc -l)
-         HEIGHT=$(file $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $LONGEST $gen) | cut -d ' ' -f 6)
+         HEIGHT=$(file $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $LONGEST $gen) | cut -d ' ' -f 7)
          if [ ! -e $(printf "%s/args%06i.txt" $ind $gen) ]; then
             for contig in $(sort -nrk 2,2 contig.dict | head -n $MAX_CONTIGS | cut -f 1); do
                if [[ -e $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $contig $gen) ]] && [[ ! -e $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen) ]]; then
                   WIDTH=$(echo -e "scale=0\n$(grep $contig contig.dict | cut -f 2) * $SCALE" | bc -l)
-                  convert $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $contig $gen) -resize ${WIDTH}x${HEIGHT}! -quality 100 $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen)
+                  convert $(printf "%s/%s/gen%06i/tmp/chr.png" $ind $contig $gen) -resize ${WIDTH}x${HEIGHT%,}! -quality 100 $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen)
                   echo $(printf "%s/%s/gen%06i/tmp/chr_scaled.png" $ind $contig $gen) >> $(printf "%s/args%06i.txt" $ind $gen)
+                  echo $contig >> z1
                fi
             done
             printf -- "-append %s/mosaic%06i.png" $ind $gen >> $(printf "%s/args%06i.txt" $ind $gen)
          fi
          xargs --arg-file=$(printf "%s/args%06i.txt" $ind $gen) convert -background black
       fi
-      rm $(printf "%s/args%06i.txt" $ind $gen)
+#      if [ -e $(printf "%s/args%06i.txt" $ind $gen) ]; then rm $(printf "%s/args%06i.txt" $ind $gen); fi
    done
 done
 

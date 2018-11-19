@@ -39,7 +39,7 @@ for contig in $(find $1/ -mindepth 1 -name 'NW*' -type d); do
 done
 
 if [[ ! -e $(printf "%s/summary_gen%06i.txt" $1 $2) ]] || \
-   [[ -n $(find $(printf "%s/gen%06i" $1 $2) -name ancestry_lamp4.out -newer $(printf "%s/summary_gen%06i.txt" $1 $2)) ]]; then
+   [[ -n $(find $(printf "%s/*/gen%06i" $1 $2) -name ancestry_lamp4.out -newer $(printf "%s/summary_gen%06i.txt" $1 $2)) ]]; then
    ./summarize_lamp.sh $1 $2 contig.dict | sort -nrk 2,2 > $(printf "%s/summary_gen%06i.txt" $1 $2)
 fi
 
