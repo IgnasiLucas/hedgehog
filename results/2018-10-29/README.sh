@@ -21,6 +21,7 @@
 # windows, where both divergence and polymorphism is also estimated. The latter can be
 # done with Simon H. Martin's scripts: https://github.com/simonhmartin/genomics_general
 
+FREQ2_AWK=../../bin/freq2.awk
 # Different vcf files are optimized for different statistics:
 VCF1=../2018-09-26/ErinaceusAndHemiechinus_r1e1c1h1.vcf
 VCF2=../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
@@ -64,16 +65,206 @@ if [ ! -e creh1.popmap.txt ] || [ ! -e erin63.popmap.txt ]; then
       rm good_samples.txt
    fi
    if [ ! -e erin63.popmap.txt ]; then
-      gunzip -c erin63.geno.gz | head -n 1 | sed 's/\t/\n/g' | gail -n +3 > good_samples.txt
+      gunzip -c erin63.geno.gz | head -n 1 | sed 's/\t/\n/g' | tail -n +3 > good_samples.txt
       grep -F -f good_samples.txt popmap.txt > erin63.popmap.txt
+      rm good_samples.txt
+      rm popmap.txt
    fi
 fi
 
-if [ ! -e erin63.PopGenStats.csv ]; then
-   python $GENOMICS_GENERAL/popgenWindows.py --windType sites -w 50 -m 50 -O 40 -f phased \
-      -g erin63.geno.gz -o erin63.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20
+# The abbababa statistics are quite demanding on the number of SNPs used, and they are necessarily
+# based on a smaller portion of the original VCF file, because they require data for the one Hemiechinus
+# sample. Thus, I'll run first the abbababa tests in sliding windows and use those windows coordinates
+# to calculate population genetic statistics with the larger dataset.
+if [ ! -e creh1.abbababa.csv ]; then
+   python $GENOMICS_GENERAL/ABBABABAwindows.py -g creh1.geno.gz -f phased -o creh1.abbababa.csv --windType sites \
+      -w 110 --overlap 100 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
 fi
 
-if [ ! -e creh1.abbababa.csv ]; then
+if [ ! -e erin63.PopGenStats.csv ]; then
+   if [ ! -e creh1.windows.txt ]; then
+      cut -f 1,2,3 -d ',' --output-delimiter=$'\t' creh1.abbababa.csv | tail -n +2 > creh1.windows.txt
+   fi
+   python $GENOMICS_GENERAL/popgenWindows.py --windType predefined --windCoords creh1.windows.txt -f phased \
+      -g erin63.geno.gz -o erin63.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+   rm creh1.windows.txt
+fi
 
+# The previous estimation of population genetic parameters was done in the same windows where abbababa statistics were
+# also estimated, for the sake of comparison. However, it is convenient to calculate population genetic statistics
+# in non-overlapping windows, of a smaller size maybe, so that correlations among statistics can be evaluated
+# without violating the assumption of independence among values.
+if [ ! -e erin63.AccuStats.csv ]; then
+   python $GENOMICS_GENERAL/popgenWindows.py -g erin63.geno.gz -o erin63.AccuStats.csv -f phased --windType sites \
+      -w 50 -m 40 -O 0 --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+fi
+
+if [ ! -e windowStats.png ]; then
+   R --slave --no-save < plot_windowStats.R
+fi
+
+# I expected nucleotide diversity (pi) in either E. roumanicus or E. europaeus to be proportional to
+# divergence between the two. The rationale is that under neutrality diversity is expected to be 4Nu
+# and divergence 2Tu. Thus, divergence should be proportional to diversity, with a coefficient similar
+# to T/2N, where T is divergence time and N, population size.
+#
+# What I see is that divergence is negatively correlated with diversity: regions with high diversity,
+# more in E. roumanicus than in E. europaeus, are typically less diverged, more conserved. The effect
+# is small, but significant. This does not make any sense from the neutral point of view. The pattern
+# would be better explained by positive selection driving the removal of variation and the fixation
+# of differences (divergence). Different intensities of positive selection along the genome would
+# generate the observed relationship.
+#
+# Another possible explanation is variation in the local recombination rate. Recombination rate affects
+# effective population size, which positively affects variation (4Nu) but not divergence (2Tu). If anything,
+# divergence could be higher in regions of lower effective population size, if a larger proportion of
+# mutations was effectively neutral. Hence, the negative relationship between variation and divergence.
+#
+if [ ! -e ../../data/annotation.gff3.gz ]; then
+   wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Erinaceus_europaeus/GFF/ref_EriEur2.0_top_level.gff3.gz
+   mv ref_EriEur2.0_top_level.gff3.gz ../../data/annotation.gff3.gz
+fi
+
+if [ ! -e genes.bed ]; then
+   gunzip -c ../../data/annotation.gff3.gz | grep -P "^#|\tgene\t" | bedtools merge -i - > genes.bed
+fi
+
+# Because genes and intergenic regions are disjoint windows, but I want to get statistics for the whole
+# set of sites of each category (at least in a contig), I should split the geno files, instead of using
+# windows. Below, I assume that whatever does not overlap a gene is intergenic.
+
+if [ ! -e genes.creh1.geno.gz ]; then
+   if [ ! -e genic_filter.creh1.txt ]; then
+      if [ ! -e snps.creh1.bed ]; then
+         gunzip -c creh1.geno.gz | gawk '(NR == 1){print $0 >"genes.creh1.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.creh1.bed
+      fi
+      bedtools intersect -a snps.creh1.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.creh1.txt
+   fi
+   gunzip -c creh1.geno.gz | grep -F -f genic_filter.creh1.txt >> genes.creh1.geno
+   gzip genes.creh1.geno
+fi
+
+if [ ! -e inter.creh1.geno.gz ]; then
+   if [ ! -e genic_filter.creh1.txt ]; then
+      if [ ! -e snps.creh1.bed ]; then
+         gunzip -c creh1.geno.gz | gawk '(NR == 1){print $0 >"genes.creh1.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.creh1.bed
+      fi
+      bedtools intersect -a snps.creh1.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.creh1.txt
+   fi
+   gunzip -c creh1.geno.gz | grep -F -v -f genic_filter.creh1.txt >> inter.creh1.geno
+   gzip inter.creh1.geno
+fi
+
+if [ ! -e genes.erin63.geno.gz ]; then
+   if [ ! -e genic_filter.erin63.txt ]; then
+      if [ ! -e snps.erin63.bed ]; then
+         gunzip -c erin63.geno.gz | gawk '(NR == 1){print $0 >"genes.erin63.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
+      fi
+      bedtools intersect -a snps.erin63.bed -b genes.bed -v | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
+   fi
+   gunzip -c erin63.geno.gz | grep -F -f genic_filter.erin63.txt >> genes.erin63.geno
+   gzip genes.erin63.geno
+fi
+
+if [ ! -e inter.erin63.geno.gz ]; then
+   if [ ! -e genic_filter.erin63.txt ]; then
+      if [ ! -e snps.erin63.bed ]; then
+         gunzip -c erin63.geno.gz | gawk '(NR == 1){print $0 >"genes.erin63.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
+      fi
+      bedtools intersect -a snps.erin63.bed -b genes.bed -v | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
+   fi
+   gunzip -c erin63.geno.gz | grep -F -v -f genic_filter.erin63.txt >> inter.erin63.geno
+   gzip inter.erin63.geno
+   rm genic_filter.erin63.txt
+fi
+
+# Below I calculate abba/baba and population genetic statistics separately for genic and intergenic
+# regions. Now, I am more interested in genome-wide values than in variation along contigs. It does
+# not make much sense to use the same windows in both analyses, unless I used just the whole contigs.
+# However, instead of running the estimates in differently-sized contigs, that then must be averaged,
+# I prefer to use windows with a comparable amount of SNPs each, without overlap.
+
+if [ ! -e genes.abbababa.csv ]; then
+   python $GENOMICS_GENERAL/ABBABABAwindows.py -g genes.creh1.geno.gz -f phased -o genes.abbababa.csv --windType sites \
+      -w 110 --overlap 0 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
+fi
+
+if [ ! -e genes.PopGenStats.csv ]; then
+   python $GENOMICS_GENERAL/popgenWindows.py --windType sites -w 110 --overlap 0 -m 100 -f phased \
+      -g genes.erin63.geno.gz -o genes.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+fi
+
+if [ ! -e inter.abbababa.csv ]; then
+   python $GENOMICS_GENERAL/ABBABABAwindows.py -g inter.creh1.geno.gz -f phased -o inter.abbababa.csv --windType sites \
+      -w 110 --overlap 0 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
+fi
+
+if [ ! -e inter.PopGenStats.csv ]; then
+   python $GENOMICS_GENERAL/popgenWindows.py --windType sites -w 110 --overlap 0 -m 100 -f phased \
+      -g inter.erin63.geno.gz -o inter.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+fi
+
+if [ ! -e pi_dxy.png ]; then
+   R --slave --no-save < plot_pi_dxy.R
+fi
+
+if [ ! -e D.png ]; then
+   R --slave --no-save < plot_D.R
+fi
+
+# I do not plot fd, because it only makes sense for the windows where D > 0. Actually, instead of windows,
+# it is clear that I should estimated an fd for all intergenic and one for all genic regions. The same strategy
+# used in 2018-10-24 should be useful here. Note that to estimate f_d, I do not need to split the P3 population
+# in two subpopulations. But, to re-use the 'estimate_fd.R' script, I should add dummy variables in place of P3a
+# and P3b.
+
+if [ ! -e D.txt ] || [ ! -e fd.txt ]; then
+   if [ ! -e genic.tsv ] || [ ! -e inter.tsv ]; then
+      if [ ! -e creh1.tsv ]; then
+         gawk -v P1='concolor' \
+              -v P2='roumanicus' \
+              -v P3='europaeus' \
+              -v OUTGROUP='Hemiechinus' \
+              -v MIN1=1 -v MIN2=1 -v MIN3=1 -v MINOUT=1 \
+              -f $FREQ2_AWK creh1.popmap.txt $VCF1 | grep -v 999.9999 > creh1.tsv
+      fi
+
+      if [ ! -e genic_filter.txt ]; then
+         if [ ! -e snps.bed ]; then
+            gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' creh1.tsv > snps.bed
+         fi
+         bedtools intersect -a snps.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.txt
+         #rm snps.bed
+      fi
+
+      if [ ! -e genic.tsv ]; then
+         echo -e "scaffold\tposition\tconcolor\troumanicus\tdummy1\tdummy2\teuropaeus" > genic.tsv
+         grep -F -f genic_filter.txt creh1.tsv | gawk '{print $1 "\t" $2 "\t" $3 "\t" $4 "\tNA\tNA\t" $5}' >> genic.tsv
+      fi
+
+      if [ ! -e inter.tsv ]; then
+         echo -e "scaffold\tposition\tconcolor\troumanicus\tdummy1\tdummy2\teuropaeus" > inter.tsv
+         grep -F -v -f genic_filter.txt creh1.tsv | gawk '(NR > 1){print $1 "\t" $2 "\t" $3 "\t" $4 "\tNA\tNA\t" $5}' >> inter.tsv
+         #rm genic_filter
+      fi
+   fi
+   #rm creh1.tsv
+
+   if [ ! -e D.txt ]; then
+      if [ ! -e contig_lengths.txt ]; then
+         gawk '(/^##contig=<ID=/){split($1,A,/[=,>]/); print A[3] "\t" A[5]}' $VCF1 > contig_lengths.txt
+      fi
+      echo "# D statistic in genic regions:" > D.txt
+      R -q --no-save <abba_baba.R --args genic.tsv contig_lengths.txt concolor roumanicus europaeus 1e5 | grep -vP "^[#>\+]" >> D.txt
+      echo "# D statistic in intergenic regions:" >> D.txt
+      R -q --no-save <abba_baba.R --args inter.tsv contig_lengths.txt concolor roumanicus europaeus 1e5 | grep -vP "^[#>\+]" >> D.txt
+      rm contig_lengths.txt
+   fi
+
+   if [ ! -e fd.txt ]; then
+      echo "# f_d statistic in genic regions:" > fd.txt
+      R -q --no-save <estimate_f.R --args genic.tsv concolor roumanicus dummy1 dummy2 europaeus | grep -vP "^[#>\+]" >> fd.txt
+      echo "# f_d statistic in intergenic regions:" >> fd.txt
+      R -q --no-save <estimate_f.R --args inter.tsv concolor roumanicus dummy1 dummy2 europaeus | grep -vP "^[#>\+]" >> fd.txt
+   fi
 fi

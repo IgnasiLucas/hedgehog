@@ -1,0 +1,4 @@
+# D statistic in genic regions:
+concolor	roumanicus	europaeus	0.108530156470411	0.0278940321516696	9.99134331616375e-05	41378
+# D statistic in intergenic regions:
+concolor	roumanicus	europaeus	0.170063009682253	0.0230391812011031	1.56552068462917e-13	57975

@@ -1,0 +1,4 @@
+# f_d statistic in genic regions:
+concolor	roumanicus	dummy1	dummy2	europaeus	0.0264086621312232	0.0157880360171411	NA
+# f_d statistic in intergenic regions:
+concolor	roumanicus	dummy1	dummy2	europaeus	0.0436103825418923	0.0255906100557479	NA
