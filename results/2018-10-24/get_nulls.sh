@@ -1,5 +1,5 @@
 #!/bin/bash
-for i in $(seq 1 100); do
+for i in $(seq 1 1000); do
    # Shuffle the Fake_admixed.bed
    bedtools shuffle -noOverlapping -seed $(( $1 * 1000 + $i )) -i Fake_admixed.bed -g FakeScaffold_lengths.txt | sort -nk 1,1 -k 2,2 > A_$1.bed
    # Get the its complement.

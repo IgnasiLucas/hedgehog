@@ -40,10 +40,10 @@ if [ ! -e popmap_split.txt ]; then
       paste $ADMIXTURE_DIR/out.012.indv $ADMIXTURE_DIR/erinaceus_41_r10e10c4.4.Q > Q4.txt
    fi
    gawk 'BEGIN{
-      POP[2] = "western"
+      POP[2] = "eastern"
       POP[3] = "concolor"
       POP[4] = "roumanicus"
-      POP[5] = "eastern"
+      POP[5] = "western"
    }{
       POPULATION = "none"
       for (i = 2; i <= 5; i++) {

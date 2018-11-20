@@ -291,3 +291,46 @@ if [ ! -e null_diff_D.txt ] || [ ! -e null_diff_f.txt ]; then
       for (z in Z) print z "\t" F1[z] + 0 "\t" F2[z] + 0 "\t" F3[z] + 0
    }' null_f.txt | sort -nk 1,1 >> null_diff_f.txt
 fi
+
+if [ ! -e summary.txt ]; then
+   echo -e "# Values of abba/baba statistics in genomic regions with or without signals of"      > summary.txt
+   echo -e "# recent admixture in Er37_SK27, which is excluded from the analysis. The p-values" >> summary.txt
+   echo -e "# are one-tailed, computed from 5000 permutations of genomic regions."              >> summary.txt
+   echo -e "#"                                                                                  >> summary.txt
+   echo -e "#Statistic\tAdmixed\tNot_admixed\tDifference\tp-value"                              >> summary.txt
+   gawk '((FILENAME == "D.txt") && (FNR == 2)){
+      D1 = $4
+   }((FILENAME == "D.txt") && (FNR == 4)){
+      D2 = $4
+   }((FILENAME == "f.txt") && (FNR == 2)){
+      FHOM1 = $6; FD1 = $7; F1 = $8
+   }((FILENAME == "f.txt") && (FNR == 4)){
+      FHOM2 = $6; FD2 = $7; F2 = $8
+   }(FILENAME == "null_diff_D.txt"){
+      SUM_D += $2
+      if ($1 >= (D1 - D2)) NUM_D += $2
+   }((FILENAME == "null_diff_f.txt") && (FNR > 1)){
+      SUM_FHOM += $2; SUM_FD += $3; SUM_F += $4
+      if ($1 >= (FHOM1 - FHOM2)) NUM_FHOM += $2
+      if ($1 >= (FD1 - FD2)) NUM_FD += $3
+      if ($1 >= (F1 - F2)) NUM_F += $4
+   }END{
+      print "D\t"     D1    "\t" D2    "\t" D1 - D2       "\t" NUM_D / SUM_D
+      print "f_hom\t" FHOM1 "\t" FHOM2 "\t" FHOM1 - FHOM2 "\t" NUM_FHOM / SUM_FHOM
+      print "f_d\t"   FD1   "\t" FD2   "\t" FD1 - FD2     "\t" NUM_FD / SUM_FD
+      print "f\t"     F1    "\t" F2    "\t" F1 - F2       "\t" NUM_F / SUM_F
+   }' D.txt f.txt null_diff_D.txt null_diff_f.txt >> summary.txt
+fi
+
+# Values of abba/baba statistics in genomic regions with or without signals of
+# recent admixture in Er37_SK27, which is excluded from the analysis. The p-values
+# are computed from 5000 permutations of genomic regions.
+#
+# --------------------------------------------------------------------------------------
+# Statistic	Admixed         	Not_admixed     	Difference	p-value
+# -------------------------------------------------------------------------------------
+# D       	0.159047740296386	0.133996097982671	0.0250516	0.2678
+# f_hom   	0.0398418118213496	0.0349892634711391	0.00485255	0.3332
+# f_d     	0.0235819111306138	0.0206065067310981	0.0029754	0.3432
+# f     	0.0452036938062747	0.0410208465643631	0.00418285	0.3542
+# --------------------------------------------------------------------------------------

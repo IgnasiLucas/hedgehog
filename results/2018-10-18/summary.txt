@@ -1,0 +1,9 @@
+# Values of abba/baba statistics in genomic regions with or without signals of
+# recent admixture in Er37_SK27, which is excluded from the analysis. The p-values
+# are one-tailed, computed from 5000 permutations of genomic regions.
+#
+#Statistic	Admixed	Not_admixed	Difference	p-value
+D	0.159047740296386	0.133996097982671	0.0250516	0.2678
+f_hom	0.0398418118213496	0.0349892634711391	0.00485255	0.3332
+f_d	0.0235819111306138	0.0206065067310981	0.0029754	0.3432
+f	0.0452036938062747	0.0410208465643631	0.00418285	0.3542

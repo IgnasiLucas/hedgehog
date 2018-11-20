@@ -1,0 +1,9 @@
+# Values of abba/baba statistics in genomic regions with or without signals of
+# recent admixture in Er55_AU7, which is excluded from the analysis. The p-values
+# are one-tailed, computed from 5000 permutations of genomic regions.
+#
+#Statistic	Admixed	Not_admixed	Difference	p-value
+D	0.372100543001792	0.133008162873339	0.239092	0.06178
+f_hom	0.106746542696069	0.0337681212184294	0.0729784	0.02096
+f_d	0.0593813125368232	0.0198639588674299	0.0395174	0.05498
+f	0.128633212368533	0.0388844749086059	0.0897487	0.02396

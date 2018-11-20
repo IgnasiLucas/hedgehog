@@ -1,4 +1,4 @@
 #f statistic in regions where Er55_AU7 has mixed ancestry
-concolor	roumanicus	eastern	western	europaeus	0.105644869161616	0.0590233746675387	0.104280979876264
+concolor	roumanicus	eastern	western	europaeus	0.106746542696069	0.0593813125368232	0.128633212368533
 #f statistic in regions where Er55_AU7 only has E. roumanicus ancestry:
-concolor	roumanicus	eastern	western	europaeus	0.0337711267867839	0.0198801772834028	0.0369773204046543
+concolor	roumanicus	eastern	western	europaeus	0.0337681212184294	0.0198639588674299	0.0388844749086059

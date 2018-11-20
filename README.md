@@ -1,3 +1,41 @@
+2018-10-29
+==========
+Here I use Simon H. Martin's scripts to calculate population genetics statistics in
+sliding windows. I also use the annotation of the reference genome to estimate those
+statistics separately in genic and intergenic regions. I create some interesting plots
+and found an unexpected negative relationship between diversity in E. roumanicus and
+divergence between E. roumanicus and E. europaeus. The relationship is stronger in genic
+than in intergenic regions, suggesting a functional origin (positive selection?).
+
+2018-10-24
+==========
+Here I repeat the analysis from 2018-10-18, but with a different admixed individual,
+Er55_AU7, which has only a small percentage of E. europaeus ancestry. Thus, its specific
+combination of admixed and non-admixed genomic regions has actually survived more
+generations and is more likely to be the result of natural selection.
+
+  | Statistic |    Admixed         |   Not_admixed      |   Difference  |  p-value |
+  | --------- | ------------------ | ------------------ | ------------- | -------- |
+  | D         | 0.372100543001792  | 0.133008162873339  |    0.239092   |  0.06178 |
+  | f_hom     | 0.106746542696069  | 0.0337681212184294 |    0.0729784  |  0.02096 |
+  | f_d       | 0.0593813125368232 | 0.0198639588674299 |    0.0395174  |  0.05498 |
+  | f         | 0.128633212368533  | 0.0388844749086059 |    0.0897487  |  0.02396 |
+
+2018-10-18
+==========
+I compare the D and f statistics between genomic regions where the hybrid individual,
+Er37_SK27, either has or does not have mixed ancestries. Both D and f statistics are
+slightly higher where Er37_SK27 is admixed, even if Er37_SK27 itself is not used in
+the computation of the statistics. However, differences are not significant, as assessed
+by 5000 random permutations of the genomic regions. Here is the summary:
+
+  | Statistic |  Admixed regions   |    Not admixed     |   Difference  |  p-value |
+  | --------- | ------------------ | ------------------ | ------------- | -------- |
+  | D         | 0.159047740296386  | 0.133996097982671  |   0.0250516   |   0.2678 |
+  | f_hom     | 0.0398418118213496 | 0.0349892634711391 |   0.00485255  |   0.3332 |
+  | f_d       | 0.0235819111306138 | 0.020606506731098  |   0.002975    |   0.3432 |
+  | f         | 0.0452036938062747 | 0.0410208465643631 |   0.00418285  |   0.3542 |
+
 2018-10-15
 ==========
 I run the abba/baba test and the estimation of the proportion of the genome that
@@ -8,10 +46,9 @@ individuals included in this analysis that were absent in the Admixture one). I
 think I mostly confirm Kristýna's results. The D statistic, measuring the excess
 of the ABBA pattern over the BABA one, is positive (0.15) and highly significant,
 meaning that there must have been introgression between E. roumanicus and E. europaeus.
-The signal is still strong when using only the eastern population of E. europaeus,
-but disappears when using only the western one. The proportion of the genome that
-is introgressed is low (below 4%, and probably below 1%), and the estimate depends
-on the specific statistic used.
+The signal is still strong when using only either the eastern or the western population
+of E. europaeus. The proportion of the genome that is introgressed is low (below 4%,
+and probably below 1%), and the estimate depends on the specific statistic used.
 
 2018-10-08
 ==========
