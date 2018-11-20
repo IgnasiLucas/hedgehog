@@ -102,7 +102,7 @@ if [ ! -e D.txt ] || [ ! -e f.txt ]; then
          grep -F -f zPositions.txt creh1.tsv > z_creh1_subset.tsv
          paste crweh1.tsv z_creh1_subset.tsv | gawk '(($1 == $8) && ($2 == $9)){print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $12}' > frequencies.tsv
          rm zPositions.txt z_creh1_subset.tsv
-      #  rm creh1.tsv crweh1.tsv popmap*
+      #  rm crweh1.tsv popmap*
       fi
 
       if [ ! -e contig_lengths.txt ]; then
@@ -188,6 +188,8 @@ if [ ! -e D.txt ] || [ ! -e f.txt ]; then
       R -q --no-save <abba_baba.R --args    admixed_freqs.tsv contig_lengths.txt concolor roumanicus europaeus 1e5 | grep -vP "^[#>\+]" >> D.txt
       echo "#D statistic in blocks where Er55_AU7 only has E. roumanicus ancestry:" >> D.txt
       R -q --no-save <abba_baba.R --args roumanicus_freqs.tsv contig_lengths.txt concolor roumanicus europaeus 1e5 | grep -vP "^[#>\+]" >> D.txt
+      echo "#D statistic using all regions together:" >> D.txt
+      R -q --no-save <abba_baba.R --args            creh1.tsv contig_lengths.txt concolor roumanicus europaeus 1e5 | grep -vP "^[#>\+]" >> D.txt
    fi
 
    if [ ! -e f.txt ]; then
@@ -196,6 +198,8 @@ if [ ! -e D.txt ] || [ ! -e f.txt ]; then
       R -q --no-save <estimate_f.R --args    admixed_freqs.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> f.txt
       echo "#f statistic in regions where Er55_AU7 only has E. roumanicus ancestry:" >> f.txt
       R -q --no-save <estimate_f.R --args roumanicus_freqs.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> f.txt
+      echo "#f statistic using both types of genomic regions:" >> f.txt
+      R -q --no-save <estimate_f.R --args      frequencies.tsv concolor roumanicus eastern western europaeus | grep -vP "^[#>\+]" >> f.txt
    fi
 fi
 

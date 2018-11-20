@@ -2,3 +2,5 @@
 concolor	roumanicus	europaeus	0.372100543001792	0.138460205846217	0.00720066341952035	1356
 #D statistic in blocks where Er55_AU7 only has E. roumanicus ancestry:
 concolor	roumanicus	europaeus	0.133008162873339	0.0196804772903793	1.39542234882941e-11	83480
+#D statistic using all regions together:
+concolor	roumanicus	europaeus	0.144768296226224	0.017817582826849	4.47272217830721e-16	99353
