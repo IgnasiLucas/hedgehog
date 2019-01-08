@@ -1,0 +1,52 @@
+Hybrids between E. europaeus and E. roumanicus have been described, on morphological basis,
+in Central Europe since the 1970s (citations in Bogdanov et al. 2009). They have also been
+produced in laboratoris. Genetic evidence of the hybridization is not abundant, but exists
+(Bogdanov et al. 2009).
+
+Until now, researcher have studied the phylogeography of hedgehogs in Europe with mitochondrial
+(Seddon et al. 2001) and nuclear (Seddon et al. 2001, Berggren et al. 2005) markers. The interpretation of those
+results was then difficult before the realization that E. concolor was actually two spcies:
+E. concolor and E. roumanicus, that is Southern and Northern white-breasted hedgehogs, respectively.
+
+
+
+References
+
+@article{Berggren2005,
+   author = {K. T. Berggren and H. Ellegren and G. M. Hewitt and J. M. Seddon},
+   title = {Understanding the phylogeographic patterns of {European} hedgehogs, \emph{Erinaceus concolor} and \emph{E. europaeus} using the {MHC}},
+   journal = {Heredity},
+   volume = {95},
+   pages = {84--90},
+   year = {2005}
+}
+
+@article{Bogdanov2009,
+   author = {A. S. Bogdanov and A. A. Bannikova and Yu. M. Pirusskii and N. A. Formozov},
+   title = {The first genetic evidence of hybridization between {West European} and {Northern} white-breasted hedgehogs (\emph{Erinaceus europaeus} and \emph{E. roumanicus}) in {Moscow} region},
+   journal = {Biology Bulletin},
+   volume = {36},
+   number = {6},
+   pages = {647--651},
+   year = {2009}
+}
+
+@article{Seddon2001,
+   author = {J. M. Seddon and F. Santucci and N. J. Reeve and G. M. Hewitt},
+   title = {{DNA} footprints of {European} hedgehogs, \emph{Erinaceus europaeus} and \emph{E. concolor}: {Pleistocene} refugia, postglacial expansion and colonization routes},
+   journal = {Molecular Ecology},
+   volume = {10},
+   number = {9},
+   pages = {2187-2198},
+   year = {2001}
+}
+
+@article{,
+   author = {},
+   title = {},
+   journal = {},
+   volume = {},
+   number = {},
+   pages = {},
+   year = {}
+}

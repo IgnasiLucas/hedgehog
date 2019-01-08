@@ -1,0 +1,3 @@
+./run_lamp.sh: line 23:  5516 Violació de segment    (la imatge del nucli ha estat bolcada) lamp $(printf "configuration_%06i.txt" $2) > lamp.log 2> lamp.err
+/usr/local/bin/generategraph.sh: line 8:  5588 Violació de segment    (la imatge del nucli ha estat bolcada) $prefix/bin/generategraph $ancfile
+find: «Er37_SK27/gen000010»: El fitxer o directori no existeix

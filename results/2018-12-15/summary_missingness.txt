@@ -1,0 +1,24 @@
+# Most_missing: Largest proportion of missing data per individual before the exclusion of the following specimen. The first 1.0 is not true.
+# Excluding: Sample excluded in the current round.
+# Roumanicus: Number of E. roumanicus left after exclusion.
+# Europaeus: Number of E. europaeus left after exclusion.
+# Others: Number of other specimens of other species or populations left after exclusion. Usually, the one hybrid.
+# Num_sites: Number of sites with no more than two missing genotypes, after excluding the sample shown on column 2.
+Most_missing	Excluding	Roumanicus	Europaeus	Others	Num_sites
+0.8438	Er62_GR95	21	16	1	725
+0.7986	Er61_GR87	20	16	1	2792
+0.2389	Er67_IT5	20	15	1	6510
+0.2083	Er36_SK24	19	15	1	13062
+0.2126	Er57_COR4	19	14	1	23376
+0.2636	Er58_FI7	19	13	1	41144
+0.1929	Er46_RMN7	18	13	1	60738
+0.1724	Er72_SIE1B	18	12	1	80441
+0.1148	Er35_209	17	12	1	97726
+0.1069	Er50_R3	16	12	1	114547
+0.0915	Er33_211	16	11	1	130121
+0.0917	Er60_GR5	15	11	1	147941
+0.0926	Er52_451	15	10	1	164500
+0.0590	Er45_BLG3	14	10	1	175355
+0.0608	Er28_112	13	10	1	187250
+0.0518	Er34_197	13	9	1	198381
+0.0511	Er37_SK27	13	9	0	208554
