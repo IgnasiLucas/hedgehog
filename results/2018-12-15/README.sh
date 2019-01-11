@@ -65,6 +65,8 @@ if [ ! -e popmap.txt ]; then
    }' $POPDATA | sort -k 2,2 > popmap.txt
 fi
 
+NUM_SAMPLES=$(wc -l popmap.txt | cut -d " " -f 1)
+
 if [ ! -e excluded.txt ] || [ $(cat excluded.txt | wc -l) -gt 11 ]; then
    echo Er65_IS25      > excluded.txt    # Hemiechinus
    echo Er73_SNG1     >> excluded.txt    # Atelerix
@@ -79,19 +81,31 @@ if [ ! -e excluded.txt ] || [ $(cat excluded.txt | wc -l) -gt 11 ]; then
    echo Er26_JUG4     >> excluded.txt    # admixed concolor
 fi
 
-MAX_MISSING=0.05
-if [ ! -e summary_missingness.txt ]; then
-   echo -e "# Most_missing: Largest proportion of missing data per individual before the exclusion of the following specimen. The first 1.0 is not true." > summary_missingness.txt
-   echo -e "# Excluding: Sample excluded in the current round." >> summary_missingness.txt
-   echo -e "# Roumanicus: Number of E. roumanicus left after exclusion." >> summary_missingness.txt
-   echo -e "# Europaeus: Number of E. europaeus left after exclusion." >> summary_missingness.txt
-   echo -e "# Others: Number of other specimens of other species or populations left after exclusion. Usually, the one hybrid." >> summary_missingness.txt
-   echo -e "# Num_sites: Number of sites with no more than two missing genotypes, after excluding the sample shown on column 2." >> summary_missingness.txt
-   echo -e "Most_missing\tExcluding\tRoumanicus\tEuropaeus\tOthers\tNum_sites" >> summary_missingness.txt
+NUM_EXCLUDED=$(wc -l excluded.txt | cut -d " " -f 1)
+NUM_SAMPLES=$((NUM_SAMPLES - NUM_EXCLUDED))
 
-   if [ ! -e EuropaeusRoumanicus.recode.vcf ]; then
+# First, to evaluate the trade off between number of sites and number of individuals,
+# I use the individual's portion of missing data to sequentially remove individuals
+# from the vcf file, which increases the number of available sites with (almost) complete
+# data. I need to allow for a number of missing genotypes per site, in order to identify
+# the individuals that should be removed next, to optimize the number of sites. But I am
+# actually interested in the number of sites with absolutely no missing data at all.
+
+if [ ! -e summary_missingness.txt ]; then
+   echo -e "# Excluded: Last sample removed from the dataset for containing too many missing sites." > summary_missingness.txt
+   echo -e "# Num_samples: Current number of samples in the matrix of genotypes." >> summary_missingness.txt
+   echo -e "# Roumanicus: Number of E. roumanicus samples left." >> summary_missingness.txt
+   echo -e "# Europaeus: Number of E. europaeus samples left." >> summary_missingness.txt
+   echo -e "# Others: Number of other specimens of other species or populations left. Usually, the one hybrid." >> summary_missingness.txt
+   echo -e "# Most_missing: Largest proportion of missing data per individual." >> summary_missingness.txt
+   echo -e "# Num_sites_2: Number of sites with two missing genotypes." >> summary_missingness.txt
+   echo -e "# Num_sites_1: Number of sites with one missing genotype."  >> summary_missingness.txt
+   echo -e "# Num_sites_0: Number of sites without any missing genotype." >> summary_missingness.txt
+   echo -e "Excluded\tNum_samples\tRoumanicus\tEuropaeus\tOthers\tMost_missing\tNum_sites_2\tNum_sites_1\tNum_sites_0" >> summary_missingness.txt
+
+   if [ ! -e EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf ]; then
       vcftools --gzvcf $GZVCF \
-               --out EuropaeusRoumanicus \
+               --out EuropaeusRoumanicus_$NUM_SAMPLES \
                --remove excluded.txt \
                --maf 0.01 \
                --max-maf 0.95 \
@@ -103,37 +117,78 @@ if [ ! -e summary_missingness.txt ]; then
                --minQ 50 \
                --thin 261 \
                --max-missing-count 2 \
-               --recode \
-               --recode-INFO-all
+               --recode
    fi
-   gawk '(/^#CHROM/){
-      for (i = 10; i <= NF; i++) {
-         SAMPLE[i] = $i
-      }
-   }(/^[^#]/){
-      for (i = 10; i <= NF; i++) {
-         if ($i ~ /^\.$|\.\/\./) {
-            MISSING[SAMPLE[i]] += 1
-         }
-      }
-      TOTAL += 1
-   }END{
-      for (i in SAMPLE) {
-         printf("%s\t%.4f\n", SAMPLE[i], MISSING[SAMPLE[i]] / TOTAL)
-      }
-   }' EuropaeusRoumanicus.recode.vcf | sort -nrk 2,2 > missingness.txt
 
-   CURRENT_MISSING=$(head -n 1 missingness.txt | cut -f 2)
+   if [ ! -e missingness_$NUM_SAMPLES.txt ]; then
+      gawk '(/^#CHROM/){
+         for (i = 10; i <= NF; i++) {
+            SAMPLE[i] = $i
+         }
+      }(/^[^#]/){
+         NUM_MISSING = 0
+         for (i = 10; i <= NF; i++) {
+            if ($i ~ /^\.$|\.\/\./) {
+               MISSING[SAMPLE[i]] += 1
+               NUM_MISSING += 1
+            }
+         }
+         F[NUM_MISSING] += 1
+         TOTAL += 1
+      }END{
+         for (i in SAMPLE) {
+            printf("%s\t%.4f\n", SAMPLE[i], MISSING[SAMPLE[i]] / TOTAL)
+         }
+         for (i = 0; i <= 2; i++) {
+            printf("#Sites missing %u genotypes:% 10u\n", i, F[i])
+         }
+      }' EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf | sort -nrk 2,2 > missingness_$NUM_SAMPLES.txt
+   fi
+
+   CURRENT_MISSING=$(head -n 1 missingness_$NUM_SAMPLES.txt | cut -f 2)
+   ROUMANICUS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep roumanicus | wc -l)
+   EUROPAEUS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep europaeus  | wc -l)
+   OTHERS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep -vP "roumanicus|europaeus" | wc -l)
+   SITES[0]=$(grep "Sites missing 0 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+   SITES[1]=$(grep "Sites missing 1 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+   SITES[2]=$(grep "Sites missing 2 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+   echo -e "  ----  \t$NUM_SAMPLES\t$ROUMANICUS\t$EUROPAEUS\t$OTHERS\t$CURRENT_MISSING\t${SITES[2]}\t${SITES[1]}\t${SITES[0]}" >> summary_missingness.txt
+
+   if [ ! -e scores_$NUM_SAMPLES.txt ]; then
+      # Vcftools seems to have a bug: the filter --max-missing-count is sometimes more conservative than i should.
+      # Thus, I don't trust the number of sites in the 012 files will be the expected from the *.recode.vcf files.
+      if [ -e EuropaeusRoumanicus_$NUM_SAMPLES.012.pos ]; then
+         NUM_SITES=$(cat EuropaeusRoumanicus_$NUM_SAMPLES.012.pos | wc -l)
+      else
+         NUM_SITES=0
+      fi
+      i=0
+      while [ $NUM_SITES -le $NUM_SAMPLES ]; do
+         vcftools --vcf EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf --max-missing-count $i --012 --out EuropaeusRoumanicus_$NUM_SAMPLES
+         NUM_SITES=$(cat EuropaeusRoumanicus_$NUM_SAMPLES.012.pos | wc -l)
+         i=$((i+1))
+      done
+      sed -i 's/-1/NA/g' EuropaeusRoumanicus_$NUM_SAMPLES.012
+      R --save < run_Adegenet.R --args EuropaeusRoumanicus_$NUM_SAMPLES.012 $NUM_SITES EuropaeusRoumanicus_$NUM_SAMPLES.012.indv EuropaeusRoumanicus_$NUM_SAMPLES.012.pos scores_$NUM_SAMPLES.txt
+      LC_ALL=C sort -gk 2,2 scores_$NUM_SAMPLES.txt > z1
+      mv z1 scores_$NUM_SAMPLES.txt
+   fi
+
+
+   STOP_WHEN_MISSING=0.05
+   EXCLUDE=$(head -n 1 missingness_$NUM_SAMPLES.txt | cut -f 1)
+
 
    # Note the use of bc to compare floats. Using double parentheses is equivalent to and shorter than:
-   # while [ $(echo "$CURRENT_MISSING>$MAX_MISSING" | bc -l) -eq 1 ]; do
-   while (( $(echo "$CURRENT_MISSING>$MAX_MISSING" | bc -l) )); do
-      EXCLUDE=$(head -n 1 missingness.txt | cut -f 1)
-      mv missingness.txt missingness_$CURRENT_MISSING.txt
+   # while [ $(echo "$CURRENT_MISSING>$STOP_WHEN_MISSING" | bc -l) -eq 1 ]; do
+   while (( $(echo "$CURRENT_MISSING>$STOP_WHEN_MISSING" | bc -l) )); do
       echo $EXCLUDE >> excluded.txt
-      if [ ! -e EuropaeusRoumanicus_$CURRENT_MISSING.recode.vcf ]; then
+      NUM_SAMPLES=$((NUM_SAMPLES - 1))
+      # Note that I need to exclude the next sample, together with all previously excluded ones,
+      # again from the original vcf file. Otherwise, I would not increase the numbe of sites, of course.
+      if [ ! -e EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf ]; then
          vcftools --gzvcf $GZVCF \
-                  --out EuropaeusRoumanicus_$CURRENT_MISSING \
+                  --out EuropaeusRoumanicus_$NUM_SAMPLES \
                   --remove excluded.txt \
                   --maf 0.01 \
                   --max-maf 0.95 \
@@ -145,46 +200,66 @@ if [ ! -e summary_missingness.txt ]; then
                   --minQ 50 \
                   --thin 261 \
                   --max-missing-count 2 \
-                  --recode \
-                  --recode-INFO-all
+                  --recode
       fi
 
-      gawk '(/^#CHROM/){
-         for (i = 10; i <= NF; i++) {
-            SAMPLE[i] = $i
-         }
-      }(/^[^#]/){
-         for (i = 10; i <= NF; i++) {
-            if ($i ~ /^\.$|\.\/\./) {
-               MISSING[SAMPLE[i]] += 1
+      if [ ! -e missingness_$NUM_SAMPLES ]; then
+         gawk '(/^#CHROM/){
+            for (i = 10; i <= NF; i++) {
+               SAMPLE[i] = $i
             }
-         }
-         TOTAL += 1
-      }END{
-         for (i in SAMPLE) {
-            printf("%s\t%.4f\n", SAMPLE[i], MISSING[SAMPLE[i]] / TOTAL)
-         }
-      }' EuropaeusRoumanicus_$CURRENT_MISSING.recode.vcf | sort -nrk 2,2 > missingness.txt
-
-      ROUMANICUS=$(cut -f 1 missingness.txt | grep -f - popmap.txt | grep roumanicus | wc -l)
-      EUROPAEUS=$(cut -f 1 missingness.txt | grep -f - popmap.txt | grep europaeus  | wc -l)
-      OTHERS=$(cut -f 1 missingness.txt | grep -f - popmap.txt | grep -vP "roumanicus|europaeus" | wc -l)
-      SITES=$(grep -v "^#" EuropaeusRoumanicus_$CURRENT_MISSING.recode.vcf | wc -l)
-      echo -e "$CURRENT_MISSING\t$EXCLUDE\t$ROUMANICUS\t$EUROPAEUS\t$OTHERS\t$SITES" >> summary_missingness.txt
-
-      if [ ! -e scores_$CURRENT_MISSING.txt ]; then
-         if [ ! -e EuropaeusRoumanicus_$CURRENT_MISSING.012 ]; then
-            vcftools --vcf EuropaeusRoumanicus_$CURRENT_MISSING.recode.vcf --012 --out EuropaeusRoumanicus_$CURRENT_MISSING
-         fi
-         sed -i 's/-1/NA/g' EuropaeusRoumanicus_$CURRENT_MISSING.012
-         R --save < run_Adegenet.R --args EuropaeusRoumanicus_$CURRENT_MISSING.012 $SITES EuropaeusRoumanicus_$CURRENT_MISSING.012.indv EuropaeusRoumanicus_$CURRENT_MISSING.012.pos scores_$CURRENT_MISSING.txt
-         LC_ALL=C sort -gk 2,2 scores_$CURRENT_MISSING.txt > z1
-         mv z1 scores_$CURRENT_MISSING.txt
+         }(/^[^#]/){
+            NUM_MISSING = 0
+            for (i = 10; i <= NF; i++) {
+               if ($i ~ /^\.$|\.\/\./) {
+                  MISSING[SAMPLE[i]] += 1
+                  NUM_MISSING += 1
+               }
+            }
+            TOTAL += 1
+            F[NUM_MISSING] += 1
+         }END{
+            for (i in SAMPLE) {
+               printf("%s\t%.4f\n", SAMPLE[i], MISSING[SAMPLE[i]] / TOTAL)
+            }
+            for (i = 0; i <= 2; i++) {
+               printf("#Sites missing %u genotypes:% 10u\n", i, F[i])
+            }
+         }' EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf | sort -nrk 2,2 > missingness_$NUM_SAMPLES.txt
       fi
-      CURRENT_MISSING=$(head -n 1 missingness.txt | cut -f 2)
+
+      CURRENT_MISSING=$(head -n 1 missingness_$NUM_SAMPLES.txt | cut -f 2)
+      ROUMANICUS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep roumanicus | wc -l)
+      EUROPAEUS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep europaeus  | wc -l)
+      OTHERS=$(grep ^Er missingness_$NUM_SAMPLES.txt | cut -f 1 | grep -f - popmap.txt | grep -vP "roumanicus|europaeus" | wc -l)
+      SITES[0]=$(grep "Sites missing 0 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+      SITES[1]=$(grep "Sites missing 1 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+      SITES[2]=$(grep "Sites missing 2 genotypes:" missingness_$NUM_SAMPLES.txt | gawk '{print $5}')
+      echo -e "$EXCLUDE\t$NUM_SAMPLES\t$ROUMANICUS\t$EUROPAEUS\t$OTHERS\t$CURRENT_MISSING\t${SITES[2]}\t${SITES[1]}\t${SITES[0]}" >> summary_missingness.txt
+
+      if [ ! -e scores_$NUM_SAMPLES.txt ]; then
+         # Vcftools seems to have a bug: the filter --max-missing-count is sometimes more conservative than i should.
+         # Thus, I don't trust the number of sites in the 012 files will be the expected from the *.recode.vcf files.
+         if [ -e EuropaeusRoumanicus_$NUM_SAMPLES.012.pos ]; then
+            NUM_SITES=$(cat EuropaeusRoumanicus_$NUM_SAMPLES.012.pos | wc -l)
+         else
+            NUM_SITES=0
+         fi
+         i=0
+         while [ $NUM_SITES -le $NUM_SAMPLES ]; do
+            vcftools --vcf EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf --max-missing-count $i --012 --out EuropaeusRoumanicus_$NUM_SAMPLES
+            NUM_SITES=$(cat EuropaeusRoumanicus_$NUM_SAMPLES.012.pos | wc -l)
+            i=$((i+1))
+         done
+         sed -i 's/-1/NA/g' EuropaeusRoumanicus_$NUM_SAMPLES.012
+         R --save < run_Adegenet.R --args EuropaeusRoumanicus_$NUM_SAMPLES.012 $NUM_SITES EuropaeusRoumanicus_$NUM_SAMPLES.012.indv EuropaeusRoumanicus_$NUM_SAMPLES.012.pos scores_$NUM_SAMPLES.txt
+         LC_ALL=C sort -gk 2,2 scores_$NUM_SAMPLES.txt > z1
+         mv z1 scores_$NUM_SAMPLES.txt
+      fi
+
+      EXCLUDE=$(head -n 1 missingness_$NUM_SAMPLES.txt | cut -f 1)
    done
 fi
 
-if [ -e missingness.txt ]; then rm missingness.txt; fi
-if [ -e excluded.txt ];    then rm excluded.txt;    fi
+if [ -e excluded.txt ]; then rm excluded.txt; fi
 
