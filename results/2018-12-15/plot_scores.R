@@ -1,0 +1,21 @@
+library(ggplot2)
+
+scores <- read.table('table_scores.txt', header=FALSE, col.names=c('numSamples', 'Sample', 'pca1', 'pca2', 'longitude', 'latitude'))
+scores$pca1_norm <- numeric(length=length(scores$pca1))
+attach(scores)
+
+for (i in min(numSamples):max(numSamples)) {
+   filter <- numSamples == i
+   scores$pca1_norm[filter] <- (pca1[filter] - min(pca1[filter])) / (max(pca1[filter]) - min(pca1[filter]))
+}
+
+png(filename = 'scores.png', width=1000, height=1000)
+g <- ggplot()
+for (i in levels(Sample)) {
+   filter <- Sample == i
+   g <- g + geom_line(data = scores[filter,], mapping = aes(x = numSamples, y = pca1_norm, color = longitude))
+}
+
+g
+
+dev.off()

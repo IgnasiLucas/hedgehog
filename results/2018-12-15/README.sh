@@ -51,6 +51,7 @@
 
 GZVCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 POPDATA=../../data/populations.txt
+GEODATA=../../data/coordinates.txt
 
 if [ ! -e popmap.txt ]; then
    gawk 'BEGIN{
@@ -263,3 +264,31 @@ fi
 
 if [ -e excluded.txt ]; then rm excluded.txt; fi
 
+if [ ! -e coordinates.txt ]; then
+   cp $GEODATA ./coordinates.txt
+fi
+
+if [ ! -e scores.png ]; then
+   if [ ! -e table_scores.txt ]; then
+      echo -e "#Num_samples\tSample\tPCA1\PCA2\tLongitude\tLatitude" > table_scores.txt
+      for SCORE_FILE in $(ls -1 scores_*.txt); do
+         NUM_SAMPLES=${SCORE_FILE:7:2}
+         gawk -v NUM_SAMPLES=$NUM_SAMPLES '(FILENAME == "coordinates.txt"){
+            LONGITUDE[$1] = $2
+            LATITUDE[$1] = $3
+         }(FILENAME ~ /^scores_/){
+            printf("%u\t%s\t%.6f\t%.6f\t%.2f\t%.2f\n", NUM_SAMPLES, $1, $2, $3, LONGITUDE[$1], LATITUDE[$1])
+         }' coordinates.txt $SCORE_FILE >> table_scores.txt
+      done
+   fi
+   R --save < plot_scores.R
+fi
+
+# The plot 'scores.png' shows how the scores on the first principal component, which separate E. roumanicus
+# from E. europaeus, vary depending on the number of samples included in the computation. In the plot, I have
+# normalized the scores, as if 0 means the most extreme E. roumanicus, and 1 is the most extreme (or pure)
+# E. europaeus. Note that the colour indicates longitude (east-west geographic coordinate). On the right, with
+# a high number of samples, a low number of sites makes the scores unstable. With 36 or less individuals,
+# the genetic positions are quite stable, and reliable. Using 36 as the maximum number of samples that provide
+# reliable genetic positions, we are using 897 sites without any missing genotype. And the subset of admixed
+# individuals would be: Er36_SK24, Er50_R3, Er55_AU7, Er37_SK27, Er74_SP16, and Er72_SIE1B.
