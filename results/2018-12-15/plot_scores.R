@@ -19,3 +19,9 @@ for (i in levels(Sample)) {
 g
 
 dev.off()
+detach(scores)
+write.table(scores, file = "table_scores_norm.txt", append = FALSE, quote = FALSE, sep = "\t",
+                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+                 col.names = TRUE, qmethod = c("escape", "double"),
+                 fileEncoding = "")
+

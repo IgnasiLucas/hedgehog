@@ -118,7 +118,7 @@ if [ ! -e summary_missingness.txt ]; then
                --minQ 50 \
                --thin 261 \
                --max-missing-count 2 \
-               --recode
+               --recode --recode-INFO QR --recode-INFO QA --recode-INFO RO --recode-INFO AO
    fi
 
    if [ ! -e missingness_$NUM_SAMPLES.txt ]; then
@@ -175,10 +175,8 @@ if [ ! -e summary_missingness.txt ]; then
       mv z1 scores_$NUM_SAMPLES.txt
    fi
 
-
-   STOP_WHEN_MISSING=0.05
+   STOP_WHEN_MISSING=0.10
    EXCLUDE=$(head -n 1 missingness_$NUM_SAMPLES.txt | cut -f 1)
-
 
    # Note the use of bc to compare floats. Using double parentheses is equivalent to and shorter than:
    # while [ $(echo "$CURRENT_MISSING>$STOP_WHEN_MISSING" | bc -l) -eq 1 ]; do
@@ -201,7 +199,7 @@ if [ ! -e summary_missingness.txt ]; then
                   --minQ 50 \
                   --thin 261 \
                   --max-missing-count 2 \
-                  --recode
+                  --recode --recode-INFO QR --recode-INFO QA --recode-INFO RO --recode-INFO AO
       fi
 
       if [ ! -e missingness_$NUM_SAMPLES ]; then
@@ -289,6 +287,56 @@ fi
 # normalized the scores, as if 0 means the most extreme E. roumanicus, and 1 is the most extreme (or pure)
 # E. europaeus. Note that the colour indicates longitude (east-west geographic coordinate). On the right, with
 # a high number of samples, a low number of sites makes the scores unstable. With 36 or less individuals,
-# the genetic positions are quite stable, and reliable. Using 36 as the maximum number of samples that provide
-# reliable genetic positions, we are using 897 sites without any missing genotype. And the subset of admixed
-# individuals would be: Er36_SK24, Er50_R3, Er55_AU7, Er37_SK27, Er74_SP16, and Er72_SIE1B.
+# the genetic positions are quite stable, and reliable. Note that the sample stabilizing at exactly 0.25 is
+# the hybrid individual, Er37_SK27, known to have 25% E. europaeus ancestry.
+#
+# Taking 36 as the maximum number of samples that provide reliable genetic positions, we are using 897 sites
+# without any missing genotype. And the subset of admixed individuals would be: Er36_SK24, Er50_R3, Er55_AU7,
+# Er37_SK27, Er74_SP16, and Er72_SIE1B. Removing one more sample (Er36_SK24), we would retain 2012 sites. I will
+# run bgc with three settings, retaining either 36, 35 or 34 samples. Below I hardcode the partitions, based on
+# the previous results. Sorry about that.
+#
+#
+#        Estimation of Genomic Clines
+#        ----------------------------
+#
+# Even though we know quite a bit about linkage within contigs, that is impossible to translate to terms of
+# recombination rate, even assuming it constant along a chromosome. Of course, two contigs of the same length
+# will experience different rates of recombination if they sit in chromosomes of different length. Thus, I
+# give up the linkage model of bgc.
+#
+# I should use the model with sequencing errors. The problem is how to estimate the probabilities of base sequencing
+# error. The original vcf file contains the total number of reference and alterntive allele observations, as well
+# as their "allele quality sum in phred". I understand this is the sum phred scores. I could get the average phred.
+# However, the average phred score is not equivalent to the phred score of the average probability of sequencing error.
+# Recall that the phred score is defined as 'Q=-10 · log P', where P is the probability of sequencing error. But once
+# we sum several Q values, what we have is the phred score of the probability of all observations being errors.
+# The best I can do is the geometric mean of the error probabilities.
+#
+
+if [ ! -e popmap_bgc.txt ]; then
+   grep -P "roumanicus|europaeus" popmap.txt | gawk -v OFS="\t" '($1 ~ /Er36_SK24|Er50_R3|Er55_AU7|Er37_SK27|Er74_SP16|Er72_SIE1B/){$2 = "admixed"}{print}' > popmap_bgc.txt
+fi
+
+for NUM_SAMPLES in 34 35 36; do
+   if [ ! -d $NUM_SAMPLES"_samples" ]; then mkdir $NUM_SAMPLES"_samples"; fi
+   if [ ! -e $NUM_SAMPLES"_samples/mcmcout.hdf5" ]; then
+      if [ ! -e $NUM_SAMPLES"_samples/roumanicus.txt" ] || [ ! -e $NUM_SAMPLES"_samples/europaeus.txt" ] || [ ! -e $NUM_SAMPLES"_samples/admixed.txt" ]; then
+         python vcf2bgc.py -v EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf -p popmap_bgc.txt -o $NUM_SAMPLES"_samples"
+      fi
+      bgc -a $NUM_SAMPLES"_samples/roumanicus.txt" \
+          -b $NUM_SAMPLES"_samples/europaeus.txt" \
+          -h $NUM_SAMPLES"_samples/admixed.txt" \
+          -F bgc_$NUM_SAMPLES \
+          -O 0 \
+          -x 1000 \
+          -n 0 \
+          -t 1 \
+          -p 2 \
+          -q 1 \
+          -N 1 \
+          -E 1 \
+          -m 1 \
+          -o 1
+   fi
+done
