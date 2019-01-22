@@ -41,12 +41,24 @@ def main():
       tmp = [sample for sample in SamplesInPop[pop] if sample in reader.header.samples.names]
       SamplesInPop[pop] = tmp
    if args.uncertain:
+      # Site-specific errors
       if args.errors == 0.0:
          pass
-      elif args.errors > 0.0:
-         pass
+      # Common error rate in all sites
       else:
-         pass
+         for record in reader:
+            if './.' in [cal.data.get('GT') for call in record.calls]:
+               continue
+            pop0.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            pop1.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            for sample in SamplesInPop[args.pop0]:
+               pop0.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
+            for sample in SamplesInPop[args.pop1]:
+               pop1.write("{} {}\n".format(record.call_for_sample[sample].data.get('R0'), record.call_for_sample[sample].data.get('AO')[0]))
+            for pop in args.admixed:
+               admixed.write("p_{}\n".format(pop))
+               for sample in SamplesInPop[pop]:
+                  admixed.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
    else:
       locus = 0
       for record in reader:
@@ -63,10 +75,11 @@ def main():
          for sample in SamplesInPop[args.pop1]:
             P1RefCount += record.call_for_sample[sample].data.get('GT').count('0')
             P1AltCount += record.call_for_sample[sample].data.get('GT').count('1')
-#        admixed.write("{}:{}\n".format(record.CHROM, record.POS))
-         admixed.write("locus {}\n".format(locus))
+         admixed.write("l_{}:{}\n".format(record.CHROM, record.POS))
+#        admixed.write("locus_{}\n".format(locus))
          for pop in args.admixed:
-            admixed.write("{}\n".format(pop))
+            # bgc.h requires that population names start with 'p', and loci name, with 'l'.
+            admixed.write("p_{}\n".format(pop))
             # Here I assume that samples are iterated over always in the same order.
             for sample in SamplesInPop[pop]:
                AdRefCount = record.call_for_sample[sample].data.get('GT').count('0')
@@ -75,10 +88,10 @@ def main():
                   AdRefCount = -9
                   AdAltCount = -9
                admixed.write("{} {}\n".format(AdRefCount, AdAltCount))
-#        pop0.write("{}:{}\n{} {}\n".format(record.CHROM, record.POS, P0RefCount, P0AltCount))
-#        pop1.write("{}:{}\n{} {}\n".format(record.CHROM, record.POS, P1RefCount, P1AltCount))
-         pop0.write("locus {}\n{} {}\n".format(locus, P0RefCount, P0AltCount))
-         pop1.write("locus {}\n{} {}\n".format(locus, P1RefCount, P0AltCount))
+         pop0.write("l_{}:{}\n{} {}\n".format(record.CHROM, record.POS, P0RefCount, P0AltCount))
+         pop1.write("l_{}:{}\n{} {}\n".format(record.CHROM, record.POS, P1RefCount, P1AltCount))
+#        pop0.write("locus_{}\n{} {}\n".format(locus, P0RefCount, P0AltCount))
+#        pop1.write("locus_{}\n{} {}\n".format(locus, P1RefCount, P1AltCount))
          locus += 1
    pop0.close()
    pop1.close()
@@ -86,4 +99,3 @@ def main():
 
 if __name__ == '__main__':
    main()
-
