@@ -16,6 +16,7 @@ Er68_PRT1B	europaeus
 Er71_SAR2	europaeus
 Er72_SIE1B	admixed
 Er74_SP16	admixed
+Er37_SK27	admixed
 Er26_JUG4	roumanicus
 Er27_SK32	roumanicus
 Er28_112	roumanicus

@@ -1,3 +1,15 @@
+2018-12-15
+==========
+It was clear from previous analyses that introgressed variation is not distributed
+randomly along the genome in E. roumanicus. In order to identify introgressed variants
+that have a higher (or lower) chance of lingering, Barbora suggested to estimate
+genomic clines, using the Bayesian approach implemented in bgc by Gompert and Buerkle
+(2012). For that, I first identify six individuals with varying degrees of admixture
+between E. roumanicus and E. europaeus. Then, I run bgc using those six individuals
+as the admixed population, and the rest as parental populations of either species.
+Unfortunately, the admixed population is too small to notice any deviation of introgressed
+allele frequencies with respect to the expectation of the genome-wide hybrid index.
+
 2018-10-29
 ==========
 Here I use Simon H. Martin's scripts to calculate population genetics statistics in

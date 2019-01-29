@@ -32,8 +32,8 @@ def main():
    assert args.pop1 in SamplesInPop.keys()
    for pop in args.admixed:
       assert pop in SamplesInPop.keys()
-   pop0 = open(args.prefix + 'pop0.txt', 'w')
-   pop1 = open(args.prefix + 'pop1.txt', 'w')
+   pop0 = open(args.prefix + args.pop0 + '.txt', 'w')
+   pop1 = open(args.prefix + args.pop1 + '.txt', 'w')
    admixed = open(args.prefix + 'admixed.txt', 'w')
    reader = vcfpy.Reader.from_stream(args.vcf)
    # I want to remove from the populations' lists of samples the samples that are not present in the vcf.
@@ -41,20 +41,53 @@ def main():
       tmp = [sample for sample in SamplesInPop[pop] if sample in reader.header.samples.names]
       SamplesInPop[pop] = tmp
    if args.uncertain:
-      # Site-specific errors
+      # To calculate site-specific errors, I rely on fields AO, RO, QA and QR in the INFO field of the
+      # vcf file. These files are the total number of full observations of the reference and alternative
+      # alleles, and the sums of their qualities. The qualities are in phred scale: Q = -10 log P, and
+      # we only have their sums. Note that the aritmetic mean of the qualities in phred scale is equal
+      # to the geometric mean of the probabilities of error. Thus, a good estimate of the site-specific
+      # error should be 10 ^ (-(QA/AO)/10) among alternative alleles, and 10 ^ (-(QR/RO)/10) among the
+      # reference alleles. Their weighted average should be used for all allele observations in the site.
+      # That is:
+      #              AO * 10^(-(QA/AO)/10) + RO * 10^(-(QR/RO)/10)
+      #         E = -----------------------------------------------
+      #                              AO + RO
+      #
+      # Note the estimates will be inaccurate for several reasons. First, read qualities may not have been
+      # calibrated. Second, the INFO field may refer to a larger set of samples than the ones present in
+      # the input vcf, if they were filtered.
       if args.errors == 0.0:
-         pass
-      # Common error rate in all sites
-      else:
          for record in reader:
-            if './.' in [cal.data.get('GT') for call in record.calls]:
+            if './.' in [call.data.get('GT') for call in record.calls]:
                continue
-            pop0.write("l_{}:{}\n".format(record.CHROM, record.POS))
-            pop1.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            AO = record.INFO['AO'][0]
+            QA = record.INFO['QA'][0]
+            RO = record.INFO['RO']
+            QR = record.INFO['QR']
+            ErrorRate = (AO * 10 ** (-(QA / AO) / 10) + RO * 10 ** (-(QR / RO) / 10)) / (AO + RO)
+            pop0.write("locus {}:{}\n".format(record.CHROM, record.POS))
+            pop1.write("locus {}:{}\n".format(record.CHROM, record.POS))
+            admixed.write("locus {}:{} {}\n".format(record.CHROM, record.POS, ErrorRate))
             for sample in SamplesInPop[args.pop0]:
                pop0.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
             for sample in SamplesInPop[args.pop1]:
-               pop1.write("{} {}\n".format(record.call_for_sample[sample].data.get('R0'), record.call_for_sample[sample].data.get('AO')[0]))
+               pop1.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
+            for pop in args.admixed:
+               admixed.write("p_{}\n".format(pop))
+               for sample in SamplesInPop[pop]:
+                  admixed.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
+      # Common error rate in all sites (to be specified in command line)
+      else:
+         for record in reader:
+            if './.' in [call.data.get('GT') for call in record.calls]:
+               continue
+            pop0.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            pop1.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            admixed.write("l_{}:{}\n".format(record.CHROM, record.POS))
+            for sample in SamplesInPop[args.pop0]:
+               pop0.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
+            for sample in SamplesInPop[args.pop1]:
+               pop1.write("{} {}\n".format(record.call_for_sample[sample].data.get('RO'), record.call_for_sample[sample].data.get('AO')[0]))
             for pop in args.admixed:
                admixed.write("p_{}\n".format(pop))
                for sample in SamplesInPop[pop]:
