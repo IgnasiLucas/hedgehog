@@ -378,7 +378,7 @@ for NUM_SAMPLES in 36 35 34; do
       grep locus "${NUM_SAMPLES}_samples/admixed.txt" | gawk '{split($2, A, /:/); print A[1] "\t" A[2]}' > "${NUM_SAMPLES}_samples/positions.txt"
    fi
    for param in alpha beta hi gamma-quantile zeta-quantile; do
-      if [ ! -e "${NUN_SAMPLES}_samples/${param}.png" ]; then
+      if [ ! -e "${NUM_SAMPLES}_samples/${param}.png" ]; then
          if [ ! -e "${NUM_SAMPLES}_samples/${param}_estimates.txt" ]; then
             estpost -i "${NUM_SAMPLES}_samples/mcmcout_1.hdf5" -p $param -o "${NUM_SAMPLES}_samples/${param}_estimates.txt" -c 0.80 -s 0 -w 0
          fi
@@ -407,4 +407,22 @@ done
 #
 # The problem with the analysis is that there is not enough data to estimate the cline parameters.
 # In all loci, both alpha and beta are most probably right where the prior predicted them to be:
-# around zero. The credibility intervals are very wide. 
+# around zero. The credibility intervals are very wide.
+#
+# To wrap this up, I will order the SNPs by mean alpha, and by mean beta.
+
+for i in 36 35 34; do
+   for param in alpha beta; do
+      if [ ! -e "${i}_samples/${param}_ordered.txt" ]; then
+         paste "${i}_samples/positions.txt" "${i}_samples/${param}_estimates.txt" | sed 's/,/\t/g' | LC_ALL=C sort -gk 3,3 > "${i}_samples/${param}_ordered.txt"
+      fi
+   done
+done
+
+# There is a slight negative correlation between alpha and beta. Thus, I do not expect much congruence
+# between the lists of SNPs ordered by either parameter. Plus, they just indicate different dynamics.
+# Therefore, the lists should be treated separately. A next step could be: identifying genes overlapping
+# the SNPs, translating the lists of SNPs into ordered lists of genes, retrieving Genen Ontology terms
+# from BLAST hits for those genes (because they are not annotated with GO terms in the gff file), and
+# then running an enrichment analysis that does not require the selection of a list of genes (Al-Shahrour
+# et al. 2007, BMC Bioinformatics 8:114). Any volunteers?

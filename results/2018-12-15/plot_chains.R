@@ -34,11 +34,12 @@ if (dim(chain1)[2] >= 9) {
                     geom_point(data=chain2, mapping=aes(x=chain2$pos, y=chain2[,subsetCols[8]]), colour='blue', alpha=0.4)
    p9 <- ggplot() + geom_point(data=chain1, mapping=aes(x=chain1$pos, y=chain1[,subsetCols[9]]), colour='red', alpha=0.5) + 
                     geom_point(data=chain2, mapping=aes(x=chain2$pos, y=chain2[,subsetCols[9]]), colour='blue', alpha=0.4)
-   grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, nrow=3)
+   g <- grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, nrow=3)
 } else {
    if (dim(chain1)[2] == 2) {
-      ggplot() + geom_point(data=chain1, mapping=aes(x=chain1$pos, y=chain1[,1]), colour='red', alpha=0.5) +
-                 geom_point(data=chain2, mapping=aes(x=chain2$pos, y=chain2[,1]), colour='blue', alpha=0.4)
-      ggsave(outfile)
+      g <- ggplot() + geom_point(data=chain1, mapping=aes(x=chain1$pos, y=chain1[,1]), colour='red', alpha=0.5) +
+                      geom_point(data=chain2, mapping=aes(x=chain2$pos, y=chain2[,1]), colour='blue', alpha=0.4)
    }
 }
+
+ggsave(outfile, plot = g)
