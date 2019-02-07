@@ -30,7 +30,10 @@ GENOMICS_GENERAL=~/bin/genomics_general
 POPDATA=../../data/populations.txt
 
 # I will exclude both the hybrid and the other admixed individual, in order to work only
-# with the historical signal of introgression. It will help interpretation.
+# with the historical signal of introgression. It will help interpretation. The hybrid
+# individual is already identified as such in the popmap file. Below, I assign Er55_AU7
+# to a population called 'admixed'. That's enough for them to be ignored when running
+# either popgenWindows.py or ABBABABAwindows.py.
 
 if [ ! -e creh1.geno.gz ]; then
    python $GENOMICS_GENERAL/VCF_processing/parseVCF.py -i $VCF1 | gzip > creh1.geno.gz
@@ -76,6 +79,7 @@ fi
 # based on a smaller portion of the original VCF file, because they require data for the one Hemiechinus
 # sample. Thus, I'll run first the abbababa tests in sliding windows and use those windows coordinates
 # to calculate population genetic statistics with the larger dataset.
+
 if [ ! -e creh1.abbababa.csv ]; then
    python $GENOMICS_GENERAL/ABBABABAwindows.py -g creh1.geno.gz -f phased -o creh1.abbababa.csv --windType sites \
       -w 110 --overlap 100 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
@@ -90,36 +94,41 @@ if [ ! -e erin63.PopGenStats.csv ]; then
    rm creh1.windows.txt
 fi
 
+if [ ! -e windowStats.png ]; then
+   R --slave --no-save < plot_windowStats.R
+fi
+
 # The previous estimation of population genetic parameters was done in the same windows where abbababa statistics were
 # also estimated, for the sake of comparison. However, it is convenient to calculate population genetic statistics
 # in non-overlapping windows, of a smaller size maybe, so that correlations among statistics can be evaluated
 # without violating the assumption of independence among values.
+
 if [ ! -e erin63.AccuStats.csv ]; then
    python $GENOMICS_GENERAL/popgenWindows.py -g erin63.geno.gz -o erin63.AccuStats.csv -f phased --windType sites \
       -w 50 -m 40 -O 0 --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
 fi
 
-if [ ! -e windowStats.png ]; then
-   R --slave --no-save < plot_windowStats.R
+# At the same time, I also want to be able to compare population genetics statistics and abba/baba statistics estimated
+# in non-overlapping and common windows, even though from different subsets of SNPs.
+if [ ! -e pi_dxy_fd.png ]; then
+   if [ ! -e nonoverlap.abbababa.csv ]; then
+      python $GENOICS_GENERAL/ABBABABAwindows.py -g creh1.geno.gz -f phased -o nonoverlap.abbababa.csv --windType sites \
+      -w 110 --overlap 0 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
+   fi
+   if [ ! -e nonoverlap.PopGenStats.csv ]; then
+      if [ ! -e nonoverlap.windows.txt ]; then
+         cut -f 1,2,3 -d ',' --output-delimiter=$'\t' nonoverlap.abbababa.csv | tail -n +2 > nonoverlap.windows.txt
+      fi
+      python $GENOMICS_GENERAL/popgenWindows.py --windType predefined --windCoords nonoverlap.windows.txt -f phased \
+      -g erin63.geno.gz -o nonoverlap.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+   fi
+   R --slave --no-save < plot_pi_dxy_fd.R
+   rm nonoverlap.windows.txt
 fi
+# Genes and intergenic regions are disjoint windows, but I can't separate them using regular windows, and I want
+# to estimate parameters separately for the two kinds of regions. Thus, below I split the geno files. Warning:
+# I assume that whatever does not overlap a gene is intergenic.
 
-# I expected nucleotide diversity (pi) in either E. roumanicus or E. europaeus to be proportional to
-# divergence between the two. The rationale is that under neutrality diversity is expected to be 4Nu
-# and divergence 2Tu. Thus, divergence should be proportional to diversity, with a coefficient similar
-# to T/2N, where T is divergence time and N, population size.
-#
-# What I see is that divergence is negatively correlated with diversity: regions with high diversity,
-# more in E. roumanicus than in E. europaeus, are typically less diverged, more conserved. The effect
-# is small, but significant. This does not make any sense from the neutral point of view. The pattern
-# would be better explained by positive selection driving the removal of variation and the fixation
-# of differences (divergence). Different intensities of positive selection along the genome would
-# generate the observed relationship.
-#
-# Another possible explanation is variation in the local recombination rate. Recombination rate affects
-# effective population size, which positively affects variation (4Nu) but not divergence (2Tu). If anything,
-# divergence could be higher in regions of lower effective population size, if a larger proportion of
-# mutations was effectively neutral. Hence, the negative relationship between variation and divergence.
-#
 if [ ! -e ../../data/annotation.gff3.gz ]; then
    wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Erinaceus_europaeus/GFF/ref_EriEur2.0_top_level.gff3.gz
    mv ref_EriEur2.0_top_level.gff3.gz ../../data/annotation.gff3.gz
@@ -128,10 +137,6 @@ fi
 if [ ! -e genes.bed ]; then
    gunzip -c ../../data/annotation.gff3.gz | grep -P "^#|\tgene\t" | bedtools merge -i - > genes.bed
 fi
-
-# Because genes and intergenic regions are disjoint windows, but I want to get statistics for the whole
-# set of sites of each category (at least in a contig), I should split the geno files, instead of using
-# windows. Below, I assume that whatever does not overlap a gene is intergenic.
 
 if [ ! -e genes.creh1.geno.gz ]; then
    if [ ! -e genic_filter.creh1.txt ]; then
@@ -212,6 +217,21 @@ if [ ! -e D.png ]; then
    R --slave --no-save < plot_D.R
 fi
 
+# I expected nucleotide diversity (pi) in either E. roumanicus or E. europaeus to be proportional to
+# divergence between the two. The rationale is that under neutrality diversity is expected to be 4Nu
+# and divergence 2Tu. Thus, divergence should be proportional to diversity, with a coefficient similar
+# to T/2N, where T is divergence time and N, population size.
+#
+# What I see is that divergence is negatively correlated with diversity: regions with high diversity,
+# more in E. roumanicus than in E. europaeus, are typically less diverged, more conserved. The effect
+# is small, but significant. This does not make any sense from the neutral point of view. The pattern
+# would be better explained by positive selection driving the removal of variation and the fixation
+# of differences (divergence).
+#
+# Another possible explanation is introgression by itself, because it adds variation at the same time that
+# it reduces the genetic distance between the species. The pattern also fits with the idea that introgression
+# is polarized toward E. roumanicus.
+#
 # I do not plot fd, because it only makes sense for the windows where D > 0. Actually, instead of windows,
 # it is clear that I should estimated an fd for all intergenic and one for all genic regions. The same strategy
 # used in 2018-10-24 should be useful here. Note that to estimate f_d, I do not need to split the P3 population
@@ -268,3 +288,18 @@ if [ ! -e D.txt ] || [ ! -e fd.txt ]; then
       R -q --no-save <estimate_f.R --args inter.tsv concolor roumanicus dummy1 dummy2 europaeus | grep -vP "^[#>\+]" >> fd.txt
    fi
 fi
+
+#
+# +------------+----------+-----------+-----------+-----------+
+# |   Region   |     D    |   D_err   |   f_hom   |    fd     |
+# +------------+----------+-----------+-----------+-----------+
+# |      Genic | 0.108530 | 0.0278940 | 0.0264087 | 0.0157880 |
+# | Intergenic | 0.170063 | 0.0230392 | 0.0436104 | 0.0255906 |
+# +------------+----------+-----------+-----------+-----------+
+#
+# As expected, genic regions have less introgression than intergenic ones, confirming that
+# introgression is in general deleterious.
+#
+#
+# The negative relationship observed between divergence and diversity in E. roumanicus can be further
+# characterized if I add information on the estimated levels of introgression. The tables 

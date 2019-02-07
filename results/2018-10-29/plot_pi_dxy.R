@@ -1,8 +1,10 @@
+# I use the accurate statistics obtained from non-overlapping windows. Unfortunately,
+# there are no abba-baba parameter estimates in the same windows.
 popgen     <- read.table('erin63.AccuStats.csv',  header=TRUE, sep=',')
 geneStats  <- read.table('genes.PopGenStats.csv', header=TRUE, sep=',')
-geneABBA   <- read.table('genes.abbababa.csv',    header=TRUE, sep=',')
+#geneABBA   <- read.table('genes.abbababa.csv',    header=TRUE, sep=',')  # not used
 interStats <- read.table('inter.PopGenStats.csv', header=TRUE, sep=',')
-interABBA  <- read.table('inter.abbababa.csv',    header=TRUE, sep=',')
+#interABBA  <- read.table('inter.abbababa.csv',    header=TRUE, sep=',')  # not used
 
 library(ggplot2)
 library(gridExtra)
