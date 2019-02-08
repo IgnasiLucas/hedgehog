@@ -25,7 +25,9 @@ FREQ2_AWK=../../bin/freq2.awk
 # Different vcf files are optimized for different statistics:
 VCF1=../2018-09-26/ErinaceusAndHemiechinus_r1e1c1h1.vcf
 VCF2=../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
-# This is the folder where Simon H. Martin's genomic_general repository is cloned:
+# This is the folder where Simon H. Martin's genomic_general repository is cloned. It
+# works with python 2, not 3. I add a conda env for this current folder. Everything is
+# executed within that conda environment, with pyton 2, that I call '2018-10-29'
 GENOMICS_GENERAL=~/bin/genomics_general
 POPDATA=../../data/populations.txt
 
@@ -110,20 +112,20 @@ fi
 
 # At the same time, I also want to be able to compare population genetics statistics and abba/baba statistics estimated
 # in non-overlapping and common windows, even though from different subsets of SNPs.
+if [ ! -e nonoverlap.abbababa.csv ]; then
+   python $GENOMICS_GENERAL/ABBABABAwindows.py -g creh1.geno.gz -f phased -o nonoverlap.abbababa.csv --windType sites \
+   -w 110 --overlap 0 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
+fi
+if [ ! -e nonoverlap.PopGenStats.csv ]; then
+   if [ ! -e nonoverlap.windows.txt ]; then
+      cut -f 1,2,3 -d ',' --output-delimiter=$'\t' nonoverlap.abbababa.csv | tail -n +2 > nonoverlap.windows.txt
+   fi
+   python $GENOMICS_GENERAL/popgenWindows.py --windType predefined --windCoords nonoverlap.windows.txt -f phased \
+   -g erin63.geno.gz -o nonoverlap.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
+fi
 if [ ! -e pi_dxy_fd.png ]; then
-   if [ ! -e nonoverlap.abbababa.csv ]; then
-      python $GENOICS_GENERAL/ABBABABAwindows.py -g creh1.geno.gz -f phased -o nonoverlap.abbababa.csv --windType sites \
-      -w 110 --overlap 0 -m 100 --popsFile creh1.popmap.txt -P1 concolor -P2 roumanicus -P3 europaeus -O Hemiechinus --writeFailedWindows -T 20
-   fi
-   if [ ! -e nonoverlap.PopGenStats.csv ]; then
-      if [ ! -e nonoverlap.windows.txt ]; then
-         cut -f 1,2,3 -d ',' --output-delimiter=$'\t' nonoverlap.abbababa.csv | tail -n +2 > nonoverlap.windows.txt
-      fi
-      python $GENOMICS_GENERAL/popgenWindows.py --windType predefined --windCoords nonoverlap.windows.txt -f phased \
-      -g erin63.geno.gz -o nonoverlap.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
-   fi
    R --slave --no-save < plot_pi_dxy_fd.R
-   rm nonoverlap.windows.txt
+   if [ -e nonoverlap.windows.txt ]; then rm nonoverlap.windows.txt; fi
 fi
 # Genes and intergenic regions are disjoint windows, but I can't separate them using regular windows, and I want
 # to estimate parameters separately for the two kinds of regions. Thus, below I split the geno files. Warning:
@@ -299,7 +301,42 @@ fi
 #
 # As expected, genic regions have less introgression than intergenic ones, confirming that
 # introgression is in general deleterious.
+
+if [ ! -e genes_in_extreme_fd_windows.gff ]; then
+   if [ ! -e extreme_fd.bed ]; then
+      # In nonoverlap.abbababa.csv, fields 10 and 11 are fd and fdM. I determined manually the thresholds
+      # 0.20 and 0.15, respectively, to select the windows with the largest amount of introgression.
+      gawk -v FS=',' '((NR > 1) && ($10 !~ /nan/) && (($10 > 0.20) || ($11 > 0.15))){
+         print $1 "\t" $2 - 1 "\t" $3
+      }' nonoverlap.abbababa.csv > extreme_fd.bed
+   fi
+   gunzip -c ../../data/annotation.gff3.gz | \
+   grep -P "\tgene\t" | \
+   bedtools intersect -a extreme_fd.bed -b - -F 1.0 -wb | grep -v pseudogen > genes_in_extreme_fd_windows.gff
+fi
+
+# There are about 100 protein coding genes in the windows with the highest proportions of
+# introgressed variation. Because natural selection seems to be removing introgressed variation,
+# we expect that if those genes harbor any introgressed variatio (it could be around them instead),
+# then they must be the most tolerant ones to introgression. The point is, we don't have reasons
+# to believe that any of those genes contain 'adaptive' introgression. Thus, a functional enrichment
+# analysis may be unnecessary: I do not expect any functional category to be more tolerant to
+# maladaptive introgression than any other. And if there was one, it would not be very interesting,
+# anyways.
 #
+# What would be interesting is to find signatures of positive selection in any gene located in a
+# highly introgressed region. After having informally rejected neutrality in E. roumanicus through
+# a genome-wide version of the Hudson-Kreitman-Aguadé test, now we could apply a McDonald-Kreitman
+# test to every gene. For that, we need tables of synonymous and non-synonymous polymorphisms and
+# fixed differences betwen the two species. We can obtain that information from the vcf file and from
+# the populations map file.
 #
-# The negative relationship observed between divergence and diversity in E. roumanicus can be further
-# characterized if I add information on the estimated levels of introgression. The tables 
+# The McDonald-Kreitman test would also be very informative about one window with the highest level
+# of divergence, dxy=0.6172, which happens to have one of the lowest levels of diversity within E.
+# europaeus (0.0523, in nonoverlap.PopGenStats.csv). The file erin63.AccuStats.csv has two windows
+# in the same scaffold, NW_006804247.1, with similar values. The whole scaffold could have experienced
+# a recent selective sweep.
+#
+# I tried the program SnpEff, to annotate the functional effects of SNPs in the vcf. However, it uses
+# pre-configured annotation files from Ensembl, which are based on a different assembly. The scaffold
+# names are different, and it is not compatible with our dataset.
