@@ -1,0 +1,17 @@
+# Title:100-mer spectra for: reference.fa
+# XLabel:100-mer frequency
+# YLabel:# distinct 100-mers
+# Kmer value:100
+# Input 1:../../data/reference.fa
+###
+1 2267026307
+2 14499087
+3 697585
+4 290083
+5 155160
+6 98058
+7 66312
+8 48415
+9 36611
+10 28517
+11 221516

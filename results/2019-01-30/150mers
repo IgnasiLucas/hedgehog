@@ -1,0 +1,17 @@
+# Title:150-mer spectra for: reference.fa
+# XLabel:150-mer frequency
+# YLabel:# distinct 150-mers
+# Kmer value:150
+# Input 1:../../data/reference.fa
+###
+1 2271921385
+2 11949987
+3 209957
+4 80264
+5 39986
+6 25727
+7 17855
+8 13149
+9 9950
+10 8213
+11 59853
