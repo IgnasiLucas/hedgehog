@@ -5,7 +5,8 @@
 #
 # I want to use snpEff to annotate the variants, in order to be able to run a
 # McDonald-Kreitman test (or variation thereof) along the genome of E. roumanicus.
-#
+# To run this, you need python 2. I have prepared a conda environment specific
+# for this folder with python 2.7 in spec-file.txt.
 
 GZVCF=/data/kristyna/hedgehog/results_2018/23-02-2018/merged.vcf.gz
 
@@ -87,7 +88,13 @@ if ! grep -q EriEur2.0 ../../bin/snpEff/snpEff.config; then
    echo "EriEur2.0.reference : ftp://ftp.ncbi.nlm.nih.gov/genomes/Erinaceus_europaeus/GFF/ref_EriEur2.0_top_level.gff3.gz" >> ../../bin/snpEff/snpEff.config
 fi
 
+# ANNOTATION
+# ----------
 if [ ! -e merged.annotated.vcf ]; then
    java -jar ../../bin/snpEff/snpEff.jar build -c ../../bin/snpEff/snpEff.config -gff3 -v EriEur2.0
    java -jar ../../bin/snpEff/snpEff.jar -c ../../bin/snpEff/snpEff.config -v EriEur2.0 $GZVCF > merged.annotated.vcf
 fi
+
+# SUMMARY
+# -------
+

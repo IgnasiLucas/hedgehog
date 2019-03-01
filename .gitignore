@@ -142,3 +142,6 @@ results/2018-12-15/*.012
 results/2018-12-15/*.012.pos
 results/2018-12-15/*/*.hdf5
 results/2018-12-15/*/*chain*.txt
+bin/clinEff/*
+bin/genomeannotation-GAG-997e384/*
+bin/snpEff/*
