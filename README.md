@@ -1,4 +1,9 @@
-2009-03-01
+2019-03-04
+==========
+Here, I modify the script bin/vcf2MK_2.awk to include outgroup information and determine
+what is the ancestral allele. Results are comparable to those in 2019-03-01.
+
+2019-03-01
 ==========
 Once the variants are annotated, I need to extract the information I need to run
 the McDonald-Kreitman test, namely, levels of synonymous and non-synonymous
@@ -7,7 +12,7 @@ in folder bin/, which takes advantage of the binary presence flag and the annota
 flag in the vcf. The results here are not quite right, because I did not identify
 the derived allele.
 
-2009-02-27
+2019-02-27
 ==========
 The analyses from 2018-10-29 revealed a negative relationship between divergence
 (from E. europaeus) and diversity in E. roumanicus, using window-based estimates.
@@ -18,7 +23,7 @@ we need to annotate the variants with their functional consequence, including if
 they cause synonymous or non-synonymous changes in protein-coding genes. In this
 folder, I use the program snpEff to annotate all variants.
 
-2009-01-30
+2019-01-30
 ==========
 Along a discussion about future sequencing strategies, the question of whether paired
 end reads are worth came up. In principle, paired-end reads improve mappability, for
