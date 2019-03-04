@@ -1,3 +1,33 @@
+2009-03-01
+==========
+Once the variants are annotated, I need to extract the information I need to run
+the McDonald-Kreitman test, namely, levels of synonymous and non-synonymous
+polymorphism and fixed differences. For this purpose, I wrote the script vcf2MK.awk,
+in folder bin/, which takes advantage of the binary presence flag and the annotation
+flag in the vcf. The results here are not quite right, because I did not identify
+the derived allele.
+
+2009-02-27
+==========
+The analyses from 2018-10-29 revealed a negative relationship between divergence
+(from E. europaeus) and diversity in E. roumanicus, using window-based estimates.
+Since one possible explanation is that positive selection in E. roumanicus drove
+divergence up and diversity down in some regions of the genome, we decided to
+run a genome-wide McDonald-Kreitman test of neutrality in E. roumanicus. For that,
+we need to annotate the variants with their functional consequence, including if
+they cause synonymous or non-synonymous changes in protein-coding genes. In this
+folder, I use the program snpEff to annotate all variants.
+
+2009-01-30
+==========
+Along a discussion about future sequencing strategies, the question of whether paired
+end reads are worth came up. In principle, paired-end reads improve mappability, for
+they extend the total length of mappable sequence. The paired end option is 2 * 100
+base pairs, while single read options are either 100 or 150 bp long. In this folder
+I compare the uniqueness of 100, 150 and 200-bp long words in the hedgehog's reference
+genome. The improvement in uniqueness (mappability) between 150 and 200 bp words is
+very marginal. This convinces me that single end reads are sufficient.
+
 2018-12-15
 ==========
 It was clear from previous analyses that introgressed variation is not distributed
