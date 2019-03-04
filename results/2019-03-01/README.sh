@@ -8,8 +8,8 @@
 # test in http://benhaller.com/messerlab/asymptoticMK.html. I want to test neutrality
 # in E. roumanicus and E. europaeus. The divergence will be between these two species.
 # I will use only SNPs annotated as either 'synonymous' or 'missense'. I will filter
-# the vcf file to include sites with at least 10 E. europaeus and 10 E. roumanicus
-# samples.
+# the vcf file to include sites with at least 'i' E. europaeus and 'i' E. roumanicus
+# samples (with 'i' between 7 and 12).
 
 VCF=../2019-02-27/merged.annotated.vcf
 POPDATA=../../data/populations.txt
@@ -68,11 +68,47 @@ for i in 7 8 9 10 11 12; do
                      --recode-INFO-all | \
             gawk -f ../../bin/add_flag.awk > flagged.vcf
          fi
-         gawk -v ROU=10 -v EUR=10 -v CON=0 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > R${i}E${i}.vcf
+         gawk -v ROU=$i -v EUR=$i -v CON=0 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > R${i}E${i}.vcf
       fi
       gawk -f ../../bin/vcf2MK.awk -v FOCAL="roumanicus" -v SISTER="europaeus" -v OUTPUT1="R${i}E${i}.polymorphism.txt" -v OUTPUT2="R${i}E${i}.divergence.txt" popmap.txt R${i}E${i}.vcf
       gawk -f ../../bin/vcf2MK.awk -v FOCAL="europaeus" -v SISTER="roumanicus" -v OUTPUT1="E${i}R${i}.polymorphism.txt" -v OUTPUT2="E${i}R${i}.divergence.txt" popmap.txt R${i}E${i}.vcf
       # rm R${i}E${i}.vcf
    fi
 done
-rm flagged.vcf
+if [ -e flagged.vcf ]; then rm flagged.vcf; fi
+
+if [ ! -e summary.txt ]; then
+   echo -e "E. roumanicus" >  summary.txt
+   echo -e "-------------" >> summary.txt
+   echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> summary.txt
+   echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> summary.txt
+   for i in 7 8 9 10 11 12; do
+      NON_POL=$(gawk '{S += $2}END{print S}' R${i}E${i}.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' R${i}E${i}.polymorphism.txt)
+      SYN_DIV=$(head -n 1 R${i}E${i}.divergence.txt | cut -d " " -f 4)
+      NON_DIV=$(tail -n 1 R${i}E${i}.divergence.txt | cut -d " " -f 4)
+      ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
+      echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> summary.txt
+   done
+   echo >> summary.txt
+   echo "E. europaeus" >> summary.txt
+   echo "------------" >> summary.txt
+   echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> summary.txt
+   echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> summary.txt
+   for i in 7 8 9 10 11 12; do
+      NON_POL=$(gawk '{S += $2}END{print S}' E${i}R${i}.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' E${i}R${i}.polymorphism.txt)
+      SYN_DIV=$(head -n 1 E${i}R${i}.divergence.txt | cut -d " " -f 4)
+      NON_DIV=$(tail -n 1 E${i}R${i}.divergence.txt | cut -d " " -f 4)
+      ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
+      echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> summary.txt
+   done
+
+fi
+
+# CONCLUSION
+# ----------
+#
+# Neither E. roumanicus nor E. europaeus seem to have fixed much non-synonymous variation
+# as a result of positive selection. I suppose the negative values of alpha are due to the
+# excess of non-neutral polymorphism at low frequency.
