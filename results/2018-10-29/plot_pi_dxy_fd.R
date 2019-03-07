@@ -7,6 +7,7 @@ abbababa$fdM[abbababa$D <= 0] <- 0.0
 allStats   <- merge(popgen, abbababa, by=c('scaffold', 'start', 'end'))
 filter  <- !is.na(allStats$fd)
 filter2 <- !is.na(allStats$fd) & allStats$fd > 0
+filter3 <- !is.na(allStats$fd) & allStats$fd > 0 & allStats$fd < 0.05
 library(ggplot2)
 library(gridExtra)
 
@@ -27,6 +28,9 @@ p5 <- ggplot(data=allStats[filter2,], mapping=aes(x=fd, y=dxy)) + geom_point() +
 p6 <- ggplot(data=allStats[filter,], mapping=aes(x=pi_roumanicus, y=pi_europaeus, colour=dxy)) + 
       geom_point(size=0.8) + scale_colour_gradient2(low='yellow',mid='orange',high='red',midpoint=0.45) +
       geom_smooth(method='lm')
+p7 <- ggplot(data=allStats[filter3,], mapping=aes(x=pi_roumanicus, y=dxy)) +
+      geom_point(mapping=aes(colour=fd), size=2) + geom_smooth(method='lm') + xlab('Diversity in E. roumanicus') +
+      ylab('Diverence') + scale_colour_gradient2(low='yellow', mid='orange', high='red', midpoint=0.1)
 
 png(filename='pi_dxy_fd.png')
 grid.arrange(p1, p2, p3, p4, p5, p6, nrow=3)
@@ -34,3 +38,4 @@ dev.off()
 
 ggsave('pi_dxy_roumanicus.png', p1)
 ggsave('pi_dxy_europaeus.png', p2)
+ggsave('pi_dxy_roumanicus_low_fd.png', p7)
