@@ -154,7 +154,7 @@ fi
 if [ ! -e inter.creh1.geno.gz ]; then
    if [ ! -e genic_filter.creh1.txt ]; then
       if [ ! -e snps.creh1.bed ]; then
-         gunzip -c creh1.geno.gz | gawk '(NR == 1){print $0 >"genes.creh1.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.creh1.bed
+         gunzip -c creh1.geno.gz | gawk '(NR == 1){print $0 >"inter.creh1.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.creh1.bed
       fi
       bedtools intersect -a snps.creh1.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.creh1.txt
    fi
@@ -163,22 +163,24 @@ if [ ! -e inter.creh1.geno.gz ]; then
 fi
 
 if [ ! -e genes.erin63.geno.gz ]; then
+   gunzip -c erin63.geno.gz | head -n 1 > genes.erin63.geno
    if [ ! -e genic_filter.erin63.txt ]; then
       if [ ! -e snps.erin63.bed ]; then
-         gunzip -c erin63.geno.gz | gawk '(NR == 1){print $0 >"genes.erin63.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
+         gunzip -c erin63.geno.gz | gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
       fi
-      bedtools intersect -a snps.erin63.bed -b genes.bed -v | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
+      bedtools intersect -a snps.erin63.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
    fi
    gunzip -c erin63.geno.gz | grep -F -f genic_filter.erin63.txt >> genes.erin63.geno
    gzip genes.erin63.geno
 fi
 
 if [ ! -e inter.erin63.geno.gz ]; then
+   gunzip -c erin63.geno.gz | head -n 1 > inter.erin63.geno
    if [ ! -e genic_filter.erin63.txt ]; then
       if [ ! -e snps.erin63.bed ]; then
-         gunzip -c erin63.geno.gz | gawk '(NR == 1){print $0 >"genes.erin63.geno"}(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
+         gunzip -c erin63.geno.gz | gawk '(NR > 1){print $1 "\t" $2 - 1 "\t" $2}' > snps.erin63.bed
       fi
-      bedtools intersect -a snps.erin63.bed -b genes.bed -v | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
+      bedtools intersect -a snps.erin63.bed -b genes.bed -wa | gawk '{print $1 "\t" $3 "\t"}' > genic_filter.erin63.txt
    fi
    gunzip -c erin63.geno.gz | grep -F -v -f genic_filter.erin63.txt >> inter.erin63.geno
    gzip inter.erin63.geno
