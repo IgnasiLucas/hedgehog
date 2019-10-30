@@ -96,7 +96,7 @@ if [ ! -e erin63.PopGenStats.csv ]; then
    rm creh1.windows.txt
 fi
 
-if [ ! -e windowStats.png ]; then
+if [ ! -e windowStats.pdf ]; then
    R --slave --no-save < plot_windowStats.R
 fi
 
@@ -123,7 +123,7 @@ if [ ! -e nonoverlap.PopGenStats.csv ]; then
    python $GENOMICS_GENERAL/popgenWindows.py --windType predefined --windCoords nonoverlap.windows.txt -f phased \
    -g erin63.geno.gz -o nonoverlap.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
 fi
-if [ ! -e pi_dxy_fd.png ]; then
+if [ ! -e pi_dxy_fd.pdf ]; then
    R --slave --no-save < plot_pi_dxy_fd.R
    if [ -e nonoverlap.windows.txt ]; then rm nonoverlap.windows.txt; fi
 fi
@@ -213,11 +213,11 @@ if [ ! -e inter.PopGenStats.csv ]; then
       -g inter.erin63.geno.gz -o inter.PopGenStats.csv --popsFile erin63.popmap.txt -p roumanicus -p europaeus -T 20 --writeFailedWindows
 fi
 
-if [ ! -e pi_dxy.png ]; then
+if [ ! -e pi_dxy.pdf ]; then
    R --slave --no-save < plot_pi_dxy.R
 fi
 
-if [ ! -e D.png ]; then
+if [ ! -e D.pdf ]; then
    R --slave --no-save < plot_D.R
 fi
 

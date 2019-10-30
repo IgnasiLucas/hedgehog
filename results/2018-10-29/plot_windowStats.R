@@ -11,10 +11,12 @@ allStats <- merge(popgen, abbababa, by=c('scaffold', 'start', 'end'))
 goodScaff <- names(table(allStats$scaffold)[table(allStats$scaffold) >= 27])
 filter <- allStats$scaffold %in% goodScaff
 
-png(filename='windowStats.png', width=1000, height=1000)
-ggplot(data=allStats[filter,]) + geom_line(mapping=aes(x=mid.x, y=dxy_roumanicus_europaeus), color='green') + 
+#pdf(file='windowStats.pdf', width=1000, height=1000)
+p <- ggplot(data=allStats[filter,]) + geom_line(mapping=aes(x=mid.x, y=dxy_roumanicus_europaeus), color='green') + 
    geom_line(mapping=aes(x=mid.x, y=pi_roumanicus), color='red') +
    geom_line(mapping=aes(x=mid.x, y=pi_europaeus),  color='blue') +
    geom_line(mapping=aes(x=mid.y, y=fd)) +
-   facet_wrap(~scaffold) + xlab('position') + ylab('')
-dev.off()
+   facet_wrap(~scaffold) + xlab('position') + ylab('') +
+   theme(axis.text.x = element_text(angle=90))
+ggsave('windowStats.pdf', plot=p, device='pdf')
+#dev.off()

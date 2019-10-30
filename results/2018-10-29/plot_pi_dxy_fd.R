@@ -32,10 +32,9 @@ p7 <- ggplot(data=allStats[filter3,], mapping=aes(x=pi_roumanicus, y=dxy)) +
       geom_point(mapping=aes(colour=fd), size=2) + geom_smooth(method='lm') + xlab('Diversity in E. roumanicus') +
       ylab('Diverence') + scale_colour_gradient2(low='yellow', mid='orange', high='red', midpoint=0.1)
 
-png(filename='pi_dxy_fd.png')
-grid.arrange(p1, p2, p3, p4, p5, p6, nrow=3)
-dev.off()
+p <- grid.arrange(p1, p2, p3, p4, p5, p6, nrow=3)
+ggsave('pi_dxy_fd.pdf', plot=p, device='pdf')
 
-ggsave('pi_dxy_roumanicus.png', p1)
-ggsave('pi_dxy_europaeus.png', p2)
-ggsave('pi_dxy_roumanicus_low_fd.png', p7)
+ggsave('pi_dxy_roumanicus.pdf', p1)
+ggsave('pi_dxy_europaeus.pdf', p2)
+ggsave('pi_dxy_roumanicus_low_fd.pdf', p7)
