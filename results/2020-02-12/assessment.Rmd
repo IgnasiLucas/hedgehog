@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+author: "J. Ignacio Lucas Lledó"
+date: "12/2/2020"
+output: html_document
+params:
+   MAPPING1: 'original_mapping_statistics.txt'
+   MAPPING2: 'new_mapping_statistics.txt'
+   VCF1: '/data/kristyna/hedgehog/results_2020/2020-02-02/russia.vcf'
+   VCF2: '/data/kristyna/hedgehog/results_2020/2020-02-02/2020-02-02.recode.vcf'
+---
+
+```{r setup, message=FALSE}
+library(ggplot2)
+library(tidyr)
+library(vcfR)
+```
+
+# Mapping results
+
+```{r mapping1}
+mapping1 <- read.table(params$MAPPING1, header=TRUE, sep='\t')
+mapping1_long <- pivot_longer(mapping1[,-5], c(2,3,4), names_to='fate', values_to='reads')
+mapping1_long$setting <- factor('very sensitive', levels=c('very sensitive', 'sensitive'))
+```
+
+```{r mapping2, fig.width=15}
+mapping2 <- read.table(params$MAPPING2, header=TRUE, sep='\t')
+mapping2_long <- pivot_longer(mapping2[,-5], c(2,3,4), names_to='fate', values_to='reads')
+mapping2_long$setting <- factor('sensitive', levels=c('very_sensitive', 'sensitive'))
+
+joined <- rbind(mapping1_long, mapping2_long)
+
+ggplot(data=joined, mapping=aes(x=Sample, y=reads, fill=fate)) +
+   geom_bar(stat='identity') +
+   theme(axis.text.x = element_text(angle=90)) +
+   facet_wrap(~setting)
+
+ggplot(data=joined, mapping=aes(x=setting, y=reads, fill=fate)) +
+   geom_bar(stat='identity')
+```
+
+The global proportion of reads mapped once is `r sum(mapping1$Mapped_once)/sum(mapping1$Total)`
+in the very sensitive mapping and `r sum(mapping2$Mapped_once)/sum(mapping2$Total)` in the just
+sensitive mapping. Not a big difference.
+
+# Filtering of variant sites
+
+The other concern is the filtering of variant sites, which I think is quite critical. The vcf
+files contain information on global depth (across samples), which is important. It's a good
+time to learn the usage of vcfR. The two vcf files seem to be before and after filtering with
+`vcftools`. See Kristýna's 2020-02-02 folder.
+
+```{r vcfR}
+vcf1 <- read.vcfR(params$VCF1, verbose=FALSE)
+vcf2 <- read.vcfR(params$VCF2, verbose=FALSE)
+```
+
+
+```{r sessionInfo}
+save(joined, file='assessment.RData')
+sessionInfo()
+```
