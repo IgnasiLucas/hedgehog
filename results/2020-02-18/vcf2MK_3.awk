@@ -47,6 +47,7 @@ BEGIN{
    if (OUTGROUP == "") OUTGROUP = "Hemiechinus"
    if (OUTPUT1 == "") OUTPUT1 = "z1.txt"
    if (OUTPUT2 == "") OUTPUT2 = "z2.txt"
+   if (OUTPUT3 == "") OUTPUT3 = "z3.txt"
    DIVERGENCE["synonymous"] = 0.0
    DIVERGENCE["missense"] = 0.0
 }(FILENAME ~ /popmap/){
@@ -75,7 +76,6 @@ BEGIN{
    if ($8 ~ /synonymous_variant/) {
       EFFECT = "synonymous"
    }
-   # A few SNPs are annotated as both synonymous and missense, because they are shared by more than one transcript. Missense overrides synonymous.
    if ($8 ~ /missense_variant/) {
       EFFECT = "missense"
    }
@@ -114,6 +114,7 @@ BEGIN{
          DIVERGENCE[EFFECT] += 1.0 - DERIVED_SISTER_FREQ
       }
    }
+   print $1 "\t" $2 "\t" EFFECT "\t" DERIVED_FOCAL_FREQ "\t" DERIVED_SISTER_FREQ >> OUTPUT3
 }END{
    for (x = 0.0; x <= 1.0; x += 0.1) {
       print x "\t" POLYMORPHISM[sprintf("%.1f",x), "missense"] + 0 "\t" POLYMORPHISM[sprintf("%.1f",x), "synonymous"] + 0 >> OUTPUT1

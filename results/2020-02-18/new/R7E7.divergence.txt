@@ -1,0 +1,2 @@
+Missense divergence: 90.12
+Synonymous divergence: 210.709
