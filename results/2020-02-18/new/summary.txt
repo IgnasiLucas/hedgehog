@@ -1,0 +1,11 @@
+E. roumanicus
+-------------
+ 	Polymorphism	Polymorphism	Divergence	Divergence
+N	Synonymous	Non-synonymous	Synonymous	Non-synonuymous	Alpha
+7	194      	100      	210.709     	90.12     	-.20520291386970865876
+
+E. europaeus
+------------
+ 	Polymorphism	Polymorphism	Divergence	Divergence
+N	Synonymous	Non-synonymous	Synonymous	Non-synonuymous	Alpha
+7	294      	151      	183.676     	78.4949     	-.20182321650551706624

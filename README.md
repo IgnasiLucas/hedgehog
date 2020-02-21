@@ -1,3 +1,17 @@
+2020-02-18
+==========
+Upon Kristyna's suggestion, I check if bin/vcf2MK_2.awk is counting polymorphic
+and divergent synonymous and missense sites correctly, for the MK test. It turns
+out that the script was not reporting any synonymous polymorphic site at either the
+lowest or the highest frequency classes. The bug was unlikely to bias the asymptotic
+estimate of alpha, but was corrected. Most asymptotic estimates of alpha are negative
+but noisy, with 95% CI always overlapping 0. Estimates in E. roumanicus are higher.
+
+2020-02-12
+==========
+New data came from the second contact zone in Russia. I run some checks to supervise
+the results from Kristyna's pipeline.
+
 2019-03-04
 ==========
 Here, I modify the script bin/vcf2MK_2.awk to include outgroup information and determine

@@ -7,6 +7,12 @@
 # and E. europaeus driven by positive selection, using script vcf2mk_2.awk to count the
 # number of sites of each category. Kirstýna reviewed those results and they are different
 # from others. I want to make sure that the scripts worked as expected.
+#
+# On 2019-03-04, I used script ../../bin/vcf2MK_2.awk to count sites. That script uses
+# the binary presence flag (BPF) to estimate population-specific allele frequencies,
+# from which the ancestral type is determined and also the polymorphic or divergent
+# character. Below I use a copy of vcf2MK_2.awk that outputs an intermediate table of
+# allele frequencies, which allows me to contrast them with the original vcf file.
 
 VCF=../2019-02-27/merged.annotated.vcf
 POPDATA=../../data/populations.txt
@@ -67,6 +73,8 @@ for i in $MINSAMPLE; do
          fi
          gawk -v ROU=$i -v EUR=$i -v CON=0 -v HEM=1 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > R${i}E${i}.vcf
       fi
+      if [ -e original/frequencies_rou.txt ]; then rm original/frequencies_rou.txt; fi
+      if [ -e original/frequencies_eur.txt ]; then rm original/frequencies_eur.txt; fi
       gawk -f vcf2MK_3.awk -v FOCAL="roumanicus" -v SISTER="europaeus" -v OUTPUT1="original/R${i}E${i}.polymorphism.txt" -v OUTPUT2="original/R${i}E${i}.divergence.txt" -v OUTPUT3="original/frequencies_rou.txt" popmap.txt R${i}E${i}.vcf
       gawk -f vcf2MK_3.awk -v FOCAL="europaeus" -v SISTER="roumanicus" -v OUTPUT1="original/E${i}R${i}.polymorphism.txt" -v OUTPUT2="original/E${i}R${i}.divergence.txt" -v OUTPUT3="original/frequencies_eur.txt" popmap.txt R${i}E${i}.vcf
    fi
@@ -102,9 +110,11 @@ if [ ! -e original/summary.txt ]; then
 
 fi
 
-# Up to here, it's just what I did before. Now, I want to count sites in a different way, to see
-# if I get the same result. I will start from the R10E10.vcf file, so that I will only be checking
-# that vcf2MK_2.awk works as expected, which I think is the most obscure piece of code.
+# Up to here, it's just what I did before, adding the intermediate files original/frequencies_rou.txt and
+# original/frequencies_eur.txt. Now, I want to count sites in a different way, to see
+# if I get the same result. I will start from the R${MINSAMPLE}E${MINSAMPLE}.vcf file,
+# so that I will only be checking that vcf2MK_2.awk works as expected, which I think is the
+# most obscure piece of code.
 
 if [ ! -d new ]; then mkdir new; fi
 if [ ! -e new/counts_table.txt ]; then
@@ -172,6 +182,17 @@ if [ ! -e new/frequencies.txt ]; then
    }' new/counts_table.txt > new/frequencies.txt
 fi
 
+# The new/frequencies.txt should be exactly equal to original/frequencies_rou.txt,
+# despite of having used actual genotypes instead of BPF to estimate the frequencies.
+
+if [ ! -e check_frequencies.txt ]; then
+   md5sum original/frequencies_rou.txt new/frequencies.txt > check_frequencies.txt
+fi
+
+# If, and only if, the two lines in file 'check_frequencies.txt' start with the same string,
+# the two ways of estimating allele frequencies produced the exact same result. That would
+# confirm that we can trust the numbers.
+#
 # The frequencies.txt table shows the real frequency estimates, and allows
 # us to customize the binning of frequencies. For example, I can bin frequencies
 # in 8 classes: (0,0.125], (0.125,0.250], (0.250,0.375], (0.375,0.500],
@@ -278,11 +299,64 @@ if [ ! -e new/E${MINSAMPLE}R${MINSAMPLE}.polymorphism.txt ]; then
    }' new/frequencies.txt
 fi
 
+if [ ! -e new/summary.txt ]; then
+   echo -e "E. roumanicus" >  new/summary.txt
+   echo -e "-------------" >> new/summary.txt
+   echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> new/summary.txt
+   echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> new/summary.txt
+   for i in $MINSAMPLE; do
+      NON_POL=$(gawk '{S += $2}END{print S}' new/R${i}E${i}.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' new/R${i}E${i}.polymorphism.txt)
+      NON_DIV=$(head -n 1 new/R${i}E${i}.divergence.txt | cut -d " " -f 3)
+      SYN_DIV=$(tail -n 1 new/R${i}E${i}.divergence.txt | cut -d " " -f 3)
+      ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
+      echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> new/summary.txt
+   done
+   echo >> new/summary.txt
+   echo "E. europaeus" >> new/summary.txt
+   echo "------------" >> new/summary.txt
+   echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> new/summary.txt
+   echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> new/summary.txt
+   for i in $MINSAMPLE; do
+      NON_POL=$(gawk '{S += $2}END{print S}' new/E${i}R${i}.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' new/E${i}R${i}.polymorphism.txt)
+      NON_DIV=$(head -n 1 new/E${i}R${i}.divergence.txt | cut -d " " -f 3)
+      SYN_DIV=$(tail -n 1 new/E${i}R${i}.divergence.txt | cut -d " " -f 3)
+      ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
+      echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> new/summary.txt
+   done
+
+fi
+
+
 # CONCLUSION
 # ----------
 #
 # There was a small mistake in the vcf2MK_2.awk script. It was not reporting any synonymous polymorphisms at the
 # lowest nor at the highest frequency classes (rounded as 0 and 1, respectively). After correcting for that, the
-# values of alpha come closer to 0, but still negative.
+# values of alpha come closer to 0, but still negative. Now I am much more confident that the number of sites
+# are counted correctly.
 #
-# In the 'new' folder, I use a different binning of frequencies for the assymptotic estimation of alpha.
+# In the 'new' folder, I use a different binning of frequencies for the assymptotic estimation of alpha. I use
+# the online asymptotic McDonald-Kreitman test (http://benhaller.com/messerlab/asymptoticMK.html). These are the
+# results:
+#
+#   --------------------------------------------------------------------------------------------
+#    Focal               Min.x     Max.x      Alpha_original          Alpha_asymptotic (95% CI)
+#    ------------------------------------------------------------------------------------------
+#    E. europaeus         0.00      1.00          -0.0028459       -0.15263 (-0.68488, 0.37962)
+#    E. europaeus         0.15      0.85           0.094204        -0.12953 (-1.00543, 0.74638)
+#    E. roumanicus        0.00      1.00          -0.11639          0.26926 (-0.55096, 1.08947)
+#    E. roumanicus        0.15      0.85          -0.18650          0.49472 (-0.77638, 1.76582)
+#   --------------------------------------------------------------------------------------------
+#
+# Using the original bins:
+#
+#   --------------------------------------------------------------------------------------------
+#    Focal               Min.x     Max.x      Alpha_original          Alpha_asymptotic (95% CI)
+#    ------------------------------------------------------------------------------------------
+#    E. europaeus         0.00      1.00          -0.16085          -0.11501 (-0.56092-0.33090)
+#    E. europaeus         0.10      0.90          -0.19206          -0.17020 (-0.76853-0.42813)
+#    E. roumanicus        0.00      1.00          -0.21844          -0.27139 (-0.55508-1.09786)
+#    E. roumanicus        0.10      0.90          -0.29658           0.38816 (-0.71751-1.49383)
+#   --------------------------------------------------------------------------------------------
