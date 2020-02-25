@@ -95,10 +95,56 @@ if [ ! -e new_mapping_statistics.txt ]; then
    }' $POPMAP logs/Er*.log > new_mapping_statistics.txt
 fi
 
+# Depth
+# -----
+#
+# I want to compare the depth distributions before and after filtering. The vcf before
+# filtering (russia.vcf) contains lots of complex variants and indels. I limit the counting
+# of depth values to SNPs with minimum quality of 50.
+
+if [ ! -e total_depth.txt ] || [ ! -e all_depths.txt ]; then
+   gawk -v VCF1=$VCF1 -v VCF2=$VCF2 'BEGIN{
+      NICKNAME[VCF1] = "original"
+      NICKNAME[VCF2] = "filtered"
+      MAX=100
+   }((/^#CHROM/) && (FILENAME == VCF1)){
+      HEADER = "Total"
+      for (i=10; i<=NF; i++) {
+         HEADER = HEADER "\t" $i
+      }
+      print HEADER "\tSum" > "all_depths.txt"
+   }((/^[^#]/) && (length($4)==1) && (length($5)==1) && ($6 + 0 >= 50)){
+      split($8, INFO, /;/)
+      for (field in INFO) {
+         if (INFO[field] ~ /^DP=/) {
+            split(INFO[field], DEPTH, /=/)
+            if (DEPTH[2] + 0 > MAX) MAX = DEPTH[2] + 0
+            FREQ[NICKNAME[FILENAME], DEPTH[2]]++
+         }
+      }
+      if (FILENAME == VCF1){
+         ALLDEPTHS = DEPTH[2]
+         SUMDEPTHS = 0
+         for (i=10; i<=NF; i++) {
+            split($i, GT, /:/)
+            ALLDEPTHS = ALLDEPTHS "\t" GT[3] + 0
+            SUMDEPTHS += GT[3]
+         }
+         print ALLDEPTHS "\t" SUMDEPTHS >> "all_depths.txt"
+      }
+   }END{
+      for (depth = 1; depth <= MAX; depth++) {
+        if (FREQ["original", depth] + FREQ["filtered", depth] > 0) {
+           print depth "\t" FREQ["original", depth] + 0 "\t" FREQ["filtered", depth] + 0
+        }
+      }
+   }' $VCF1 $VCF2 > total_depth.txt
+fi
+
 if [ ! -e assessment.html ]; then
-   R --no-save -q -e "render_report <- function(mapping1, mapping2, vcf1, vcf2){ \
+   R --no-save -q -e "render_report <- function(mapping1, mapping2){ \
                         rmarkdown::render('assessment.Rmd', \
-                           params = list(MAPPING1 = mapping1, MAPPING2 = mapping2, VCF1 = vcf1, VCF2 = vcf2), \
+                           params = list(MAPPING1 = mapping1, MAPPING2 = mapping2), \
                            output_file = 'assessment.html')}" \
-                  -e "render_report('original_mapping_statistics.txt', 'new_mapping_statistics.txt', '$VCF1', '$VCF2')"
+                  -e "render_report('original_mapping_statistics.txt', 'new_mapping_statistics.txt')"
 fi

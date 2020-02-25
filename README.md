@@ -10,7 +10,9 @@ but noisy, with 95% CI always overlapping 0. Estimates in E. roumanicus are high
 2020-02-12
 ==========
 New data came from the second contact zone in Russia. I run some checks to supervise
-the results from Kristyna's pipeline.
+the results from Kristyna's pipeline. The number of ambiguous mappings cannot be
+reduced much by changing the "very-sensitive" setting to just "sensitive". And the
+filtering step can hardly be improved either. See the report [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2020-02-12/assessment.html).
 
 2019-03-04
 ==========

@@ -47,17 +47,67 @@ sensitive mapping. Not a big difference.
 # Filtering of variant sites
 
 The other concern is the filtering of variant sites, which I think is quite critical. The vcf
-files contain information on global depth (across samples), which is important. It's a good
-time to learn the usage of vcfR. The two vcf files seem to be before and after filtering with
-`vcftools`. See Kristýna's 2020-02-02 folder.
+files contain information on global depth (across samples), which is important. It would be
+a good chance to learn the usage of vcfR. But after trying a bit, I find it slow and difficult
+to extract the depth information. I'd rather use `gawk` to get depth information, which is what
+I need now. Now, how do I use a variable in the R namespace (`params$VCF1`) inside a `gawk` chunk?
+Apparently, I can pass arguments to gawk through the chunk's options [https://github.com/yihui/knitr-examples/blob/master/024-engine-awk.Rmd]. But I could not make that
+run. I resort to the `README.sh`, where I get the tables I need, and then use R to plot results,
+as in the old times.
 
-```{r vcfR}
-vcf1 <- read.vcfR(params$VCF1, verbose=FALSE)
-vcf2 <- read.vcfR(params$VCF2, verbose=FALSE)
+```{r depth}
+TotalDepth <- read.table('total_depth.txt', col.names=c('DP','original', 'filtered'))
+ggplot(data=TotalDepth, mapping=aes(x=DP)) +
+   scale_x_log10() +
+   geom_line(aes(y=original), color='blue') +
+   geom_line(aes(y=filtered), color='red') +
+   xlab('Depth') + ylab('frequency')
 ```
 
+The shape of the distribution of total depths in the filtered vcf looks fine. The most remarkable
+issue may be the magnitude of data loss during filtering. Vcftools does not allow to filter by
+total depth, but only by individual sample's depth. The limits used were 4 and 200 per sample, and
+a minimum of 75% of the 40 samples should be present. Thus, theoretical whole depth limits were
+`r 40 * 0.75 * 4` and `r 40 * 200`. The actual minimum and maximum depth values observed in the
+filtered vcf file are `r min(TotalDepth$DP[TotalDepth$filtered > 0])` and 
+`r max(TotalDepth$DP[TotalDepth$filtered > 0])`.
+
+It is possible that we are wasting data by the sample-specific maximum depth. I would trust most
+sites where total depth is below 1000, even if some samples are over 200. I would like to quantify that.
+For that, I need individual sample's depth data, now available in file `all_depths.txt`.
+
+```{r depths}
+depths <- read.table('all_depths.txt', header=TRUE)
+# Sites with at least 30 samples with depths between 4 and 200:
+min4max200 <- rowSums(depths[,2:41] >= 4 & depths[,2:41] <= 200) >= 30
+plot(table(depths[,1]), log='x', type='l', col='blue', xlab='Depth', ylab='frequency')
+points(table(depths[min4max200,1]), col='red', type='l')
+```
+
+The maximum depth allowed per sample of 200 is doing a good job at keeping most
+sites with a reasonable coverage, without admitting too many of the excessively
+covered ones. We loose sites on the low coverage end, which could only be helped
+by lowering the minimum coverage allowed per sample, or relaxing the percentage
+of samples required to be covered (75% currently). None of these options seem
+a good idea.
+
+In the dataset from central European contact zone, population assignment was
+clear, because very few hybrids were present. There, we were able to use species-
+specific quotas (e.g., at least 10 *E. europaeus* and 10 *E. roumanicus* samples
+covered per site), which optimizes the selection of sites. But we cannot do the
+same when hybridization seems much more frequent.
+
+The difference in height of the filtered sites (in red) between the two plots
+indicates we loose many sites from analysis for reasons other than the coverage.
+The filtering step requires also a minimum allele frequency of 0.01, a maximum
+allele frequency of 0.95, neither more nor less than 2 alleles, a minimum quality
+of 50 and a spacing of at least 261 nucleotides between SNPs. I would not change
+any of those parameters, but perhaps the maximum allele frequency. With 40 samples,
+the precision in allele frequency is `r 1/80`. I think allele frequency limits
+should be symmetrical, like 0.0125 and 0.9875, in order to admit singleton alleles
+of both types, reference and alternative.
 
 ```{r sessionInfo}
-save(joined, file='assessment.RData')
+save(joined, TotalDepth, depths, file='assessment.RData')
 sessionInfo()
 ```
