@@ -1,3 +1,4 @@
+.gitignore
 data/
 *.vcf
 *.fastq
@@ -145,3 +146,6 @@ results/2018-12-15/*/*chain*.txt
 bin/clinEff/*
 bin/genomeannotation-GAG-997e384/*
 bin/snpEff/*
+results/2020-02-12/all_depths.txt
+results/2020-02-12/logs
+results/2020-02-12/sam

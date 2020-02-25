@@ -44,10 +44,14 @@ fi
 # However, the input file is large and dirty. It may even be faster (if not only cleaner)
 # to remove sites with indels or with more than one allele, and to exclude individuals
 # not targeted in this analysis before adding the flag.
-
+#
+# What matters is to estimate allele frequencies in the focal species, where I will request
+# a minimum number of individuals. In the sister species, one individual should be enough to
+# determine if the site is divergent (i.e., all individuals sampled in the focal species homozygous
+# for an allele different to that present in the sister species' indiviual(s)).
 for i in 7 8 9 10 11 12; do
-   if [ ! -e R${i}E${i}.polymorphism.txt ] || [ ! -e R${i}E${i}.divergence.txt ]; then
-      if [ ! -e R${i}E${i}.vcf ]; then
+   if [ ! -e R${i}E1.polymorphism.txt ] || [ ! -e R${i}E1.divergence.txt ] || [ ! -e E${i}R1.polymorphism.txt ] || [ ! -e E${i}R1.divergence.txt ]; then
+      if [ ! -e R${i}E1.vcf ] || [ ! -e E${i}R1.vcf ]; then
          if [ ! -e flagged.vcf ] ; then
             vcftools --vcf $VCF \
                      --stdout \
@@ -65,11 +69,19 @@ for i in 7 8 9 10 11 12; do
                      --recode-INFO-all | \
             gawk -f ../../bin/add_flag.awk > flagged.vcf
          fi
-         gawk -v ROU=$i -v EUR=$i -v CON=0 -v HEM=1 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > R${i}E${i}.vcf
+         if [ ! -e R${i}E1.vcf ]; then
+            gawk -v ROU=$i -v EUR=1 -v CON=0 -v HEM=1 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > R${i}E1.vcf
+         fi
+         if [ ! -e E${i}R1.vcf ]; then
+            gawk -v ROU=1 -v EUR=$i -v CON=0 -v HEM=1 -f ../../bin/filtervcf.awk popmap.txt flagged.vcf > E${i}R1.vcf
+         fi
       fi
-      gawk -f ../../bin/vcf2MK_2.awk -v FOCAL="roumanicus" -v SISTER="europaeus" -v OUTPUT1="R${i}E${i}.polymorphism.txt" -v OUTPUT2="R${i}E${i}.divergence.txt" popmap.txt R${i}E${i}.vcf
-      gawk -f ../../bin/vcf2MK_2.awk -v FOCAL="europaeus" -v SISTER="roumanicus" -v OUTPUT1="E${i}R${i}.polymorphism.txt" -v OUTPUT2="E${i}R${i}.divergence.txt" popmap.txt R${i}E${i}.vcf
-      # rm R${i}E${i}.vcf
+      if [ ! -e R${i}E1.polymorphism.txt ] || [ ! -e R${i}E1.divergence.txt ]; then
+         gawk -f ../../bin/vcf2MK_2.awk -v FOCAL="roumanicus" -v SISTER="europaeus" -v OUTPUT1="R${i}E1.polymorphism.txt" -v OUTPUT2="R${i}E1.divergence.txt" popmap.txt R${i}E1.vcf
+      fi
+      if [ ! -e E${i}R1.polymorphism.txt ] || [ ! -e E${i}R1.divergence.txt ]; then
+         gawk -f ../../bin/vcf2MK_2.awk -v FOCAL="europaeus" -v SISTER="roumanicus" -v OUTPUT1="E${i}R1.polymorphism.txt" -v OUTPUT2="E${i}R1.divergence.txt" popmap.txt E${i}R1.vcf
+      fi
    fi
 done
 if [ -e flagged.vcf ]; then rm flagged.vcf; fi
@@ -80,10 +92,10 @@ if [ ! -e summary.txt ]; then
    echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> summary.txt
    echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> summary.txt
    for i in 7 8 9 10 11 12; do
-      NON_POL=$(gawk '{S += $2}END{print S}' R${i}E${i}.polymorphism.txt)
-      SYN_POL=$(gawk '{S += $3}END{print S}' R${i}E${i}.polymorphism.txt)
-      SYN_DIV=$(head -n 1 R${i}E${i}.divergence.txt | cut -d " " -f 4)
-      NON_DIV=$(tail -n 1 R${i}E${i}.divergence.txt | cut -d " " -f 4)
+      NON_POL=$(gawk '{S += $2}END{print S}' R${i}E1.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' R${i}E1.polymorphism.txt)
+      SYN_DIV=$(head -n 1 R${i}E1.divergence.txt | cut -d " " -f 4)
+      NON_DIV=$(tail -n 1 R${i}E1.divergence.txt | cut -d " " -f 4)
       ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
       echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> summary.txt
    done
@@ -93,10 +105,10 @@ if [ ! -e summary.txt ]; then
    echo -e " \tPolymorphism\tPolymorphism\tDivergence\tDivergence" >> summary.txt
    echo -e "N\tSynonymous\tNon-synonymous\tSynonymous\tNon-synonuymous\tAlpha" >> summary.txt
    for i in 7 8 9 10 11 12; do
-      NON_POL=$(gawk '{S += $2}END{print S}' E${i}R${i}.polymorphism.txt)
-      SYN_POL=$(gawk '{S += $3}END{print S}' E${i}R${i}.polymorphism.txt)
-      SYN_DIV=$(head -n 1 E${i}R${i}.divergence.txt | cut -d " " -f 4)
-      NON_DIV=$(tail -n 1 E${i}R${i}.divergence.txt | cut -d " " -f 4)
+      NON_POL=$(gawk '{S += $2}END{print S}' E${i}R1.polymorphism.txt)
+      SYN_POL=$(gawk '{S += $3}END{print S}' E${i}R1.polymorphism.txt)
+      SYN_DIV=$(head -n 1 E${i}R1.divergence.txt | cut -d " " -f 4)
+      NON_DIV=$(tail -n 1 E${i}R1.divergence.txt | cut -d " " -f 4)
       ALPHA=$(echo "1 - ($SYN_DIV / $NON_DIV) * ($NON_POL / $SYN_POL)" | bc -l)
       echo -e "$i\t$SYN_POL      \t$NON_POL      \t$SYN_DIV     \t$NON_DIV     \t$ALPHA" >> summary.txt
    done
