@@ -115,3 +115,6 @@ if [ ! -e summary.txt ]; then
 
 fi
 
+if [ ! -e asymptoticMK.html ]; then
+   R -q --save -e "rmarkdown::render('asymptoticMK.Rmd', output_file='asymptoticMK.html')"
+fi

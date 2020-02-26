@@ -1,0 +1,87 @@
+---
+title: "Asymptotic MK"
+author: "J. Ignacio Lucas Lledó"
+date: "26/2/2020"
+output: html_document
+bibliography:
+  asymptoticMK.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I downloaded the R functions required to run the asymptotic MK test localy from
+[here](https://raw.githubusercontent.com/MesserLab/asymptoticMK/master/asymptoticMK_local.R),
+as suggested by [@Messer2013]. I had to edit one line near the bottom, to set a directory
+where to save some plots. I also comment out the demo execution of `asymptoticMK.Drosophila()`,
+and prevent the change of working directory.
+
+```{r source, results='hide'}
+library(ggplot2)
+source('../../bin/asymptoticMK_local.R')
+```
+
+```{r alphas}
+combineRows <- function(df){
+  # Takes a polymorphisms data frame, and combines rows with zero
+  # values with the following row (or the previous, if last), and
+  # assigns the resulting number of polymorphims to the average
+  # frequency class. It's not perfect, but may suffice.
+  while (any(rowSums(df[,2:3] == 0) > 0)) {
+    zeroIndex <- which(rowSums(df[,2:3] == 0) > 0)[1]
+    if (zeroIndex < dim(df)[1]) {
+      df[zeroIndex + 1, 1] <- mean(c(df[zeroIndex,1], df[zeroIndex + 1,1]))
+      df[zeroIndex + 1, 2:3] <- df[zeroIndex,2:3] + df[zeroIndex + 1,2:3]
+    } else {
+      df[zeroIndex - 1, 1] <- mean(c(df[zeroIndex,1], df[zeroIndex - 1,1]))
+      df[zeroIndex - 1, 2:3] <- df[zeroIndex,2:3] + df[zeroIndex - 1,2:3]
+    }
+    df <- df[-zeroIndex,]
+    row.names(df) <- 1:dim(df)[1]
+  }
+  return(df)
+}
+minSamples <- 7:12
+EuropaeusMK <- data.frame()
+RoumanicusMK <- data.frame()
+for (i in minSamples) {
+  z <- as.matrix(read.table(sprintf('E%gR1.divergence.txt', i),
+                            colClasses = c('NULL','NULL','NULL','numeric')))
+  EuropaeusSynonymousDivergence <- z[1]
+  EuropaeusMissenseDivergence   <- z[2]
+  z <- as.matrix(read.table(sprintf('R%gE1.divergence.txt', i),
+                            colClasses = c('NULL','NULL','NULL','numeric')))
+  RoumanicusSynonymousDivergence <- z[1]
+  RoumanicusMissenseDivergence   <- z[2]
+  EuroPolymorphism <- read.table(sprintf('E%gR1.polymorphism.txt',i), col.names=c('f','p','p0'))
+  EuroPolymorphism <- combineRows(EuroPolymorphism)   # combines rows with zero values with next or previous ones.
+  RoumaPolymorphism <- read.table(sprintf('R%gE1.polymorphism.txt',i), col.names=c('f','p','p0'))
+  RoumaPolymorphism <- combineRows(RoumaPolymorphism)
+  EuropaeusMK <- rbind(EuropaeusMK, asymptoticMK(EuropaeusSynonymousDivergence,
+                                                 EuropaeusMissenseDivergence,
+                                                 0.1, 0.9, EuroPolymorphism))
+  RoumanicusMK <- rbind(RoumanicusMK, asymptoticMK(RoumanicusSynonymousDivergence,
+                                                   RoumanicusMissenseDivergence,
+                                                   0.1, 0.9, RoumaPolymorphism))
+}
+EuropaeusMK$MinSamples <- minSamples
+RoumanicusMK$MinSamples <- minSamples
+EuropaeusMK$Species <- 'E. europaeus'
+RoumanicusMK$Species <- 'E. roumanicus'
+AMK <- rbind(EuropaeusMK, RoumanicusMK)
+```
+
+```{r plot}
+ggplot(data=AMK, mapping=aes(x=MinSamples, y=alpha_asymptotic)) +
+  geom_ribbon(aes(ymin=CI_low, ymax=CI_high), fill=3, alpha=0.5) +
+  geom_line() + facet_wrap(~Species)
+```
+
+Even using all possible sites with a minimum number of samples of the focal species
+genotyped, and requiring at least 1 genotyped individual from the sister species
+(to estimate divergence), the numbers of sites are low, and the asymptotic estimates
+of $\alpha$, very noisy. Of course, 95% confidence intervals beyond (-1,1) are
+unnecessarily wide. 
+
+# References

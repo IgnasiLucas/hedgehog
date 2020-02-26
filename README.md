@@ -17,7 +17,12 @@ filtering step can hardly be improved either. See the report [here](https://html
 2019-03-04
 ==========
 Here, I modify the script bin/vcf2MK_2.awk to include outgroup information and determine
-what is the ancestral allele. Results are comparable to those in 2019-03-01.
+what is the ancestral allele. Results are comparable to those in 2019-03-01. Later,
+I tried to optimize the number of sites counted by requiring no more than one
+genotyped individual from the sister species (to determine divergence). But the
+effort did not improve much the results. The asymptotic estimates of alpha are
+calculated locally with the R script provided by Messer and Petrov (2013). See
+the results [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2019-03-04/asymptoticMK.html)
 
 2019-03-01
 ==========
