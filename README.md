@@ -1,3 +1,15 @@
+2020-04-07
+==========
+The genome-wide negative correlation between genetic diversity in E. roumanicus
+and its level of divergence from E. europaeus demanded more attention. Here I
+include the third species, E. concolor, in the analysis. As expected under
+neutrality, within species diversity is positively correlated with divergence
+between E. roumanicus and E. concolor. This would support the idea that the
+negative correlation observed when comparing E. roumanicus with E. europaeus
+is due to introgression. However, the comparison between E. europaeus and
+E. concolor is not neutral (absence of correlation) and cannot be explained
+by introgression. 
+
 2020-02-18
 ==========
 Upon Kristyna's suggestion, I check if bin/vcf2MK_2.awk is counting polymorphic
@@ -72,8 +84,7 @@ Here I use Simon H. Martin's scripts to calculate population genetics statistics
 sliding windows. I also use the annotation of the reference genome to estimate those
 statistics separately in genic and intergenic regions. I create some interesting plots
 and found an unexpected negative relationship between diversity in E. roumanicus and
-divergence between E. roumanicus and E. europaeus. The relationship is stronger in genic
-than in intergenic regions, suggesting a functional origin (positive selection?).
+divergence between E. roumanicus and E. europaeus.
 
 2018-10-24
 ==========

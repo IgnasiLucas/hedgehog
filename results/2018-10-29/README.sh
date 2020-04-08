@@ -22,12 +22,18 @@
 # done with Simon H. Martin's scripts: https://github.com/simonhmartin/genomics_general
 
 FREQ2_AWK=../../bin/freq2.awk
+
 # Different vcf files are optimized for different statistics:
+
 VCF1=../2018-09-26/ErinaceusAndHemiechinus_r1e1c1h1.vcf
 VCF2=../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
+
 # This is the folder where Simon H. Martin's genomic_general repository is cloned. It
 # works with python 2, not 3. I add a conda env for this current folder. Everything is
-# executed within that conda environment, with pyton 2, that I call '2018-10-29'
+# executed within that conda environment, with pyton 2, that I call '2018-10-29'.
+# [2020-04-07] Simon Martin's genomic_general repository has been updated since last
+# time I run this folder. The version used originally was: a7c709f644abbadc2003e02730f536d11796b9e8
+
 GENOMICS_GENERAL=~/bin/genomics_general
 POPDATA=../../data/populations.txt
 
