@@ -150,3 +150,5 @@ results/2020-02-12/all_depths.txt
 results/2020-02-12/logs
 results/2020-02-12/sam
 results/2020-04-07/*.geno.gz
+results/2020-04-08/erin63.geno.gz
+results/2020-04-08/subsampling/*.geno.gz
