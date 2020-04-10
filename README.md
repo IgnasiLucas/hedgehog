@@ -1,3 +1,19 @@
+2020-04-09
+==========
+Another potential source of bias is the reference genome: where divergence
+is higher, coverage in the non-reference species is expected to be lower,
+due to reads that fail to map. After taking depth of coverage into account,
+the non-neutral relationships persist. Thus, reference bias is not a
+spurious cause of the unexpected relationships.
+
+2020-04-08
+==========
+The unexpected non-neutral pattern between diversity in either E. europaeus
+or E. concolor and their divergence triggered the alarm for artifacts. Here
+I check two potential sources of bias: the genomic window definition, and
+the unequal sample sizes among populations. Neither of them is causing the
+unexpected pattern. I keep searching.
+
 2020-04-07
 ==========
 The genome-wide negative correlation between genetic diversity in E. roumanicus
