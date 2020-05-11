@@ -1,3 +1,9 @@
+2020-05-06
+==========
+Checking that the BayeScan run was correct. It was indeed. The only little
+problem was in a script that produced an unnecessary plot. Nothing
+remarkable. See report [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2020-05-06/bayescan.html)
+
 2020-04-09
 ==========
 Another potential source of bias is the reference genome: where divergence
