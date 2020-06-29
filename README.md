@@ -1,3 +1,8 @@
+2020-06-26
+==========
+Just another run of Bayescan to confirm that it overestimates the Fst values.
+It may be due to low number of individuals and populations.
+
 2020-05-06
 ==========
 Checking that the BayeScan run was correct. It was indeed. The only little

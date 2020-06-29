@@ -152,3 +152,5 @@ results/2020-02-12/sam
 results/2020-04-07/*.geno.gz
 results/2020-04-08/erin63.geno.gz
 results/2020-04-08/subsampling/*.geno.gz
+results/2020-05-06/europaeus_admixed/ea.sel
+results/2020-05-06/roumanicus_admixed/ra.sel
