@@ -96,10 +96,10 @@ else going one. Both options are compatible.
 ```{r GenesRouEur, message=FALSE, fig.width=10}
 p1 <- ggplot(geneStats, aes(x=pi_rou, y=dxy_rou_eur)) +
   geom_point() + geom_smooth(method='lm') + xlab('Diversity in E. roumanicus') +
-  ylab('Divergence with E. concolor') + ggtitle('Genic regions')
+  ylab('Divergence with E. europaeus') + ggtitle('Genic regions')
 p2 <- ggplot(interStats, aes(x=pi_rou, y=dxy_rou_eur)) +
   geom_point() + geom_smooth(method='lm') + xlab('Diversity in E. roumanicus') +
-  ylab('Divergence with E. concolor') + ggtitle('Intergenic regions')
+  ylab('Divergence with E. europaeus') + ggtitle('Intergenic regions')
 grid.arrange(p1, p2, nrow=1)
 ```
 

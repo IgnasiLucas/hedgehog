@@ -222,36 +222,34 @@ if [ ! -e roumanicus_admixed/ra_fst.txt ]; then
             -pr_odds 10
 fi
 
-touch roumanicus_europaeus/re_fst.txt
-if [ ! -e roumanicus_europaeus/re_fst.txt ]; then
-   bayescan roumanicus_europaeus/re_bayescan.txt \
-            -threads 8 \
-            -o ra \
-            -od ./roumanicus_europaeus \
-            -n 50000 \
-            -thin 50 \
-            -nbp 20 \
-            -pilot 5000 \
-            -burn 50000 \
-            -all_trace \
-            -pr_odds 10
-fi
-
-touch roumanicus_europaeus_admixed/rea_fst.txt
-if [ ! -e roumanicus_europaeus_admixed/rea_fst.txt ]; then
-   bayescan roumanicus_europaeus_admixed/rea_bayescan.txt \
-            -threads 8 \
-            -o ra \
-            -od ./roumanicus_europaeus_admixed \
-            -n 50000 \
-            -thin 50 \
-            -nbp 20 \
-            -pilot 5000 \
-            -burn 50000 \
-            -all_trace \
-            -pr_odds 10
-fi
-
+#if [ ! -e roumanicus_europaeus/re_fst.txt ]; then
+#   bayescan roumanicus_europaeus/re_bayescan.txt \
+#            -threads 8 \
+#            -o ra \
+#            -od ./roumanicus_europaeus \
+#            -n 50000 \
+#            -thin 50 \
+#            -nbp 20 \
+#            -pilot 5000 \
+#            -burn 50000 \
+#            -all_trace \
+#            -pr_odds 10
+#fi
+#
+#if [ ! -e roumanicus_europaeus_admixed/rea_fst.txt ]; then
+#   bayescan roumanicus_europaeus_admixed/rea_bayescan.txt \
+#            -threads 8 \
+#            -o ra \
+#            -od ./roumanicus_europaeus_admixed \
+#            -n 50000 \
+#            -thin 50 \
+#            -nbp 20 \
+#            -pilot 5000 \
+#            -burn 50000 \
+#            -all_trace \
+#            -pr_odds 10
+#fi
+#
 # =============================================================================
 # COMPARISON WITH KRISTYNA'S RESULTS
 # =============================================================================
