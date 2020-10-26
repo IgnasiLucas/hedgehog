@@ -1,0 +1,194 @@
+---
+title: "Diversity and divergence in loci"
+author: "J. Ignacio Lucas Lledó"
+date: "15/6/2020"
+output: html_document
+---
+
+```{r setup, include=TRUE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pegas)
+library(knitrProgressBar)
+pop <- read.table('../../data/populations.txt', col.names=c('ind','popCode'), row.names=1)
+pop$pop <- factor('roumanicus',
+                  levels=c('roumanicus','europaeus','concolor','hybrid','Hemiechinus','Atelerix'))
+pop[pop$popCode == 2, 'pop'] <- 'europaeus'
+pop[pop$popCode == 3, 'pop'] <- 'concolor'
+pop[pop$popCode == 4, 'pop'] <- 'hybrid'
+pop[pop$popCode == 5, 'pop'] <- 'Hemiechinus'
+pop[pop$popCode == 6, 'pop'] <- 'Atelerix'
+
+pop2 <- pop
+rownames(pop2) <- paste(rownames(pop), '0', sep='_')
+pop3 <- pop
+rownames(pop3) <- paste(rownames(pop), '1', sep='_')
+pop2 <- rbind(pop2, pop3)
+pop2 <- pop2[,2,drop=FALSE]
+rm(pop3)
+```
+
+I need to extract from every alignment: the number of segregating sites
+per population, the average number of differences between pairs of populations,
+and the alignment length. I consider only *E. europaeus*, *E. roumanicus*, and
+*E. concolor*. The strategy is the following: remove positions with gaps from the
+alignment, deal with unknown alleles (Ns), remove invariable sites, calculate
+haplotype frequencies in populations, calculate Hamming distances among haplotypes,
+and finally get the numbers.
+
+I will impute missing alleles with the major one if the major frequency is large
+and the site does not have more than 2 missing alleles. Otherwise, the site
+will be removed.
+
+The distance between populations is the average or expected number of nucleotide
+differences between two randomly picked sequences from the two populations. I use
+a *for* loop (sorry) to iterate across haplotype pairs. The formula could be this:
+
+$D_{xy} = \frac{1}{n_x n_y} \cdot \sum_{k=1}^H \sum_{l \neq k} (F_{xk}F_{yl} + F_{xl}F_{yk}) \cdot d_{kl}$
+
+where $n_i$ is the number sequences in population $i$; $F_{ij}$ is the absolute
+frequency of haplotype $j$ in population $i$, and $d_{kl}$ is the Hamming distance
+between haplotypes $k$ and $l$. 
+
+```{r functions}
+diverdiver <- function(x, pop) {
+  stopifnot(class(x) == 'DNAbin',
+            sum(labels(x) %in% rownames(pop)) > 5)
+
+  # Removes gap columns, unless gaps are less frequent than threshold
+  x <- del.colgapsonly(x, threshold=0.0001)
+  
+  xChar <- as.character(x)
+  xChar[xChar %in% c('n','N','-')] <- NA
+  
+  # Keeps only individuals in pop with less than 0.1 missing alleles
+  filterInd <- apply(xChar, 1, function(x) sum(is.na(x))) / dim(xChar)[1] < 0.1 &
+    rownames(xChar) %in% rownames(pop)
+  stopifnot(sum(filterInd) > 5)
+  filterPos <- apply(xChar, 2, function(x) sum(is.na(x))) / dim(xChar)[2] < 0.1
+  stopifnot(sum(filterPos) > 0)
+  xChar <- xChar[filterInd, filterPos]
+  
+  # Imputation of remaining NA values with major alleles.
+  MajorAllele <- apply(xChar, 2,
+                       function(x) names(sort(table(x), decreasing=TRUE))[1])
+  MissingPos  <- which(is.na(xChar), arr.ind = TRUE)
+  xImp  <- xChar
+  xImp[MissingPos] <- MajorAllele[MissingPos[,2]]
+  stopifnot(sum(is.na(xImp)) == 0)
+  
+  # Now that NA are removed, select variable sites.
+  variablePos <- which(unlist(apply(xImp, 2, function(x) length(table(x)))) > 1)
+  stopifnot(length(variablePos) > 0)
+  
+  # Just to keep track how many of the variable positions got imputed in at least on individual
+  numImputed <- sum(variablePos %in% MissingPos[,2])
+  x2 <- as.DNAbin(xImp[, variablePos, drop=FALSE])
+  
+  # Average number of differences between 2 sequences from different populations
+  xPop <- factor(pop[labels(x2), 1])
+  haploFreqs <- haploFreq(x2, xPop)
+  numPop <- dim(haploFreqs)[2]
+  rownames(haploFreqs) <- labels(haplotype(x2))
+  haploDists <- as.matrix(dist.hamming(haplotype(x2)))
+  popuDist <- data.frame(pop1 = factor(NA, levels = colnames(haploFreqs)),
+                         pop2 = factor(NA, levels = colnames(haploFreqs)),
+                         Dist = 0)
+  i = 0
+  for (popu1 in colnames(haploFreqs)) {
+    for (popu2 in colnames(haploFreqs)) {
+      if (popu1 != popu2) {
+        i <- i + 1
+        popuDist[i, 'pop1'] <- popu1
+        popuDist[i, 'pop2'] <- popu2
+        popuDist[i, 'Dist'] <- 0
+        for (hap1 in labels(haplotype(x2))) {
+          for (hap2 in labels(haplotype(x2))) {
+            if (hap1 != hap2) {
+               popuDist[i, 'Dist'] <- popuDist[i, 'Dist'] +
+                 haploFreqs[hap1, popu1] * haploFreqs[hap2, popu2] *
+                 haploDists[hap1, hap2]
+            }
+          }
+        }
+        popuDist[i, 'Dist'] <- popuDist[i, 'Dist'] *
+          1 / (sum(haploFreqs[, popu1]) * sum(haploFreqs[, popu2]))
+      }
+    }
+  }
+  
+  # Number of segregating sites per population
+  popuSites <- data.frame(SegSites = numeric(length=numPop))
+  rownames(popuSites) <- colnames(haploFreqs)
+  for (popu in colnames(haploFreqs)) {
+    filter <- pop[rownames(x2), 1] == popu
+    popuSites[popu, 'SegSites'] <- sum(site.spectrum(x2[filter,]))
+  }
+  
+  # The values to return are: number of variable sites, number of variable sites
+  # per population (n), distances between pairs of populations n^2 - n (sic),
+  # number of individuals per population, original alignment length (without gap
+  # columns), variable positions with any imputation. That's n + 4 + n^2
+  
+  Final <- vector('list', length = numPop + 3 + numPop * numPop)
+  names(Final)[1] <- 'BlockLength'
+  Final[[1]] <- dim(xImp)[2]  # Length of alignment without gap columns.
+  names(Final)[2] <- 'VariablePos'
+  Final[[2]] <- length(variablePos)   # Number of variable positions overall.
+  names(Final)[3] <- 'withImputation'
+  Final[[3]] <- numImputed    # Number of variable positions with any imputation.
+  for (i in 1:numPop) {
+    names(Final)[i + 3] <- sprintf("%s_sites", rownames(popuSites)[i])
+    Final[[i + 3]] <- popuSites[i, 'SegSites']
+  }
+  for (i in 1:numPop) {
+    popu <- rownames(popuSites)[i]
+    names(Final)[i + 3 + numPop] <- sprintf("%s_indiv", popu)
+    Final[[i + 3 + numPop]] <- sum(pop[rownames(x2), 1] == popu)
+  }
+  i <- 3 + 2 * numPop
+  for (pop1 in rownames(popuSites)) {
+    for (pop2 in rownames(popuSites)) {
+      if (pop1 != pop2) {
+        i <- i + 1
+        names(Final)[i] <- sprintf("Dist_%s_%s", pop1, pop2)
+        Final[[i]] <- popuDist[popuDist$pop1 == pop1 & popuDist$pop2 == pop2, 'Dist']
+      }
+    }
+  }
+  return(Final)
+}
+
+mkaTable <- function(pop, fastaDir='fasta', fastaList=dir(fastaDir), .pb=NULL) {
+  results <- data.frame()
+  for (fastafile in fastaList) {
+    update_progress(.pb)
+    aln <- fasta2DNAbin(sprintf("%s/%s", fastaDir, fastafile), quiet = TRUE)
+    try(z <- diverdiver(aln, pop), silent = TRUE)
+    if ('z' %in% ls()) {
+      if ((length(z) == ncol(results)) || (nrow(results) == 0)) {
+        results <- rbind(results, z)
+        rownames(results)[dim(results)[1]] <- substr(fastafile, 1, 7)
+      }
+      rm(z)
+    }
+    rm(aln)
+  }
+  return(results)
+}
+```
+
+```{r loop}
+if (! 'mka.RData' %in% dir()) {
+  pb <- progress_estimated(length(dir('fasta')))
+  pop3 <- pop2[pop2$pop %in% c('roumanicus','europaeus','concolor'), ,drop=FALSE]
+  Results <- mkaTable(pop3, .pb=pb)
+} else {
+  load('mka.RData')
+}
+
+save(Results, file='mka.RData')
+```
+
+
+
+

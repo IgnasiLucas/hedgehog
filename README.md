@@ -1,7 +1,35 @@
+2020-09-28
+==========
+Obtaining D and f statistics from systematic comparisons among populations.
+
+2020-07-22
+==========
+Another attempt to prepare the data for submission, dividing it up in more
+files, to respect the file size limit in Dyrad.
+
+2020-07-19
+==========
+Preparation of metadata for submission to a public repository.
+
+2020-07-14
+==========
+Preparation of data for submission to a public repository.
+
 2020-06-26
 ==========
 Just another run of Bayescan to confirm that it overestimates the Fst values.
 It may be due to low number of individuals and populations.
+
+2020-06-15
+==========
+The unexpected relationships between diversit and divergence were originally
+observed using data from quite large sliding windows. The traditional MKA
+test assumes recombination did not happen within the alignment where diversity
+and divergence are estimated. Here I analyse thousands of short alignments
+from mapped reads, an I use only divergence and diversity estimates from
+within those alignments. Visualizing the pattern and testing for unexpected
+deviations is still challenging, mainly because of the short range of values
+and their very skewed distribution.
 
 2020-05-06
 ==========
