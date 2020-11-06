@@ -1,0 +1,6 @@
+./asian_apennine/complete.freq	267353
+./balkan_apennine/complete.freq	266440
+./balkan_iberian/complete.freq	262182
+./asian_amurensis/complete.freq	226191
+./balkan_amurensis/complete.freq	225168
+./asian_iberian/complete.freq	262882

@@ -1,0 +1,25 @@
+
+VCFtools - 0.1.15
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf /data/kristyna/hedgehog/results_2020/2020-02-28/all_merged_2020.vcf
+	--keep EH_list.txt
+	--recode-INFO-all
+	--maf 0.0125
+	--max-alleles 2
+	--maxDP 100
+	--min-alleles 2
+	--minDP 4
+	--thin 261
+	--minQ 50
+	--max-missing 0.5
+	--out EH
+	--recode
+	--remove-indels
+
+Keeping individuals in 'keep' list
+After filtering, kept 76 out of 90 Individuals
+Outputting VCF file...
+After filtering, kept 531566 out of a possible 23158168 Sites
+Run Time = 610.00 seconds

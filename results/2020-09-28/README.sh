@@ -73,8 +73,7 @@
 # test our hypotheses (Kubatko & Chifman, 2019, BMC Evolutionary Biology 19:112).
 # But for the moment, the estimation of the fraction of introgression in 4-taxa
 # subsets should be enough. In order to assess the uncertainty, I want to use a
-# jackknive approach. I wonder whether deleting one individual at a time, instead
-# of one genomic portion, would represent noise better.
+# jackknife approach.
 #
 # =================================================================================
 #  SET UP
@@ -84,6 +83,7 @@
 # -------------------------
 #
 # Awk script to add binary presence flag to a vcf file:
+
 ADDBPF='../../bin/add_flag.awk'
 FREQ2='../../bin/freq2.awk'
 ADMIXTURE_DIR='/data/kristyna/hedgehog/results_2020/2020-06-12'
@@ -92,6 +92,7 @@ SOURCE_VCF='/data/kristyna/hedgehog/results_2020/2020-02-28/all_merged_2020.vcf'
 DATADIR=$(pwd | sed 's/results/data/')
 LINEAGE=( "E_roumanicus_Asian" "E_europaeus_Iberian" "E_concolor" \
           "E_amurensis" "E_roumanicus_Balkan" "E_europaeus_Apennine" )
+
 # The $LINEAGE array is manually edited to indicate in every position the lineage
 # that corresponds with that position in the Admixture Q file, with K=6. Should be
 # checked with EH.popmap_check.txt file, below. Because it will be passed to awk,
@@ -151,7 +152,7 @@ fi
 # to be consistent with Admixture and skip those. The only individual I need to add with
 # respect to the Admixture analysis is the outgroup, Hemiechinus auritus, namely Er65_IS25.
 # Unless I remove them, there will be two Erinaceus amurensis individuals, which are a sister
-# clade of the E. europaeus species, wihtout any expected hybridization with E. roumanicus.
+# clade of the E. europaeus species, wihtout any expected hybridization with E. roumanicus...
 
 if [ ! -e EH.vcf ]; then
    if [ ! -e EH_list.txt ]; then
@@ -213,26 +214,15 @@ if [ ! -e EH.popmap.txt ]; then
    rm admixture
 fi
 
-# I decided to count patterns (BABA, ABBA) using only one individual per population.
-# That way we get several measures, and an idea of the dispersion, even though the
-# different measures are not completely independent, because the same individuals
-# will be used more than once. The technical problem with this approach is that I may
-# have to read the VCF files many times, one for every selection of population-specific
-# individuals. For a given assignment of populations P1, P2, P3 and outgroup, if there
-# are N1, N2 and N3 individuals from P1, P2 and P3, respectively, there will be
-# N1*N2*N3 different combinations of one individual per population. When using the
-# 24 Asian E. roumanicus, the 19 Apennine E. europaeus, and the 5 E. concolor, there
-# will be 2280 combinations.
-#
 # Before anything else, let's use the freq2.awk script to get the derived allele
 # frequencies for D and f estimation. The trees of interest are:
 #
-# (((E_concolor, E_roumanicus_Balkan), E_europaeus_Iberian), Hemiechinus)
+# (((E_concolor, E_roumanicus_Balkan), E_europaeus_Iberian),  Hemiechinus)
 # (((E_concolor, E_roumanicus_Balkan), E_europaeus_Apennine), Hemiechinus)
-# (((E_concolor, E_roumanicus_Balkan), E_amurensis), Hemiechinus)
-# (((E_concolor, E_roumanicus_Asian), E_europaeus_Iberian), Hemiechinus)
-# (((E_concolor, E_roumanicus_Asian), E_europaeus_Apennine), Hemiechinus)
-# (((E_concolor, E_roumanicus_Asian), E_amurensis), Hemiechinus)
+# (((E_concolor, E_roumanicus_Balkan), E_amurensis),          Hemiechinus)
+# (((E_concolor, E_roumanicus_Asian),  E_europaeus_Iberian),  Hemiechinus)
+# (((E_concolor, E_roumanicus_Asian),  E_europaeus_Apennine), Hemiechinus)
+# (((E_concolor, E_roumanicus_Asian),  E_amurensis),          Hemiechinus)
 
 if [ ! -d balkan_iberian ]; then mkdir balkan_iberian; fi
 if [ ! -e balkan_iberian/complete.freq ]; then
@@ -308,41 +298,8 @@ wait
 # The freq2.awk script trusts the binary presence flags to determine: what
 # allele is ancestral (fixed in the outgroup, if any is fixed), and what
 # the derived allele frequencies are in each population, in every valid site.
-# The original D and f statistics were defined for a sample of one individual
-# per population, and they are computed from genome-wide counts of site patterns
-# (ABBA and BABA). When we have more than one individual per population,
-# it is common practice to:
 #
-#   "... use the allele frequencies at each site to quantify the extent to which
-#    the genealogy is skewed toward the ABBA or BABA pattern. This is effectively
-#    equivalent to counting ABBA and BABA SNPs using all possible sets of four
-#    haploid samples at each site. ABBA and BABA are therefore no longer binary
-#    states, but rather numbers between 0 and 1 that represent the frequency of
-#    allele combinations matching each genealogy. They are computed based on the
-#    frequency of the derived allele (p) and ancestral allele (1- p) in each
-#    population as follows:
-#
-#     ABBA = (1- p1 ) x p2 x p3 x (1- pO )
-#     BABA = p1 x (1- p2 ) x p3 x (1- pO )"
-#
-#                                                                 Simon Martin, 2018
-#                    http://evomics.org/learning/population-and-speciation-genomics/
-#                      2018-population-and-speciation-genomics/abba-baba-statistics/
-#
-# However, I see a problem with this approach. By computing the probability of
-# the ABBA and BABA patterns at every site as if all combinations of haplotypes
-# were equally likely, we are assuming linkage equilibrium among sites. Not only
-# linkage equilibrium is an unnecessary assumption for ABBA/BABA statistics, but
-# it is known to be unlikely, to the point that the significance of the D statistic
-# is assessed by jackknife with large genomic blocks precisely to take potential
-# linkage disequilibrium into account (Durand et al. 2011, Mol. Biol. Evol. 28(8):
-# 2239-2252). In the presenta analysis we are including introgressed or hybrid
-# individuals, which make linkage disequilibrium a matter of fact. I have the
-# impression the block jackknife procedure must underestimate the dispersion of
-# the D and f statistics.
-#
-# Before attempting to count site patterns in all combinations of one individual
-# per population, I will assess the dispersion by re-sampling the individuals
+# I will assess the dispersion by re-sampling the individuals
 # used in the test, within populations. The outgroup species has only one sample.
 # Population 1, E. concolor, is represented by 5 individuals, and I use sites
 # covered in at least 1 of them, to optimize the number of sites. I consider
@@ -359,7 +316,8 @@ wait
 # when using the Apennine lineage of E. europaeus, with 19 individuals).
 # That means 2,471,182,560 combinations of all possible subsamples of
 # E. concolor, E. roumanicus Asian and E. europaeus Apennine, with such
-# a sub-sampling schema. Too many...
+# a sub-sampling schema. Too many. I limit the number of replicates to
+# 100 per species.
 
 NUMREP=100
 
@@ -391,21 +349,26 @@ for i in $(grep Iberian EH.popmap.txt | cut -f 1); do
    N=$(( N + 1 ))
 done
 
+# Below I use 'shuf' to randomly sample 5 individuals at a time to be removed.
+# I use md5sum to make sure that I produce $NUMREP _different_ samples. This
+# code does not guarantee that only $NUMREP samples are produced. More samples
+# are possible produced if they were the same...
+
 N=1
-while [ $(md5sum apennine/* | cut -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
-   grep Apennine EH.popmap.txt | cut -f 1 | shuf -n 5 > $(printf "apennine/rep%03u.txt" $N)
+while [ $(md5sum apennine/* | cut -d " " -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
+   grep Apennine EH.popmap.txt | cut -f 1 | shuf -n 5 | sort > $(printf "apennine/rep%03u.txt" $N)
    N=$(( N + 1 ))
 done
 
 N=1
-while [ $(md5sum balkan/* | cut -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
-   grep Balkan EH.popmap.txt | cut -f 1 | shuf -n 5 > $(printf "balkan/rep%03u.txt" $N)
+while [ $(md5sum balkan/* | cut -d " " -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
+   grep Balkan EH.popmap.txt | cut -f 1 | shuf -n 5 | sort > $(printf "balkan/rep%03u.txt" $N)
    N=$(( N + 1 ))
 done
 
 N=1
-while [ $(md5sum asian/* | cut -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
-   grep Asian EH.popmap.txt | cut -f 1 | shuf -n 5 > $(printf "asian/rep%03u.txt" $N)
+while [ $(md5sum asian/* | cut -d " " -f 1 | sort | uniq | wc -l) -lt $NUMREP ]; do
+   grep Asian EH.popmap.txt | cut -f 1 | shuf -n 5 | sort > $(printf "asian/rep%03u.txt" $N)
    N=$(( N + 1 ))
 done
 
@@ -439,3 +402,45 @@ for P2 in balkan asian; do
 done
 
 wait
+
+# The code above can take more than a week to finish. And I'm sure it is not even necessary
+# to produce so many pseudoreplicates. I apologize for that. It would have been more efficient
+# to just partition the populations in a few same size subsamples. I believe Shao, J & Tu, D.
+# (1995; The Jackknife and the bootstrap, Springer-Verlag, New York) explains it, but haven't
+# had a chance yet to read it.
+#
+# The pseudo-replicates are saved in the comparison-specific folders, with names "rep*.freq".
+# If the code above was interrumpted or didn't work, some of those files may be truncated,
+# and then the following steps would not work. On a first run I manually checked and removed
+# files that didn't end with a full line. I include it here for the sake of completion:
+
+for DIR in asian_amurensis balkan_amurensis asian_iberian balkan_iberian asian_apennine balkan_apennine; do
+   for file in $(ls -1 $DIR/rep*.freq); do
+      if [ $(tail -n 1 $file | gawk '{print NF}') -ne 6 ]; then
+         rm $file
+      fi
+   done
+done
+
+# After having removed incomplete input files, the fabbababa.R script should work.
+for DIR in asian_amurensis balkan_amurensis asian_iberian balkan_iberian asian_apennine balkan_apennine; do
+   if [ ! -e $DIR/stats.tsv ]; then
+      echo -e "#D\tf_hom\tf_d\tf_dM" > $DIR/stats.tsv
+      R --no-save --slave < fabbababa.R --args $DIR/complete.freq >> $DIR/stats.tsv 2> $DIR/stats.err &
+   fi
+   if [ ! -e $DIR/jackknife.tsv ]; then
+      echo -e "#D\tf_hom\tf_d\tf_dM" > $DIR/jackknife.tsv
+      R --no-save --slave < fabbababa.R --args $DIR >> $DIR/jackknife.tsv 2> $DIR/jackknife.err &
+   fi
+done
+
+wait
+
+if [ ! -e report.html ]; then
+   R -q --save -e "rmarkdown::render('report.Rmd', output_file='report.html')"
+fi
+
+# To get the numbers of sites used in every estimation:
+if [ ! -e num_sites.txt ]; then
+   find . -name complete.freq -exec wc -l '{}' \; | gawk '{print $2 "\t" $1 - 1}' > num_sites.txt
+fi
