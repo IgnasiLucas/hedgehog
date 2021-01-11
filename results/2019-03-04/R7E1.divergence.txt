@@ -1,0 +1,2 @@
+Synonymous fixed differences: 317.634
+Non-synonymous fixed differences: 130.137

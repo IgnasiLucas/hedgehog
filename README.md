@@ -1,11 +1,145 @@
+2020-09-28
+==========
+Obtaining D and f statistics from systematic comparisons among populations.
+
+2020-07-22
+==========
+Another attempt to prepare the data for submission, dividing it up in more
+files, to respect the file size limit in Dyrad.
+
+2020-07-19
+==========
+Preparation of metadata for submission to a public repository.
+
+2020-07-14
+==========
+Preparation of data for submission to a public repository.
+
+2020-06-26
+==========
+Just another run of Bayescan to confirm that it overestimates the Fst values.
+It may be due to low number of individuals and populations.
+
+2020-06-15
+==========
+The unexpected relationships between diversit and divergence were originally
+observed using data from quite large sliding windows. The traditional MKA
+test assumes recombination did not happen within the alignment where diversity
+and divergence are estimated. Here I analyse thousands of short alignments
+from mapped reads, an I use only divergence and diversity estimates from
+within those alignments. Visualizing the pattern and testing for unexpected
+deviations is still challenging, mainly because of the short range of values
+and their very skewed distribution.
+
+2020-05-06
+==========
+Checking that the BayeScan run was correct. It was indeed. The only little
+problem was in a script that produced an unnecessary plot. Nothing
+remarkable. See report [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2020-05-06/bayescan.html)
+
+2020-04-09
+==========
+Another potential source of bias is the reference genome: where divergence
+is higher, coverage in the non-reference species is expected to be lower,
+due to reads that fail to map. After taking depth of coverage into account,
+the non-neutral relationships persist. Thus, reference bias is not a
+spurious cause of the unexpected relationships.
+
+2020-04-08
+==========
+The unexpected non-neutral pattern between diversity in either E. europaeus
+or E. concolor and their divergence triggered the alarm for artifacts. Here
+I check two potential sources of bias: the genomic window definition, and
+the unequal sample sizes among populations. Neither of them is causing the
+unexpected pattern. I keep searching.
+
+2020-04-07
+==========
+The genome-wide negative correlation between genetic diversity in E. roumanicus
+and its level of divergence from E. europaeus demanded more attention. Here I
+include the third species, E. concolor, in the analysis. As expected under
+neutrality, within species diversity is positively correlated with divergence
+between E. roumanicus and E. concolor. This would support the idea that the
+negative correlation observed when comparing E. roumanicus with E. europaeus
+is due to introgression. However, the comparison between E. europaeus and
+E. concolor is not neutral (absence of correlation) and cannot be explained
+by introgression. 
+
+2020-02-18
+==========
+Upon Kristyna's suggestion, I check if bin/vcf2MK_2.awk is counting polymorphic
+and divergent synonymous and missense sites correctly, for the MK test. It turns
+out that the script was not reporting any synonymous polymorphic site at either the
+lowest or the highest frequency classes. The bug was unlikely to bias the asymptotic
+estimate of alpha, but was corrected. Most asymptotic estimates of alpha are negative
+but noisy, with 95% CI always overlapping 0. Estimates in E. roumanicus are higher.
+
+2020-02-12
+==========
+New data came from the second contact zone in Russia. I run some checks to supervise
+the results from Kristyna's pipeline. The number of ambiguous mappings cannot be
+reduced much by changing the "very-sensitive" setting to just "sensitive". And the
+filtering step can hardly be improved either. See the report [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2020-02-12/assessment.html).
+
+2019-03-04
+==========
+Here, I modify the script bin/vcf2MK_2.awk to include outgroup information and determine
+what is the ancestral allele. Results are comparable to those in 2019-03-01. Later,
+I tried to optimize the number of sites counted by requiring no more than one
+genotyped individual from the sister species (to determine divergence). But the
+effort did not improve much the results. The asymptotic estimates of alpha are
+calculated locally with the R script provided by Messer and Petrov (2013). See
+the results [here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2019-03-04/asymptoticMK.html)
+
+2019-03-01
+==========
+Once the variants are annotated, I need to extract the information I need to run
+the McDonald-Kreitman test, namely, levels of synonymous and non-synonymous
+polymorphism and fixed differences. For this purpose, I wrote the script vcf2MK.awk,
+in folder bin/, which takes advantage of the binary presence flag and the annotation
+flag in the vcf. The results here are not quite right, because I did not identify
+the derived allele.
+
+2019-02-27
+==========
+The analyses from 2018-10-29 revealed a negative relationship between divergence
+(from E. europaeus) and diversity in E. roumanicus, using window-based estimates.
+Since one possible explanation is that positive selection in E. roumanicus drove
+divergence up and diversity down in some regions of the genome, we decided to
+run a genome-wide McDonald-Kreitman test of neutrality in E. roumanicus. For that,
+we need to annotate the variants with their functional consequence, including if
+they cause synonymous or non-synonymous changes in protein-coding genes. In this
+folder, I use the program snpEff to annotate all variants.
+
+2019-01-30
+==========
+Along a discussion about future sequencing strategies, the question of whether paired
+end reads are worth came up. In principle, paired-end reads improve mappability, for
+they extend the total length of mappable sequence. The paired end option is 2 * 100
+base pairs, while single read options are either 100 or 150 bp long. In this folder
+I compare the uniqueness of 100, 150 and 200-bp long words in the hedgehog's reference
+genome. The improvement in uniqueness (mappability) between 150 and 200 bp words is
+very marginal. This convinces me that single end reads are sufficient.
+
+2018-12-15
+==========
+It was clear from previous analyses that introgressed variation is not distributed
+randomly along the genome in E. roumanicus. In order to identify introgressed variants
+that have a higher (or lower) chance of lingering, Barbora suggested to estimate
+genomic clines, using the Bayesian approach implemented in bgc by Gompert and Buerkle
+(2012). For that, I first identify six individuals with varying degrees of admixture
+between E. roumanicus and E. europaeus. Then, I run bgc using those six individuals
+as the admixed population, and the rest as parental populations of either species.
+Unfortunately, the admixed population is too small to notice any deviation of introgressed
+allele frequencies with respect to the expectation of the genome-wide hybrid index.
+
 2018-10-29
 ==========
 Here I use Simon H. Martin's scripts to calculate population genetics statistics in
 sliding windows. I also use the annotation of the reference genome to estimate those
 statistics separately in genic and intergenic regions. I create some interesting plots
 and found an unexpected negative relationship between diversity in E. roumanicus and
-divergence between E. roumanicus and E. europaeus. The relationship is stronger in genic
-than in intergenic regions, suggesting a functional origin (positive selection?).
+divergence between E. roumanicus and E. europaeus.
 
 2018-10-24
 ==========

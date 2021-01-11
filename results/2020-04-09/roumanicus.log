@@ -1,0 +1,15 @@
+
+VCFtools - 0.1.15
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf ../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
+	--keep roumanicus.txt
+	--freq2
+	--out roumanicus
+
+Keeping individuals in 'keep' list
+After filtering, kept 20 out of 41 Individuals
+Outputting Frequency Statistics...
+After filtering, kept 125299 out of a possible 125299 Sites
+Run Time = 2.00 seconds

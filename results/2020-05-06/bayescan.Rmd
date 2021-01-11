@@ -1,0 +1,201 @@
+---
+title: "BayeScan results"
+author: "J. Ignacio Lucas Lledó"
+date: "10/5/2020"
+output: html_document
+bibliography: bayescan.bib
+params:
+  KEA:  '/data/kristyna/hedgehog/results_2020/2020-04-13/europaeus_admixed_bayescan10_fst.txt'
+  KRA:  '/data/kristyna/hedgehog/results_2020/2020-04-13/roumanicus_admixed_bayescan10_fst.txt'
+  KERA: '/data/kristyna/hedgehog/results_2020/2020-04-13/era_bayescan10_fst.txt'
+  IEA:  'europaeus_admixed/ea_fst.txt'
+  IRA:  'roumanicus_admixed/ra_fst.txt'
+  IERA: 'roumanicus_europaeus_admixed/rea_fst.txt'
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+# Introduction
+
+BayeScan [@Foll2008] attempts to identify loci under diverging or balancing selection
+among species, using allele frequencies. It assumes an island model, where two or more
+subpopulations share a pool of migrants that maintain allele frequencies correlated.
+It can also be applied to a fission model, where two or more populations derive from a
+common ancestral one. It is based on a logistic regression of $F_{ij}$ (the "probability
+that two randomly chosen chromosomes in a population have a common ancestor in that
+population, without there having been any intervening migration or mutation") on the
+locus $i$ and the population $j$ [@Beaumont2004]:
+
+$\log\left( \frac{F_{ij}}{1 - F_{ij}} \right) = \alpha_i + \beta_j$
+
+It uses a Bayesian approach to estimate the posterior distribution of $\alpha_i$, the
+parameters that represent the locus-specific effects on $F_{ij}$, such as natural
+selection. $F_{ij}$ are also estimated. The prior makes most loci have $\alpha_i = 0$.
+When $\alpha_i > 0$, the locus has higher $F_{ij}$ values than expected. That is, the
+locus is under diversifying selection. If $\alpha_i < 0$, it could mean the locus is
+very conserved (under negative selection) if minor allele frequency is low; or it could
+mean balancing selection, if allele frequencies are not low.
+
+# Comparison between Kristyna's a my results
+
+Kristýna was inspired by Barbora's use of BayeScan to Czechoslovakian wolfdogs and their
+parent dog population, German shepherds [@Caniglia2018]. Admixed hedgehog individuals are
+not the same as a hybrid population. But when comparing admixed individuals to either 
+parental species, I understand that common introgressed loci would be $F_{ST}$ outliers,
+expected to have positive and significant $\alpha_i$ values. On the other side, if 
+introgressed loci are not correlated among admixed individuals, the high $F_{ST}$ values
+likely caused by introgression could be attributed to a genome-wide, population effect.
+Especially if the admixed fraction of the genome is high.
+
+```{r data}
+params$KEA
+KEA <- read.table(params$KEA, header=TRUE, colClasses='numeric')
+colnames(KEA) <- paste0('K.', colnames(KEA))
+KRA <- read.table(params$KRA, header=TRUE, colClasses='numeric')
+colnames(KRA) <- paste0('K.', colnames(KRA))
+#KERA <- read.table(params$KERA, header=TRUE, colClasses='numeric')
+#colnames(KERA) <- paste0('K.', colnames(KERA))
+IEA <- read.table(params$IEA, header=TRUE, colClasses='numeric')
+colnames(IEA) <- paste0('I.', colnames(IEA))
+IRA <- read.table(params$IRA, header=TRUE, colClasses='numeric')
+colnames(IRA) <- paste0('I.', colnames(IRA))
+# IERA <- read.table(params$IERA, header=TRUE, colClasses='numeric')
+# colnames(IERA) <- paste0('I.', colnames(IERA))
+stopifnot(all.equal(dim(KEA), dim(IEA)), all.equal(dim(KRA), dim(IRA)))
+
+EA <- cbind(KEA, IEA)
+RA <- cbind(KRA, IRA)
+
+loci <- read.table('loci.txt', col.names = c('chr','pos'), header=FALSE)
+EA <- cbind(EA, loci)
+RA <- cbind(RA, loci)
+
+p1 <- ggplot(EA, aes(x=I.alpha, y=K.alpha)) + geom_point() +
+  ggtitle('E. europaeus vs. admixed') + xlab('Alpha estimate by Ignasi') +
+  ylab('Alpha estimate by Kristyna')
+p2 <- ggplot(RA, aes(x=I.alpha, y=K.alpha)) + geom_point() +
+  ggtitle('E. roumanicus vs. admixed') + xlab('Alpha estimate by Ignasi') +
+  ylab('Alpha estimate by Kristyna')
+
+EA$alpha.diff <- EA$K.alpha - EA$I.alpha
+RA$alpha.diff <- RA$K.alpha - RA$I.alpha
+
+p3 <- ggplot(EA, aes(x=alpha.diff)) + geom_histogram() +
+  ggtitle('E. europaeus vs. admixed') + xlab('Difference in estimates of Alpha')
+p4 <- ggplot(RA, aes(x=alpha.diff)) + geom_histogram() +
+  ggtitle('E. roumanicus vs admixed') + xlab('Difference in estimates of Alpha')
+```
+
+Differences in the third decimal position are negligible. This confirms that we both came
+up with equivalent estimates, which also seem to confirm the convergence of the Monte Carlo
+chains.
+
+# Reproduction and interpretation of plots
+
+The `plot_R.r` file includes the function `plot_bayescan()`, which I copy below (it's under
+GNU General Public License, Copyright (C) 2010 Matthieu Foll).
+
+```{r plot_bayescan}
+plot_bayescan<-function(res,FDR=0.05,size=1,pos=0.35,highlight=NULL,name_highlighted=F,add_text=T){
+  if (is.character(res))
+    res=read.table(res)
+
+  colfstat=5
+  colq=colfstat-2
+
+  highlight_rows=which(is.element(as.numeric(row.names(res)),highlight))
+  non_highlight_rows=setdiff(1:nrow(res),highlight_rows)
+
+  outliers=as.integer(row.names(res[res[,colq]<=FDR,]))
+
+  ok_outliers=TRUE
+  if (sum(res[,colq]<=FDR)==0)
+    ok_outliers=FALSE;
+
+  res[res[,colq]<=0.0001,colq]=0.0001
+
+  # plot
+  plot(log10(res[,colq]),res[,colfstat],xlim=rev(range(log10(res[,colq]))),xlab="log10(q value)",ylab=names(res[colfstat]),type="n")
+  points(log10(res[non_highlight_rows,colq]),res[non_highlight_rows,colfstat],pch=19,cex=size)
+
+  if (name_highlighted) {
+        if (length(highlight_rows)>0) {
+                text(log10(res[highlight_rows,colq]),res[highlight_rows,colfstat],row.names(res[highlight_rows,]),col="red",cex=size*1.2,font=2)
+        }
+  } else {
+        points(log10(res[highlight_rows,colq]),res[highlight_rows,colfstat],col="red",pch=19,cex=size)
+        # add names of loci over p and vertical line
+        if (ok_outliers & add_text) {
+                text(log10(res[res[,colq]<=FDR,][,colq])+pos*(round(runif(nrow(res[res[,colq]<=FDR,]),1,2))*2-3),res[res[,colq]<=FDR,][,colfstat],row.names(res[res[,colq]<=FDR,]),cex=size)
+        }
+  }
+  lines(c(log10(FDR),log10(FDR)),c(-1,1),lwd=2)
+
+  return(list("outliers"=outliers,"nb_outliers"=length(outliers)))
+}
+```
+
+```{r BSplots}
+ea <- plot_bayescan(EA)
+title('E. europaeus vs. admixed')
+ra <- plot_bayescan(RA)
+title('E. roumanicus vs. admixed')
+```
+
+There are `r ea$nb_outliers` outlier loci in the comparison between *E. europaeus*
+and the admixed *population*. And there are `r ra$nb_outliers` outlier loci in the
+comparison between *E. roumanicus* and the admixed individuals. In the plots above
+it is important to notice that the horizontal axis is reversed: values to the right
+are lower q-values. None reach significance. The points branch off in two directions
+that correspond with two classes of loci: under diverging (high $F_{ST}$) or balancing
+(low $F_{ST}$) selection. If we plotted $\alpha_i$ estimates, instead of $F_{ST}$, the
+plots would have the same shape, because that is the average $F_{ST}$
+between populations, which masks the population specific $\beta_j$ components and
+becomes very much correlated with $\alpha_i$.
+
+$F_{ST}$ values are higher between *E. europaeus* and the admixed individuals than
+between *E. roumanicus* and the admixed individuals.
+
+# Advanced plots
+
+Kristyna found another script to plot results from Bayescan. It is called `Bayescan_advanced_plots.R`. It seems to come from [Laura Benestan](https://github.com/laurabenestan/Bayescan/wiki) github page.
+Below, I simplify the code to produce equivalent plots, skipping the writing of lists
+of SNPs to text files. Thus, I don't need SNP names. I realize the original script labels as
+*balancing* all SNPs with a negative $\alpha_i$, irrespectively of their q value. That is,
+even if those negative $\alpha_i$ are not significantly different from zero. That error in
+the script can make it look as if there were loci under balancing selection, but it does not
+need be the case.
+
+```{r advancedPlots}
+EA$I.selection <- factor('neutral', levels=c('balancing','neutral','diversifying'))
+RA$I.selection <- factor('neutral', levels=c('balancing','neutral','diversifying'))
+EA[EA$I.qval < 0.05 & EA$I.alpha > 0, 'selection'] <- 'diversifying'
+RA[RA$I.qval < 0.05 & RA$I.alpha > 0, 'selection'] <- 'diversifying'
+EA[EA$I.qval < 0.05 & EA$I.alpha < 0, 'selection'] <- 'balancing'
+RA[RA$I.qval < 0.05 & RA$I.alpha < 0, 'selection'] <- 'balancing'
+
+# We do not have qval == 0.
+EA$I.log10q <- log10(EA$I.qval)
+RA$I.log10q <- log10(RA$I.qval)
+
+ggplot(EA, aes(x=I.log10q, y=I.fst, colour=I.selection)) +
+  geom_point() + scale_colour_manual(name='Selection', values=c('black','red','white')) +
+  ggtitle('E. europaeus vs. admixed') + xlab('Log10(q value))') + ylab('Fst')
+
+ggplot(RA, aes(x=I.log10q, y=I.fst, colour=I.selection)) +
+  geom_point() + scale_colour_manual(name='Selection', values=c('black','red','white')) +
+  ggtitle('E. roumanicus vs. admixed') + xlab('Log10(q value))') + ylab('Fst')
+```
+
+So, the additional plot produced with the `Bayescan_advanced_plot.R` script does not
+provide any additional information, mostly because we do not have significant loci.
+
+# Session Info
+
+```{r sessionInfo}
+sessionInfo()
+```
+# References

@@ -315,28 +315,114 @@ fi
 #
 
 if [ ! -e popmap_bgc.txt ]; then
-   grep -P "roumanicus|europaeus" popmap.txt | gawk -v OFS="\t" '($1 ~ /Er36_SK24|Er50_R3|Er55_AU7|Er37_SK27|Er74_SP16|Er72_SIE1B/){$2 = "admixed"}{print}' > popmap_bgc.txt
+   grep -P "roumanicus|europaeus|hybrid" popmap.txt | gawk -v OFS="\t" '($1 ~ /Er36_SK24|Er50_R3|Er55_AU7|Er37_SK27|Er74_SP16|Er72_SIE1B/){$2 = "admixed"}{print}' > popmap_bgc.txt
 fi
 
-for NUM_SAMPLES in 34 35 36; do
+for NUM_SAMPLES in 36 35 34; do
    if [ ! -d $NUM_SAMPLES"_samples" ]; then mkdir $NUM_SAMPLES"_samples"; fi
-   if [ ! -e $NUM_SAMPLES"_samples/mcmcout.hdf5" ]; then
+   if [ ! -e $NUM_SAMPLES"_samples/mcmcout_1.hdf5" ]; then
       if [ ! -e $NUM_SAMPLES"_samples/roumanicus.txt" ] || [ ! -e $NUM_SAMPLES"_samples/europaeus.txt" ] || [ ! -e $NUM_SAMPLES"_samples/admixed.txt" ]; then
-         python vcf2bgc.py -v EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf -p popmap_bgc.txt -o $NUM_SAMPLES"_samples"
+         python vcf2bgc.py -v EuropaeusRoumanicus_$NUM_SAMPLES.recode.vcf -0 roumanicus -1 europaeus -a admixed -u -e 0 -p $NUM_SAMPLES"_samples/" popmap_bgc.txt
       fi
+      # I should run at least 2 chains to check for convergence. Even though only one will be used to estimate the posterior
+      # because I don'e know how to combine hdf5 files, and I do want to take advantage of the estpost program that extracts
+      # puntual estimates and credibility intervals from hdf5. Preliminar runs suggest very little burnin is necessary.
       bgc -a $NUM_SAMPLES"_samples/roumanicus.txt" \
           -b $NUM_SAMPLES"_samples/europaeus.txt" \
           -h $NUM_SAMPLES"_samples/admixed.txt" \
-          -F bgc_$NUM_SAMPLES \
+          -F $NUM_SAMPLES"_samples/mcmcout_1" \
           -O 0 \
-          -x 1000 \
-          -n 0 \
-          -t 1 \
+          -x 150000 \
+          -n  10000 \
+          -t 100 \
           -p 2 \
           -q 1 \
           -N 1 \
           -E 1 \
-          -m 1 \
-          -o 1
+          -o 1 &>$NUM_SAMPLES"_samples/mcmc_1.log" &
+
+      # bgc's random number generator is seeded by rand(), which is seeded in turn by the clock.
+      # To get two truely independent chains, I need to start them at different times.
+      sleep 3
+      bgc -a $NUM_SAMPLES"_samples/roumanicus.txt" \
+          -b $NUM_SAMPLES"_samples/europaeus.txt" \
+          -h $NUM_SAMPLES"_samples/admixed.txt" \
+          -F $NUM_SAMPLES"_samples/mcmcout_2" \
+          -O 0 \
+          -x 150000 \
+          -n  10000 \
+          -t 100 \
+          -p 2 \
+          -q 1 \
+          -N 1 \
+          -E 1 \
+          -o 1 &>$NUM_SAMPLES"_samples/mcmc_2.log" &
    fi
+   wait
+
+   # Check for convergence and mixture:
+   for param in LnL alpha beta; do
+      if [ ! -e "${NUM_SAMPLES}_samples/${param}_chains.png" ]; then
+         for chain in 1 2; do
+            if [ ! -e "${NUM_SAMPLES}_samples/${param}_chain${chain}.txt" ]; then
+               estpost -i "${NUM_SAMPLES}_samples/mcmcout_${chain}.hdf5" -p $param -o "${NUM_SAMPLES}_samples/${param}_chain${chain}.txt" -s 2 -w 0
+            fi
+         done
+         # plot_chains.R must take two input files and one output file.
+         R --no-save < plot_chains.R --args "${NUM_SAMPLES}_samples/${param}_chain1.txt" "${NUM_SAMPLES}_samples/${param}_chain2.txt" "${NUM_SAMPLES}_samples/${param}_chains.png"
+      fi
+   done
+
+   # Summarize the results for this number of samples. Using only first chain.
+   if [ ! -e "${NUM_SAMPLES}_samples/positions.txt" ]; then
+      grep locus "${NUM_SAMPLES}_samples/admixed.txt" | gawk '{split($2, A, /:/); print A[1] "\t" A[2]}' > "${NUM_SAMPLES}_samples/positions.txt"
+   fi
+   for param in alpha beta hi gamma-quantile zeta-quantile; do
+      if [ ! -e "${NUM_SAMPLES}_samples/${param}.png" ]; then
+         if [ ! -e "${NUM_SAMPLES}_samples/${param}_estimates.txt" ]; then
+            estpost -i "${NUM_SAMPLES}_samples/mcmcout_1.hdf5" -p $param -o "${NUM_SAMPLES}_samples/${param}_estimates.txt" -c 0.80 -s 0 -w 0
+         fi
+         # plot_summary.R should take input file name and output, and figure out what to plot, depending on the input.
+         R --no-save < plot_summary.R --args "${NUM_SAMPLES}_samples/${param}_estimates.txt" "${NUM_SAMPLES}_samples/positions.txt" "${NUM_SAMPLES}_samples/${param}.png"
+      fi
+   done
 done
+
+# Gompert and Buerkle (2011, Mol. Ecol. 20, 2111-2127) explain the meanings of alpha and beta
+# parameters. Here, E. roumanicus is population 0 and E. europaues is population 1. Thus, positive
+# values of alpha represent a shift of the genomic cline to the left, meaning that the probability
+# of a particular locus has an E. europaeus ancestry is higher than expected from the genome-wide
+# contribution of that ancestry. Negative values of alpha are slightly more frequent in our results,
+# and they suggest the oposite: a decrease in the probability of E. europaeus ancestry relative to
+# a null expectation based on the hybrid index.
+#
+# Changing the center of the cline suggests that one allele is always more fit than the other, irrespective
+# of the genomic background. In our case, positive alpha would suggest natural selection favours
+# the E. europaeus allele; and negative alpha values suggest the E. roumanicus allele is favoured.
+#
+# The beta parameter is known as the rate parameter. It does not change the center of the cline, in
+# contrast to alpha, but the steepness. Positive beta make the cline steeper, suggesting that each
+# allele is adaptive in its own genomic background. Negative beta values indicate less steep clines,
+# as if alleles were favoured in the opposite genomic background.
+#
+# The problem with the analysis is that there is not enough data to estimate the cline parameters.
+# In all loci, both alpha and beta are most probably right where the prior predicted them to be:
+# around zero. The credibility intervals are very wide.
+#
+# To wrap this up, I will order the SNPs by mean alpha, and by mean beta.
+
+for i in 36 35 34; do
+   for param in alpha beta; do
+      if [ ! -e "${i}_samples/${param}_ordered.txt" ]; then
+         paste "${i}_samples/positions.txt" "${i}_samples/${param}_estimates.txt" | sed 's/,/\t/g' | LC_ALL=C sort -gk 3,3 > "${i}_samples/${param}_ordered.txt"
+      fi
+   done
+done
+
+# There is a slight negative correlation between alpha and beta. Thus, I do not expect much congruence
+# between the lists of SNPs ordered by either parameter. Plus, they just indicate different dynamics.
+# Therefore, the lists should be treated separately. A next step could be: identifying genes overlapping
+# the SNPs, translating the lists of SNPs into ordered lists of genes, retrieving Genen Ontology terms
+# from BLAST hits for those genes (because they are not annotated with GO terms in the gff file), and
+# then running an enrichment analysis that does not require the selection of a list of genes (Al-Shahrour
+# et al. 2007, BMC Bioinformatics 8:114). Any volunteers?

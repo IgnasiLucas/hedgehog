@@ -1,0 +1,17 @@
+# Title:200-mer spectra for: reference.fa
+# XLabel:200-mer frequency
+# YLabel:# distinct 200-mers
+# Kmer value:200
+# Input 1:../../data/reference.fa
+###
+1 2264956819
+2 10993569
+3 96991
+4 32888
+5 14533
+6 9502
+7 6016
+8 3938
+9 3192
+10 2397
+11 19568

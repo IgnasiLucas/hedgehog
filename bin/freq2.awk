@@ -1,6 +1,6 @@
 # Usage:
 #
-#   gawk [-v <VAR>=<VALUE> ...] -f freq.awk popmap.txt input.vcf
+#   gawk --bignum [-v <VAR>=<VALUE> ...] -f freq.awk popmap.txt input.vcf
 #
 # The purpose of this script is to parse a vcf file with the BPF information
 # tag and print the derived allele frequencies of 4 or 5  populations at variable

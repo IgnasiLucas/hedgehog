@@ -1,0 +1,195 @@
+---
+title: "Introgression statistics"
+author: "J. Ignacio Lucas Lledó"
+date: "30/10/2020"
+output: html_document
+bibliography: report.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(plyr)
+```
+
+# Introduction
+In the first manuscript we suggested two conclusions that were not fully
+supported by the data: first, that current levels of hybridization are higher in
+the Russian contact zone between the Apennine lineage of *E. europaeus* and
+the Asian lineage of *E. roumanicus* than in the Central European zone between
+the same lineage of *E. europaeus* and the Balkan lineage of *E. roumanicus*.
+And segond, that the frequency of hybridization must have been higher in the past
+and then declined in Central Europe. One of the limitations of our previous analysis
+is that the *D* and *f* statistics of introgression were not systematically compared,
+and they lacked estimates of dispersion. In order to compensate these limitations,
+here I report the *D* and *f* statistics between all pairs of populations that could
+be assigned the **P2** and **P3** positions in the nested topology where *ABBA/BABA*
+statistics are usually computed, namely (((P1, P2), P3), O). *E. concolor* would
+always be **P1** (it would be redundant to switch it with **P2**, because that
+would only flip the sign of the *D* statistic). In the **P2** position,
+we could have either the Balkan or the Asian lineage of *E. roumanicus*. And in
+the **P3** position, we can consider the Iberian or the Apennine lineages of *E. europaeus*
+or *E. amurensis*. Lineages currently undergoing hybridization must have a higher
+fraction *f* of introgressed variation than lineages currently separated. The amount
+of introgressed variation among the latter can only be inherited from ancient episodes
+of hybridization, during previous interglacials.
+
+Before, we excluded visibly admixed or hybrid individuals from the computation of
+*D* and *f* statistics, aiming at a measure of only ancient hybridization. But we need
+to include those individuals in the population that contribute the most to their genetic
+makeup in order to make the statistics representative of total introgression, both
+ancient and ongoing.
+
+The problem of using recently admixed individuals in computing *D* and *f* statistics
+is that their chromosomes may contain large blocks of introgressed DNA, in linkage.
+If linked introgressed DNA spans long stretches of a chromosome, the block jackknife
+procedure to estimate the dispersion of the statistics can fail to remove the dependency
+among pseudo-samples. Unless using very large blocks, which is not feasible with an
+incompletely assembled reference genome, we could be underestimating dispersion with
+the block jackknife approach.
+
+The *D* and *f* statistics are based on frequencies of site patterns. For the purposes
+of estimating them, variable sites along a genome are all equivalent, just as random
+draws of either derived or ancestral alleles from a binomial distribution. However,
+linkage can make the draws dependent, among closely linked SNPs that share coalescence
+history. Thus, any one individual in the sample is a collection of blocks of more or
+less independent origin. The dispersion in *D* and *f* statistics correspond to the
+random sampling of such linkage blocks, their size and number depending on how long
+ago introgression happened. As long as any member of a population can be considered
+a random collection of a sufficient number of such blocks, *D* and *f* statistics can
+be estimated with only one individual from each population. Adding individuals is just
+like adding those units of sampling that I call "linkage blocks". Individuals are our
+probes into the ancestral recombination graph. As long as individuals
+are random members of the population, rather than relatives, we can assess the dispersion
+of *D* and *f* statistics not only by re-sampling blocks, but also by re-sampling
+individuals. In this way, we can be sure that pseudo-samples produced by removing one
+or more individuals at a time avoid the dependence induced by linkage within any such
+individual.
+
+# Delete-*d* jackknife design
+
+The starting point is an assignment of individuals to populations. I depart from the
+results of Admixture in `/data/kristyna/hedgehog/results_2020/2020-06-12/erinaceus_all_2020.6.Q`,
+where I manually checked that the six ancestralities coincide with the following
+populations, and in this order:
+
+* 1. *E. roumanicus*, Asian lineage.
+* 2. *E. europaeus*, Iberian lineage.
+* 3. *E. concolor*.
+* 4. *E. amurensis*.
+* 5. *E. roumanicus*, Balkan lineage.
+* 6. *E. europaeus*, Apennine lineage.
+
+I assign every individual to the population that contributes the most to its genome.
+In the table below I show the number of individuals assigned to every population,
+the position of the population in the tree for the purpose of computing *D* and *f*
+statistics, the number *d* of individuals removed in each pseudo-replicate, and the
+number of pseudoreplicates obtained.
+
+| Population               | Size  | Position | *d* | Num. replicates |
+| ------------------------ | -----:| -------- | ---:| ---------------:|
+| *E. concolor*            |     5 | P1       |   1 |               5 |
+| *E. roumanicus*, Balkan  |    20 | P2       |   5 |             100 |
+| *E. roumanicus*, Asian   |    24 | P2       |   5 |             100 |
+| *E. europaeus*, Iberian  |     5 | P3       |   1 |               5 |
+| *E. europaeus*, Apennine |    19 | P3       |   5 |             100 |
+| *E. amurensis*           |     2 | P3       |   1 |               2 |
+| *Hemiechinus*            |     1 | Outgroup |   0 |               1 |
+
+There are six analysis, produced by the combinations of a P2 and a P3 population. What
+I did was to combine all pseudoreplicates from all populations. The maximum number
+of pseudoreplicates are those where either the Balkan or the Asian lineage of *E. roumanicus*
+is the P2 population and the Apennine lineage of *E. europaeus* is the P3 population.
+In those cases, we have $5\times 100\times 100=50000$ pseudoreplicates. The total number
+of individuals left out of the computation in each pseudoreplicate is the sum of
+*d* values in the table above among all populations involved in that analysis, and it
+is shown below in the *d* column. The column *n* indicates the original total number of
+individuals, among all 3 populations.
+
+| P2                      | P3                       | *d* | *n* | Num. rep. |
+| ------------------------| ------------------------ | ---:| ---:| ---------:|
+| *E. roumanicus*, Balkan | *E. europaeus*, Iberian  |   7 |  30 |      2500 |
+| *E. roumanicus*, Balkan | *E. europaeus*, Apennine |  11 |  44 |     50000 |
+| *E. roumanicus*, Balkan | *E. amurensis*           |   7 |  27 |      1000 |
+| *E. roumanicus*, Asian  | *E. europaeus*, Iberian  |   7 |  34 |      2500 |
+| *E. roumanicus*, Asian  | *E. europaeus*, Apennine |  11 |  48 |     50000 |
+| *E. roumanicus*, Asian  | *E. amurensis*           |   7 |  31 |      1000 |
+
+The variance of an estimated statistic can be estimated by the delete-*d* jackknife
+approach, typically with this formula:
+
+$V_{J(d)} = \frac{n-d}{dN}\sum\left( \hat{\theta}_S - \frac{1}{N} \sum \hat{\theta}_S \right)^2$
+
+[@Shi1988] Where $N$ is supposed to be the number of subsamples of size $n-d$, assumed to be
+$n \choose d$. However, it is impractical to explore absolutely all possible combinations of
+$n-d$ elements out of $n$, and I limited the number of replicates to the figures shown in the
+table above. $\hat{\theta}_S$ is the statistic estimate obtained with the $S^{\mathrm{th}}$
+subsample of size $n-d$.
+
+There are a couple reasons why the formula is not applicable to the pseudoreplicates
+I generated. First, because the *D* and *f* statistics are not functions of a single
+sample, but of 3 samples from 3 different populations (leaving the outgroup out,
+because we only have one individual available). And second, because I will just
+substitute $N$ for the actual number of replicates used, rather than for $n \choose d$,
+and I don't know if that is correct. In any case, it is the best I can do for the
+moment, and I hope it provides conservative estimates of dispersion.
+
+```{r}
+JackDelDVar <- function(X, n, d) {
+  V <- ((n - d) / (d * sum(!is.na(X)))) * sum((X-mean(X, na.rm=TRUE))^2, na.rm=TRUE)
+}
+
+comparisons <- c('balkan_iberian','balkan_apennine','balkan_amurensis',
+                 'asian_iberian','asian_apennine','asian_amurensis')
+NumSamples <- c(30, 44, 27, 34, 48, 31)
+names(NumSamples) <- comparisons
+Deleted    <- c( 7, 11,  7,  7, 11,  7)
+names(Deleted) <- comparisons
+comparisons.list <- as.list(comparisons)
+names(comparisons.list) <- comparisons
+# passing a named list to plyr::ldply forces it to use row names. I tried before
+# to make a data frame with sapply, but it outputs a list.
+DandF <- ldply(comparisons.list,
+               .fun = function(x) read.table(paste0(x, '/stats.tsv'),
+                                             col.names=c('D','f_hom','f_d','f_dM')))
+StdDev <- ldply(comparisons.list,
+                .fun = function(x) {
+                  reps <- read.table(paste0(x, '/jackknife.tsv'),
+                                     col.names = c('D','f_hom','f_d','f_dM'))
+                  data.frame(
+                    D     = sqrt(JackDelDVar(reps$D,     NumSamples[x], Deleted[x])),
+                    f_hom = sqrt(JackDelDVar(reps$f_hom, NumSamples[x], Deleted[x])),
+                    f_d   = sqrt(JackDelDVar(reps$f_d,   NumSamples[x], Deleted[x])),
+                    f_dM  = sqrt(JackDelDVar(reps$f_dM,  NumSamples[x], Deleted[x]))
+                  )
+                })
+names(StdDev) <- paste("SD",names(StdDev),sep='.')
+DandF
+StdDev
+DF.SD <- cbind(DandF, StdDev[,2:5])
+DF.SD$P2 <- factor(rep(c('Balkan E. roumanicus', 'Asian E. roumanicus'), each=3))
+DF.SD$P3 <- factor(rep(c('Iberian E. europaeus', 'Apennine E. europaeus', 'E. amurensis'), 2),
+                   levels=c('Apennine E. europaeus', 'Iberian E. europaeus', 'E. amurensis'),
+                   ordered=TRUE)
+ggplot(DF.SD, mapping=aes(x=P3, y=D)) +
+  geom_pointrange(mapping=aes(ymin=D-SD.D, ymax=D+SD.D)) + facet_wrap(~P2) +
+  geom_hline(yintercept=0, color='red') + theme(axis.text.x=element_text(angle=45, hjust=1))
+ggsave('D.png')
+
+ggplot(DF.SD, mapping=aes(x=P3, y=f_hom)) +
+  geom_pointrange(mapping=aes(ymin=f_hom - SD.f_hom, ymax = f_hom + SD.f_hom)) +
+  facet_wrap(~P2) + theme(axis.text.x=element_text(angle=45, hjust=1))
+ggsave('f_hom.png')
+
+ggplot(DF.SD, mapping=aes(x=P3, y=f_d)) +
+  geom_pointrange(mapping=aes(ymin=f_d - SD.f_d, ymax = f_d + SD.f_d)) +
+  facet_wrap(~P2) + theme(axis.text.x=element_text(angle=45, hjust=1))
+ggsave('f_d.png')
+
+ggplot(DF.SD, mapping=aes(x=P3, y=f_dM)) +
+  geom_pointrange(mapping=aes(ymin=f_dM - SD.f_dM, ymax = f_dM + SD.f_dM)) +
+  facet_wrap(~P2) + theme(axis.text.x=element_text(angle=45, hjust=1))
+ggsave('f_dM.png')
+```
+
+# References

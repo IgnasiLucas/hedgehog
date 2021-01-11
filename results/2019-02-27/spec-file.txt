@@ -1,0 +1,17 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-7.3.0-hdf63c60_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/ncurses-5.9-10.tar.bz2
+https://repo.anaconda.com/pkgs/free/linux-64/openssl-1.0.1k-1.tar.bz2
+https://repo.anaconda.com/pkgs/free/linux-64/system-5.8-2.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/tk-8.5.19-2.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/readline-6.2-0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/zlib-1.2.11-h14c3975_1004.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.19.3-1.tar.bz2
+https://repo.anaconda.com/pkgs/free/linux-64/python-2.7.8-1.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/certifi-2018.11.29-py27_1000.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/setuptools-40.8.0-py27_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/wheel-0.33.1-py27_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/pip-19.0.3-py27_0.tar.bz2

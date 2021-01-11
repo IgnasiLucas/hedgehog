@@ -1,0 +1,21 @@
+
+VCFtools - 0.1.15
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf ../2018-09-26/ErinMaxMiss63_r10e10c4.vcf
+	--weir-fst-pop roumanicus.txt
+	--weir-fst-pop europaeus.txt
+	--keep roumanicus.txt
+	--keep europaeus.txt
+	--keep roumanicus.txt
+	--keep europaeus.txt
+	--out roumanicus_europaeus
+
+Keeping individuals in 'keep' list
+After filtering, kept 34 out of 41 Individuals
+Outputting Weir and Cockerham Fst estimates.
+Weir and Cockerham mean Fst estimate: 0.49177
+Weir and Cockerham weighted Fst estimate: 0.81602
+After filtering, kept 125299 out of a possible 125299 Sites
+Run Time = 3.00 seconds
