@@ -1,0 +1,12 @@
+---
+title: "invariants"
+author: "J. Ignacio Lucas Lledó"
+date: "15/12/2020"
+output: html_document
+---
+
+```{r trees}
+trees.nwk <- "(((E._concolor:1,(Balkan_E.r.:0.2,Asian_E.r.:0.2):0.8):1,(Apennine_E.e.:0.2,Iberian_E.e.:0.2):1.8):1,Hemiechinus:3);"
+trees.phylo <- read.tree(text = trees.nwk)
+plot(trees.phylo, type = 'cladogram', direction = 'downwards', label.offset = 0.3, edge.width = 2)
+```
