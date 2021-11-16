@@ -1,0 +1,68 @@
+---
+title: "Reviewing population structure"
+author: "J. Ignacio Lucas Lledó"
+date: "16/11/2021"
+output: html_document
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here I aim to address this comment by the editor:
+
+> "Concerning the relatively low coverage, the authors tried to be
+> more stringent about minimum coverage when compared with the previous
+> version. However, perhaps it would be important to try the suggestion
+> of the new reviewer (4) and check if similar results are obtained
+> using PCAngsd and NGSadmix, as this would show that at least results
+> about substructure and admixture are robust."
+
+I will run PCAngsd and NGSadmix, implemented in the program ANGSD [@Korneliussen2014].
+
+## The source VCF file
+Reads had been aligned to the
+[EriEur2.0](https://www.ncbi.nlm.nih.gov/genome/annotation_euk/Erinaceus_europaeus/101/)
+assembly of the *Erinaceus europaeus* genome, which has not been updated at the time of
+writing. Kristýna had run freebayes [@Garrison2012] to create the VCF file with genotype
+likelihoods in her folder 2020-04-13. However, she did not provide a population file to
+freebayes. I think it is important to inform freebayes of how samples are distributed in
+species, for a correct estimate of genotype likelihoods. Thus, I will run it again.
+
+I use only the original information on the samples, and not the learned hybrid nature of
+some samples. Actually, even the individual originally known to be a hybrid is assigned
+below to *E. roumanicus*. See `make_popfile.sh` for details.
+
+```{bash}
+REFERENCE='/data/kristyna/hedgehog/data_2016/reference/GCF_000296755.1_EriEur2.0_genomic.fna'
+BAMDIR='/data/kristyna/hedgehog/results_2020/2020-01-30'
+
+if [ ! -e all.vcf ]; then
+   if [ ! -e popfile.txt ]; then
+      ./make_popfile.sh
+   fi
+   freebayes -f $REFERENCE \
+             --skip-coverage 1400 \
+             --genotype-qualities \
+             --min-mapping-quality 20 \
+             --min-base-quality 20 \
+             --populations popfile.txt \
+             -b $BAMDIR/*.bam > all.vcf &
+fi
+wait
+```
+
+The resulting `all.vcf` file must be full of indels, low quality loci and poorly sequenced
+individuals. Samples **Er59_FR1** and **Er68_PRT1B** I positively know have been excluded
+from all previous analyses for technical reasons. Other samples were filtered out for having
+too much missing data.
+
+
+## Session Information
+
+```{r SessionInfo}
+sessionInfo()
+```
+
+## References

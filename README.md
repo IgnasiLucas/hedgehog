@@ -1,3 +1,14 @@
+2021-11-16
+==========
+Started working to address the reviewers' comments. 
+
+2020-12-11
+==========
+Used a new script, freq3.awk, to estimate derived allele frequencies in populations
+without assuming a particular phylogeny among them. I think the goal in that folder
+was to explore the jackknive approach to D statistics, but I got distracted and I
+left it there.
+
 2020-09-28
 ==========
 Obtaining D and f statistics from systematic comparisons among populations.
