@@ -1,0 +1,106 @@
+---
+title: "Favoring SNPs in first reads"
+author: "J. Ignacio Lucas Lledó"
+date: "22/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{bash}
+BAMDIR=/data/kristyna/hedgehog/results_2020/2020-01-30
+
+if [ ! -e popfile.txt ]; then
+   ./make_popfile.sh
+fi
+
+SAMPLE=( $(cut -f 1 popfile.txt) )
+HALF=$(echo "${#SAMPLE[@]} / 2" | bc)
+for i in $(seq 0 $(( HALF - 1 )) ); do
+   if [ ! -e ${SAMPLE[$i]}.bam ]; then
+      samtools view -b -o ${SAMPLE[$i]}.bam -F 128 $BAMDIR/${SAMPLE[$i]}_msnc.bam &> $i.log &
+   fi
+done
+wait
+
+for i in $( seq $HALF $(( ${#SAMPLE[@]} - 1 )) ); do
+   if [ ! -e ${SAMPLE[$i]}.bam ]; then
+      samtools view -b -o ${SAMPLE[$i]}.bam -F 128 $BAMDIR/${SAMPLE[$i]}_msnc.bam &> $i.log &
+   fi
+done
+wait
+
+if [ ! -e mapped.txt ]; then
+   for i in $( seq 0 $(( HALF - 1)) ); do
+      echo -e ${SAMPLE[$i]} "\t" $(samtools view -c -F 132 ${SAMPLE[$i]}.bam) > z$i.txt &
+   done
+   wait
+   for i in $( seq $HALF $(( ${#SAMPLE[@]} - 1)) ); do
+      echo -e ${SAMPLE[$i]} "\t" $(samtools view -c -F 132 ${SAMPLE[$i]}.bam) > z$i.txt &
+   done
+   wait
+   cat z*.txt > mapped.txt
+   rm z*
+fi
+
+find . -size 0 -delete
+```
+
+```{r numReads}
+library(ggplot2)
+mapped <- read.table('mapped.txt', col.names = c('sample','numReads'), row.names = 1)
+popula <- read.table('popfile.txt', col.names = c('sample','pop'), row.names = 1)
+mapped$pop <- popula[rownames(mapped), 'pop']
+mapped$run <- factor(1, levels=c(1,2))
+mapped[grep(paste(c('^Er(26', as.character(26:74), '75)_'), collapse = '|'),
+            rownames(mapped), value = TRUE, perl = TRUE), 'run'] <- 1
+mapped[grep(paste(c('^Er(76', as.character(77:114), '115)_'), collapse = '|'),
+            rownames(mapped), value = TRUE, perl = TRUE), 'run'] <- 2
+
+par(bg = 'gray')
+plot(ecdf(mapped$numReads), xlim = c(0, 4.5e+06), main = '',
+     xlab = 'Number of mapped forward reads per sample',
+     ylab = 'Cummulative proportion of samples')
+abline(v = 2.0e+06, col = 'red', lty = 2)
+abline(v = 3.0e+06, col = 'orange', lty = 2)
+abline(v = 4.3e+06, col = 'yellow', lty = 2)
+text(x = c(0, sort(mapped$numReads)[2:13]),
+     y = ecdf(mapped$numReads)(sort(mapped$numReads)[1:13]) + 0.05,
+     labels = head(rownames(mapped[order(mapped$numReads),]), n=13),
+     srt = 90, adj = c(0, 0), cex = 0.7)
+```
+
+Before freebayes, to remove the few samples the sequencing of which clearly failed,
+I would only remove the first four samples, with less than 2 million (forward) reads.
+
+```{r below2}
+write.table(row.names(mapped[mapped$numReads < 2.0e+06,]),
+            file = 'below2M.txt', quote = FALSE, row.names = FALSE,
+            col.names = FALSE)
+```
+
+```{bash freebayes}
+REFERENCE='/data/kristyna/hedgehog/data_2016/reference/GCF_000296755.1_EriEur2.0_genomic.fna'
+
+if [ ! -e forward.vcf ]; then
+   if [ ! -e bamlist.txt ]; then
+      ls -1 *.bam | grep -v -f below2M.txt > bamlist.txt
+   fi
+   freebayes --fasta-reference $REFERENCE \
+             --bam-list bamlist.txt \
+             --skip-coverage 1400 \
+             --genotype-qualities \
+             --min-mapping-quality 20 \
+             --min-base-quality 20 \
+             --vcf forward.vcf \
+             --strict-vcf \
+             --populations popfile.txt &> forward.log &
+   wait
+fi
+```
+
+```{r sessioninfo}
+sessionInfo()
+```

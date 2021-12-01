@@ -1,0 +1,104 @@
+> rmarkdown::render('README.Rmd', output_file = 'README.html')
+
+
+processing file: README.Rmd
+  |                                                                              |                                                                      |   0%  |                                                                              |......                                                                |   8%
+  ordinary text without R code
+
+  |                                                                              |............                                                          |  17%
+label: setup (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |                                                                              |..................                                                    |  25%
+  ordinary text without R code
+
+  |                                                                              |.......................                                               |  33%
+label: unnamed-chunk-1 (with options) 
+List of 1
+ $ engine: chr "bash"
+
+running: bash  -c 'BAMDIR=/data/kristyna/hedgehog/results_2020/2020-01-30
+
+if [ ! -e popfile.txt ]; then
+   ./make_popfile.sh
+fi
+
+SAMPLE=( $(cut -f 1 popfile.txt) )
+HALF=$(echo "${#SAMPLE[@]} / 2" | bc)
+for i in $(seq 0 $(( HALF - 1 )) ); do
+   if [ ! -e ${SAMPLE[$i]}.bam ]; then
+      samtools view -b -o ${SAMPLE[$i]}.bam -F 128 $BAMDIR/${SAMPLE[$i]}_msnc.bam &> $i.log &
+   fi
+done
+wait
+
+for i in $( seq $HALF $(( ${#SAMPLE[@]} - 1 )) ); do
+   if [ ! -e ${SAMPLE[$i]}.bam ]; then
+      samtools view -b -o ${SAMPLE[$i]}.bam -F 128 $BAMDIR/${SAMPLE[$i]}_msnc.bam &> $i.log &
+   fi
+done
+wait
+
+if [ ! -e mapped.txt ]; then
+   for i in $( seq 0 $(( HALF - 1)) ); do
+      echo -e ${SAMPLE[$i]} "\t" $(samtools view -c -F 132 ${SAMPLE[$i]}.bam) > z$i.txt &
+   done
+   wait
+   for i in $( seq $HALF $(( ${#SAMPLE[@]} - 1)) ); do
+      echo -e ${SAMPLE[$i]} "\t" $(samtools view -c -F 132 ${SAMPLE[$i]}.bam) > z$i.txt &
+   done
+   wait
+   cat z*.txt > mapped.txt
+   rm z*
+fi
+
+find . -size 0 -delete'
+  |                                                                              |.............................                                         |  42%
+  ordinary text without R code
+
+  |                                                                              |...................................                                   |  50%
+label: numReads
+  |                                                                              |.........................................                             |  58%
+  ordinary text without R code
+
+  |                                                                              |...............................................                       |  67%
+label: below2
+  |                                                                              |....................................................                  |  75%
+  ordinary text without R code
+
+  |                                                                              |..........................................................            |  83%
+label: freebayes (with options) 
+List of 1
+ $ engine: chr "bash"
+
+running: bash  -c "REFERENCE='/data/kristyna/hedgehog/data_2016/reference/GCF_000296755.1_EriEur2.0_genomic.fna'
+
+if [ ! -e forward.vcf ]; then
+   if [ ! -e bamlist.txt ]; then
+      ls -1 *.bam | grep -v -f below2M.txt > bamlist.txt
+   fi
+   freebayes --fasta-reference \$REFERENCE \\
+             --bam-list bamlist.txt \\
+             --skip-coverage 1400 \\
+             --genotype-qualities \\
+             --min-mapping-quality 20 \\
+             --min-base-quality 20 \\
+             --vcf forward.vcf \\
+             --strict-vcf \\
+             --populations popfile.txt &> forward.log &
+   wait
+fi"
+  |                                                                              |................................................................      |  92%
+  ordinary text without R code
+
+  |                                                                              |......................................................................| 100%
+label: sessioninfo
+
+output file: README.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS README.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output README.html --self-contained --variable bs3=TRUE --standalone --section-divs --template /usr/local/lib/R/site-library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable theme=bootstrap --include-in-header /tmp/RtmpW6VvxC/rmarkdown-strb382288f105.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: README.html
+> 
+> 
