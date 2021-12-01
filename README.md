@@ -1,6 +1,30 @@
+2021-11-22
+==========
+I run again freebayes using only forward reads from all samples, with the hope
+that all DNA fragments are oriented. The RADseq protocol does produce asymmetric
+fragments, with one end delimited by the enzyme recognition site, and the other
+by the random fragmentation of the DNA. Thus, reads produced from the enzyme
+recognition site (forward reads, I think) must be alignable among them, across
+all samples. Reverse reads, on the contrary, are expected to map at variable
+distances from the cut site, and do not form uniform clusters. This must be
+a source of SNPs that are not shared among samples. Plus, the thinning algorithm
+could be wasting some good SNPs in forward reads, while casually picking up
+SNPs from nearby reverse reads. Therefore, it is necessary to run freebayes
+again, but only with forward reads.
+
+2021-11-17
+==========
+While trying to understand why we are left with so few loci covered in a large
+enough subset of samples, I realize that samples sequenced in the second batch
+are the ones missing most genotypes. The reason must be that those were sequenced
+with only single reads.
+
 2021-11-16
 ==========
-Started working to address the reviewers' comments. 
+Started working to address the reviewers' comments. I realize that to use ANGSD,
+which uses genotype likelihoods it may be important to estimate the likelihoods
+correctly, by informing freebayes of the morphological classification of samples.
+Thus, I run freebayes again.
 
 2020-12-11
 ==========

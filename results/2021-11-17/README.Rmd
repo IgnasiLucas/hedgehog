@@ -1,0 +1,178 @@
+---
+title: "On the low number of sites covered in many samples"
+author: "J. Ignacio Lucas Lledó"
+date: "17/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{bash data, engine.opts='-l'}
+VCFDIR=/data/kristyna/hedgehog/results_2021/2021-04-13
+
+# Raw, dirty vcf, 90 samples:
+VCF1=$VCFDIR/all_merged_2021.vcf
+
+if [ ! -e popfile.txt ]; then
+   if [ ! -e make_popfile.sh ]; then
+      cp ../2021-11-16/make_popfile.sh ./
+   fi
+   ./make_popfile.sh
+fi
+```
+
+The reviewers asked, on one side, to be more demanding on the minimum coverage, and on the
+other side to use methods more appropriate for low coverage data, based on genotype
+likelihoods, instead of known genotypes. I think a minimum coverage of 6 should be
+enough when working with genotype likelihoods, like in the ANGSD package. 
+
+One of the main limitations of our analyses is the low number of SNPs with genotype
+data in most samples. It is still unclear if we could optimize the filtering strategies.
+
+Before even running freebayes, I should have removed the individuals with very low
+number of mapped reads. Let's check that first. 
+
+```{bash}
+BAMDIR=/data/kristyna/hedgehog/results_2020/2020-01-30
+if [ ! -e mapped.txt ]; then
+   echo -e "# Sample\tMapped" > mapped.txt
+   for bam in $(ls -1 $BAMDIR/*.bam); do
+      echo -e $(basename $bam | sed 's/_msnc.bam//g') "\t" \
+         $(samtools flagstat $bam | grep mapped | head -n 1 | cut -d " " -f 1) >> mapped.txt
+   done
+fi
+```
+
+```{r}
+mapped <- read.table('mapped.txt', as.is = TRUE, col.names=c('sample','numReads'))
+barplot(mapped$numReads, xlab = 'Samples', ylab = 'Number of mapped reads')
+abline(h = 5.0e+06, col = 'red', lty = 2)
+abline(h = 6.0e+06, col = 'orange', lty = 2)
+abline(h = 7.0e+06, col = 'yellow', lty = 2)
+
+par(bg = 'gray')
+plot(ecdf(mapped$numReads), xlim = c(0, 1.0e+07),
+     main = '',
+     xlab = 'Number of mapped reads per sample',
+     ylab = 'Cummulative number of samples')
+abline(v = 5.0e+06, col = 'red', lty = 2)
+abline(v = 6.0e+06, col = 'orange', lty = 2)
+abline(v = 7.0e+06, col = 'yellow', lty = 2)
+
+text(x = c(100000, sort(mapped$numReads)[2:13]),
+     y = ecdf(mapped$numReads)(sort(mapped$numReads)[1:13]) + 0.1,
+     labels = head(mapped[order(mapped$numReads), 'sample'], n = 13),
+     srt = 90, adj = c(0,0), cex = 0.7)
+
+write.table(mapped[mapped$numReads < 6.0e+06, 'sample'],
+            file = 'below6M.txt', row.names = FALSE,
+            col.names = FALSE, quote = FALSE)
+```
+
+The image above shows what samples have fewer than 5 (red), 6 (orange)
+or 7 (yellow) million reads. Removing the 10 samples with less than 6
+million reads from the beginning might be a good compromise.
+
+Variation in coverage comes from: random sampling of available loci,
+missing loci in some individuals, locus-specific mappability, repetitive
+content, etc. If coverage was distributed randomly across a common set
+of loci in every sample, coverage would not be correlated among samples.
+But it is (not shown), and more so among samples from the same genus. This
+is in part good, because the chance of covering enough a common subset of
+loci is higher than if there was no correlation. But it also shows that
+coverage is heavily affected by population-level and local factors, like 
+structural variation and mappability issues.
+
+Having sequenced too many loci, it is not a surprise that most individuals 
+have more than 50% of genotypes missing. The qüestion is what is the minimum
+number and the identity of individuals that need to be removed to get rid of
+uncovered loci and to keep enough loci covered in most of the remaining
+individuals. If any individual was contributing a different subset of loci,
+for example as a consequence of spurious mappings of contaminating reads, it
+would be optimal to remove them, even if they have high coverage. It is
+unlikely, but how can I decide what are the individuals that need to be
+removed to improve better the overall completeness of the genotype matrix?
+The selection of the largest submatrix with the largest number of non-zero
+entries is not a trivial problem.
+
+```{bash}
+VCFDIR=/data/kristyna/hedgehog/results_2021/2021-04-13
+
+# Raw, dirty vcf, 90 samples:
+VCF1=$VCFDIR/all_merged_2021.vcf
+
+if [ ! -e all.imiss ]; then
+   vcftools --vcf $VCF1 \
+            --out all \
+            --remove below6M.txt \
+            --remove-indels \
+            --thin 1000 \
+            --missing-indv &> all.imiss.log &
+fi
+
+if [ ! -e all.gdepth ]; then
+   vcftools --vcf $VCF1 \
+            --out all \
+            --remove below6M.txt \
+            --remove-indels \
+            --thin 1000 \
+            --geno-depth &> all.gdepth.log &
+fi
+
+wait
+```
+
+```{r imiss}
+library(ggplot2)
+imiss <- read.table('all.imiss', header = TRUE, as.is = TRUE, row.names = 1)
+row.names(mapped) <- mapped$sample
+imiss$mapped <- mapped[row.names(imiss), 'numReads']
+populations <- read.table('popfile.txt', row.names = 1, col.names = c('sample','pop'))
+populations$seqrun <- factor(c(rep(1,50), rep(2,40)))
+imiss$pop <- populations[row.names(imiss), 'pop']
+imiss$seqrun <- populations[row.names(imiss), 'seqrun']
+ggplot(data = imiss, mapping = aes(x = mapped, y = F_MISS, color = seqrun)) +
+   geom_point() + xlab('Number of reads mapped') +
+   ylab('Fraction of genotypes missing') +
+   ggtitle('Mapped reads and missing data per individual')
+```
+
+So, one of the main problems is that by using a different sequencing strategy
+in the second sequencing run (single-read versus paired ends), many loci sequenced
+in the first batch are missing in the second. Presumably, because they are SNPs
+found in the second read.
+
+```{r gdepth}
+library(knitr)
+gdepth <- read.table('all.gdepth', header = TRUE, as.is = TRUE)
+mdepth <- as.matrix(gdepth[, 3:82])
+row.names(mdepth) <- paste(gdepth$CHROM, gdepth$POS, sep = ':')
+mdepth[mdepth == -1] <- 0
+run1 <- rownames(imiss[imiss$seqrun == 1,])
+run2 <- rownames(imiss[imiss$seqrun == 2,])
+runDepth <- data.frame(run1 = rowSums(mdepth[, run1]),
+                       run2 = rowSums(mdepth[, run2]))
+ggplot(data = runDepth[runDepth$run1 * runDepth$run2 > 100,], mapping = aes(x = run1, y = run2)) +
+   geom_hex() + xlab('Firs run total coverage') + ylab('Second run total coverage') +
+   ggtitle('Showing SNPs with total coverage product between runs 1 and 2 larger than 100')
+
+runDepthSummary <- data.frame(
+   zero1 = c(sum(runDepth$run1 == 0 & runDepth$run2 == 0), 
+             sum(runDepth$run1 == 0 & runDepth$run2 >  0)),
+   one1  = c(sum(runDepth$run1 >  0 & runDepth$run2 == 0),
+             sum(runDepth$run1 >  0 & runDepth$run2 >  0))
+)
+row.names(runDepthSummary) <- c('Not covered in run 2','Covered in run 2')
+kable(runDepthSummary, row.names = TRUE,
+      col.names = c('Not covered in run 1', 'Covered in run 1'))
+```
+
+Still, there is a subset of sites where coverage is correlated between
+sequeing runs. One thing we can do to optimize the number of sites is to
+make sure that when we thin out the data set (to remove linkage disequilibrium)
+we do not remove SNPs from first reads it it is not necessary. Not sure how the
+thinning algorithm is implemented in vcftools, but I'm afraid that it removes
+SNPs based on distance, without necessarily choosing to keep the ones with higher
+coverage across samples.
