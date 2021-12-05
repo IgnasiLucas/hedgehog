@@ -4,8 +4,11 @@ VCFtools - 0.1.17
 
 Parameters as interpreted:
 	--vcf /data/kristyna/hedgehog/results_2021/2021-04-13/all_merged_2021.vcf
-	--remove below6M.txt
-	--thin 1000
+	--remove below4M.txt
+	--max-alleles 2
+	--min-alleles 2
+	--thin 261
+	--minQ 50
 	--geno-depth
 	--out all
 	--remove-indels
@@ -30,7 +33,7 @@ Warning: Expected at least 2 parts in INFO entry: ID=CIGAR,Number=A,Type=String,
 Warning: Expected at least 2 parts in FORMAT entry: ID=GQ,Number=1,Type=Float,Description="Genotype Quality, the Phred-scaled marginal (or unconditional) probability of the called genotype">
 Warning: Expected at least 2 parts in FORMAT entry: ID=GL,Number=G,Type=Float,Description="Genotype Likelihood, log10-scaled likelihoods of the data given the called genotype for each possible genotype generated from the reference and alternate alleles given the sample ploidy">
 Excluding individuals in 'exclude' list
-After filtering, kept 80 out of 90 Individuals
+After filtering, kept 84 out of 90 Individuals
 Outputting Depth for Each Genotype
-After filtering, kept 1065824 out of a possible 21921698 Sites
-Run Time = 205.00 seconds
+After filtering, kept 2078139 out of a possible 21921698 Sites
+Run Time = 234.00 seconds
