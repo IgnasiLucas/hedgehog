@@ -1568,6 +1568,22 @@ if [ ! -e best75.DP6.recode.vcf ]; then
             --recode \
             --out best75.DP6 &amp;&gt; best75.DP6.log &amp;
 fi
+if [ ! -e best75.DP6.mxM85.recode.vcf ]; then
+   vcftools --vcf $VCF \
+            --remove lowest15.txt \
+            --maf 0.0125 \
+            --remove-indels \
+            --min-alleles 2 \
+            --max-alleles 2 \
+            --minDP 6 \
+            --minQ 50 \
+            --thin 261 \
+            --max-missing 0.85 \
+            --recode-INFO-all \
+            --recode \
+            --out best75.DP6.mxM85 &amp;&gt; best75.DP6.mxM85.log &amp;
+fi
+
 wait</code></pre>
 <p>The two VCF generated above retained 29252 and 175735 sites.</p>
 <pre class="r"><code>sessionInfo()</code></pre>
