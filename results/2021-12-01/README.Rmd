@@ -1,0 +1,285 @@
+---
+title: "Filtering of VCF"
+author: "J. Ignacio Lucas Lledó"
+date: "1/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+R allows me to import a matrix of genotype depths, obtained with the `--geno-depth`
+option in `vcftools` and explore the effect of different filtering settings. This
+is important because the result of removing individuals and sites iteratively
+from a data set is different from doing it all at once. At least, if you decide
+what individuals remove based on what portion of SNPs they have genotyped.
+
+## Analysis of the original filtering
+
+Before cleaning up my data set, made up with only forward reads, I want to check
+if I can reproduce Kristýna's filtering. Basically, departing from the complete,
+90-individuals data set, which included indels, she selected 75 individuals
+(`popmap_erca_only_good.txt`), and required: minimum genotype depth of 8, exactly
+2 alleles, minimum MAF of 0.0125 (not 0.125, as mentioned in the manuscript),
+minimum SNP quality of 50, minimum portion of SNPs genotyped per site of 0.75,
+261 bases of separation between SNPs, and no indels. She obtained 12145 SNPs.
+However, upon inspection of them, in file
+`/data/kristyna/hedgehog/results_2021/2021-04-13/erinaceus_merged_2021_q20.recode.vcf`,
+I see that there are actually only 10777 site, not 12145, with at least 75%
+of individuals with depth >= 8. The order in which `vcftools` applies the filters
+is unclear and could result in this difference.
+
+First, I generate a genotype-depth matrix from Kristina's freebayes output,
+`all_merged_2021.vcf`.
+
+```{bash K0gdepth}
+KDIR=/data/kristyna/hedgehog/results_2021/2021-04-13
+if [ ! -e K0.gdepth ]; then
+   vcftools --vcf $KDIR/all_merged_2021.vcf \
+            --maf 0.0125 \
+            --min-alleles 2 \
+            --max-alleles 2 \
+            --minQ 50 \
+            --remove-indels \
+            --geno-depth \
+            --out K0 &> K0.gdepth.log 
+fi
+if [ ! -e mapped.txt ]; then
+   cp ../2021-11-22/mapped.txt ./
+fi
+
+if [ ! -e popfile.txt ]; then
+   cp ../2021-11-22/popfile.txt ./
+fi
+```
+
+And I load it in the R session:
+
+```{r reproduceFiltering}
+mapped <- read.table('mapped.txt', col.names = c('sample','numReads'), row.names = 1)
+popula <- read.table('popfile.txt', col.names = c('sample','pop'), row.names = 1)
+mapped$pop <- popula[rownames(mapped), 'pop']
+mapped$run <- factor(1, levels=c(1,2))
+mapped[grep(paste(c('^Er(26', as.character(26:74), '75)_'), collapse = '|'),
+            rownames(mapped), value = TRUE, perl = TRUE), 'run'] <- 1
+mapped[grep(paste(c('^Er(76', as.character(77:114), '115)_'), collapse = '|'),
+            rownames(mapped), value = TRUE, perl = TRUE), 'run'] <- 2
+
+K0.gdepth <- read.table('K0.gdepth', as.is = TRUE, header = TRUE)
+K0 <- as.matrix(K0.gdepth[, -c(1,2)])
+K0[K0 == -1] <- 0
+
+eog_file <- '/data/kristyna/hedgehog/results_2021/2021-04-13/popmap_erca_only_good.txt'
+erca_only_good <- read.table(eog_file,
+                             col.names = c('Sample','PopNum'),
+                             colClasses = c('character', 'NULL'))[,1]
+mapped$inK1 <- factor('bad', levels = c('good','bad'))
+mapped[erca_only_good, 'inK1'] <- 'good'
+
+K1 <- K0[, erca_only_good]
+f  <- rowSums(K1 >= 8) / ncol(K1) >= 0.75
+sum(f)
+```
+
+It seems that the thinning of SNPs by distance is performed after sites pass the
+filters. But if I do not set the `--minDP` or `--max-missing` filters, the
+thinning out can remove sites that would otherwise pass those filters. And then,
+we end up with fewer sites. For the purpose of creating the genotypes depth matrix,
+it is better not to use `--thin`. 
+
+```{r K2}
+
+mapped$minDP8 <- sapply(rownames(mapped), function(x) sum(K0[,x] >= 8))
+lowest15 <- rownames(head(mapped[order(mapped$numReads),], n=15))
+stopifnot(sum(lowest15 %in% rownames(head(mapped[order(mapped$minDP8),], n=15))) == 15)
+
+K2 <- K0[, setdiff(colnames(K0), lowest15)]
+f  <- rowSums(K2 >= 8) / ncol(K2) >= 0.75
+sum(f)
+```
+
+```{r clusteringK0, fig.width=10}
+f <- rowSums(K0 >= 8) / ncol(K0) >= 0.3
+sum(f)
+K0.dist <- dist(t(K0[f,] >= 8), method = 'binary')
+K0.hc   <- hclust(K0.dist, method = 'ward.D2')
+plot(K0.hc, cex=0.5, labels = paste(c('','lowest15')[1 + (K0.hc$labels %in% lowest15)],
+                                    c('NotInK1','')[1 + (K0.hc$labels %in% erca_only_good)],
+                                    sep = ' '))
+
+```
+
+Some samples missing in `/data/krystina/hedgehog/results_2021/2021-04-13/popmap_erca_only_good.txt`
+actually have quite large numbers of SNPs covered at least 8 times. If instead
+of removing the 15 samples in that file we remove the 15 samples with lowest
+number of SNPs covered at least 8 times (the same as the 15 samples with
+lowest count of mapped reads), we improve the number of SNPs available for
+75 samples: 36812 (before thinning) instead of 21774.
+
+## Filtering forward reads
+
+What if I use only forward reads? If samples from the second batch did not get
+reverse reads sequenced, they cannot have SNPs in reverse reads covered at all.
+Thus, most of the SNPs removed from the analysis must be from reverse reads
+loci. The analysis would be cleaner if we exclude them from the beginning.
+
+```{bash forwardGdepth}
+VCF='../2021-11-22/forward.vcf'
+
+if [ ! -e forward.gdepth ]; then
+   vcftools --vcf $VCF \
+            --maf 0.0125 \
+            --remove-indels \
+            --min-alleles 2 \
+            --max-alleles 2 \
+            --minQ 50 \
+            --out forward \
+            --geno-depth &> forward.gdepth.log &
+fi
+wait
+```
+
+```{r functions}
+# Finally, not used.
+TrimSites <- function(x, minDP = 4, maxMissing = 65/86) {
+   filter <- rowSums(x >= minDP) / ncol(x) >= maxMissing
+   return(x[filter,])
+}
+
+TrimInds <- function(x, minDP = 4, minGenotypes = 0.5) {
+   keep <- names(which(colSums(x >= minDP) / nrow(x) >= minGenotypes))
+   return(x[, keep])
+}
+
+Fullness <- function(x, minDP = 6) {
+   sum(x >= minDP) / (dim(x)[1] * dim(x)[2])
+}
+
+Thinning <- function(x, minDist = 150) {
+   stopifnot(is.data.frame(x))
+   stopifnot('CHROM' %in% names(x))
+   stopifnot('POS' %in% names(x))
+   SameContig <- x$CHROM == c('nothing', x[1:(dim(x)[1] - 1), 'CHROM'])
+   Intervals  <- x$POS - c(0, x[1:(dim(x)[1] - 1), 'POS'])
+   Intervals[! SameContig] <- minDist
+   return(x[Intervals >= minDist, ])
+}
+```
+
+```{r loadForward}
+forwardGdepth <- read.table('forward.gdepth', as.is = TRUE, header = TRUE)
+forwardMatrix <- as.matrix(forwardGdepth[, -c(1,2)])
+forwardMatrix[forwardMatrix == -1] <- 0
+rownames(forwardMatrix) <- paste(forwardGdepth$CHROM, forwardGdepth$POS, sep = ':')
+rownames(forwardGdepth) <- paste(forwardGdepth$CHROM, forwardGdepth$POS, sep = ':')
+minDP = 8
+```
+
+```{r lowest15forward}
+# In the forward-reads data set I already removed the 4 samples with lowest
+# count of mapped reads.
+mapped$minDP8forward <- sapply(rownames(mapped), function(x) {
+   ifelse(x %in% colnames(forwardMatrix), sum(forwardMatrix[,x] >= 8), 0)})
+lowest15f <- rownames(head(mapped[order(mapped$minDP8forward),], n=15))
+# These are the same as before.
+
+fM1 <- forwardMatrix[, setdiff(colnames(forwardMatrix), lowest15f)]
+f  <- rowSums(fM1 >= 8) / ncol(fM1) >= 0.75
+sum(f)
+```
+
+Even using SNPs found only among forward reads, I manage to keep a larger
+number of SNPs with a minimum coverage of 8 and a minimum of 75% of
+samples genotyped than when using the original filtering of individuals.
+However, applying the new filtering to the full data set yielded even
+more sites. Thus, I should keep using the full dataset, with forward and
+reverse reads. After all, the excess of sites from reverse reads are
+efficiently removed in the filtering step.
+
+## The samples removed
+
+```{r samplesRemoved}
+library(knitr)
+mapped$lowest15 <- factor('good', levels = c('good','bad'))
+mapped[lowest15, 'lowest15'] <- 'bad'
+kable(mapped[order(mapped$minDP8),])
+kable(table(mapped[, c('pop','inK1')]))
+kable(table(mapped[, c('pop','lowest15')]))
+```
+
+Given that the distribution of kept samples among populations seem to
+improve with the new filtering (both Hemiechinus and Atelerix are retained),
+I don't see a reason to attempt a rescue of other samples. That is, to give
+up 15 out of 90 samples seems an acceptable compromise.
+
+Another question is how complete the genotypes are per individual. A second
+filter by Kristýna removed 10 additional samples missing more than 50% of
+genotypes. Let's count the number of individuals with less than 50% of genotypes
+in each matrix:
+
+```{r imiss}
+K3 <- TrimSites(K0[, erca_only_good], minDP = 8, maxMissing = 0.75)
+K4 <- TrimSites(K0[, setdiff(colnames(K0), lowest15)], minDP = 8, maxMissing = 0.75)
+K5 <- TrimSites(forwardMatrix[, setdiff(colnames(forwardMatrix), lowest15)],
+                minDP = 8, maxMissing = 0.75)
+Resum <- data.frame(
+   Reads     = factor(c('Both', 'Both', 'Forward')),
+   Filter    = factor(c('erca_only_good', 'best75', 'best75')),
+   numSites  = sapply(list(K3, K4, K5), function(x) dim(x)[1]),
+   below50   = sapply(list(K3, K4, K5), function(x) {
+      sum(colSums(x >= 8) / nrow(x) <= 0.5)
+   })
+)
+kable(Resum)
+```
+
+## Implementing new filter to full data set
+
+```{r removeFile}
+write.table(lowest15, file = 'lowest15.txt', quote = FALSE,
+            row.names = FALSE, col.names = FALSE)
+write.table(mapped, file = 'summary.txt', quote = FALSE, sep = '\t')
+```
+
+```{bash NewFilterFullVCF}
+VCF=/data/kristyna/hedgehog/results_2021/2021-04-13/all_merged_2021.vcf
+if [ ! -e best75.DP8.recode.vcf ]; then
+   vcftools --vcf $VCF \
+            --remove lowest15.txt \
+            --maf 0.0125 \
+            --remove-indels \
+            --min-alleles 2 \
+            --max-alleles 2 \
+            --minDP 8 \
+            --minQ 50 \
+            --thin 261 \
+            --max-missing 0.75 \
+            --recode-INFO-all \
+            --recode \
+            --out best75.DP8 &> best75.DP8.log &
+fi
+
+if [ ! -e best75.DP6.recode.vcf ]; then
+   vcftools --vcf $VCF \
+            --remove lowest15.txt \
+            --maf 0.0125 \
+            --remove-indels \
+            --min-alleles 2 \
+            --max-alleles 2 \
+            --minDP 6 \
+            --minQ 50 \
+            --thin 261 \
+            --max-missing 0.75 \
+            --recode-INFO-all \
+            --recode \
+            --out best75.DP6 &> best75.DP6.log &
+fi
+wait
+```
+
+The two VCF generated above retained 29252 and 175735 sites. 
+
+```{r sessionInfo}
+sessionInfo()
+```

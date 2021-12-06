@@ -1,3 +1,22 @@
+2021-12-01
+==========
+Using only forward reads does produce a more complete genotypes matrix, but
+in the end the number of sites retained is larger when using both forward and
+reverse reads. Thus, I stick to the original mapping of reads.
+
+Here I also revise the strategy for filtering individuals. I lost track of why
+individual samples were removed from the data set in the last filtering, when
+a file 'popmap_erca_only_good.txt' was used to keep only 75 out of 90 individuals.
+It turns out that a few of the individuals removed back then do not really have
+low numbers of SNPs covered. Here I apply a different filtering strategy and
+remove the 15 samples with strickly lower number of SNPs covered at least 8
+times in sites with at least 75% of samples genotyped. I end up retaining a
+larger fraction of sites, and decide to move on with this filtering.
+
+I produce two VCF with the best 75 samples, one with 175735 sites with at
+least 75% of samples covered at least 6 times, and one with 29252 sites with
+at least 75% of samples covered at least 8 times.
+
 2021-11-22
 ==========
 I run again freebayes using only forward reads from all samples, with the hope
