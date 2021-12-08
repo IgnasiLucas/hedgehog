@@ -3,7 +3,7 @@ VCFtools - 0.1.17
 (C) Adam Auton and Anthony Marcketta 2009
 
 Parameters as interpreted:
-	--vcf /data/kristyna/hedgehog/results_2021/2021-04-13/all_merged_2021.vcf
+	--vcf ../2021-11-16/all.vcf
 	--remove lowest15.txt
 	--recode-INFO-all
 	--maf 0.0125
@@ -39,5 +39,5 @@ Warning: Expected at least 2 parts in FORMAT entry: ID=GL,Number=G,Type=Float,De
 Excluding individuals in 'exclude' list
 After filtering, kept 75 out of 90 Individuals
 Outputting VCF file...
-After filtering, kept 29252 out of a possible 21921698 Sites
-Run Time = 367.00 seconds
+After filtering, kept 30145 out of a possible 21921698 Sites
+Run Time = 433.00 seconds
