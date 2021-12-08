@@ -1,0 +1,115 @@
+	-> angsd version: 0.935-53-gf475f10 (htslib: 1.14-7-g1d79f44) build(Nov 16 2021 12:06:02)
+	-> angsd -vcf-gl europaeus.recode.vcf -fai ../../data/reference.fa.fai -doMaf 1 -doMajorMinor 1 -out europaeus 
+	-> Inputtype is vcf/bcf
+	-> VCF still beta. Remember that
+	   1. indels are are discarded
+	   2. will use chrom, pos PL columns
+	   3. GL tags are interpreted as log10 and are scaled to ln (NOT USED)
+	   4. GP tags are interpreted directly as unscaled post probs (spec says phredscaled...) (NOT USED)
+	   5. FILTER column is currently NOT used (not sure what concensus is)
+	   6. -sites does NOT work with vcf input but -r does
+	   7. vcffilereading is still BETA, please report strange behaviour
+	   8. Consider adding '-doMajorMinor 1'
+	-> No indel tag in vcf/bcf file, will therefore not be able to filter out indels
+	-> Printing at chr: NW_006803925.1 pos:11379426 chunknumber 100 contains 50 sites
+	-> Printing at chr: NW_006803927.1 pos:8926633 chunknumber 200 contains 50 sites
+	-> Printing at chr: NW_006803930.1 pos:284765 chunknumber 300 contains 50 sites
+	-> Printing at chr: NW_006803932.1 pos:5593682 chunknumber 400 contains 50 sites
+	-> Printing at chr: NW_006803935.1 pos:3139873 chunknumber 500 contains 50 sites
+	-> Printing at chr: NW_006803938.1 pos:5729300 chunknumber 600 contains 50 sites
+	-> Printing at chr: NW_006803941.1 pos:6851354 chunknumber 700 contains 50 sites
+	-> Printing at chr: NW_006803945.1 pos:2330294 chunknumber 800 contains 50 sites
+	-> Printing at chr: NW_006803948.1 pos:6748073 chunknumber 900 contains 50 sites
+	-> Printing at chr: NW_006803953.1 pos:5261642 chunknumber 1000 contains 50 sites
+	-> Printing at chr: NW_006803957.1 pos:5927975 chunknumber 1100 contains 50 sites
+	-> Printing at chr: NW_006803962.1 pos:5400 chunknumber 1200 contains 50 sites
+	-> Printing at chr: NW_006803966.1 pos:1080848 chunknumber 1300 contains 50 sites
+	-> Printing at chr: NW_006803970.1 pos:6611223 chunknumber 1400 contains 50 sites
+	-> Printing at chr: NW_006803975.1 pos:5368882 chunknumber 1500 contains 50 sites
+	-> Printing at chr: NW_006803981.1 pos:4186532 chunknumber 1600 contains 50 sites
+	-> Printing at chr: NW_006803986.1 pos:5002015 chunknumber 1700 contains 50 sites
+	-> Printing at chr: NW_006803992.1 pos:4492770 chunknumber 1800 contains 50 sites
+	-> Printing at chr: NW_006803999.1 pos:1262784 chunknumber 1900 contains 50 sites
+	-> Printing at chr: NW_006804004.1 pos:4082603 chunknumber 2000 contains 50 sites
+	-> Printing at chr: NW_006804011.1 pos:750642 chunknumber 2100 contains 50 sites
+	-> Printing at chr: NW_006804018.1 pos:1599492 chunknumber 2200 contains 50 sites
+	-> Printing at chr: NW_006804024.1 pos:2355459 chunknumber 2300 contains 50 sites
+	-> Printing at chr: NW_006804030.1 pos:4393556 chunknumber 2400 contains 50 sites
+	-> Printing at chr: NW_006804037.1 pos:2315373 chunknumber 2500 contains 50 sites
+	-> Printing at chr: NW_006804044.1 pos:688701 chunknumber 2600 contains 50 sites
+	-> Printing at chr: NW_006804050.1 pos:3142846 chunknumber 2700 contains 50 sites
+	-> Printing at chr: NW_006804057.1 pos:1052246 chunknumber 2800 contains 50 sites
+	-> Printing at chr: NW_006804064.1 pos:1912579 chunknumber 2900 contains 50 sites
+	-> Printing at chr: NW_006804072.1 pos:398167 chunknumber 3000 contains 50 sites
+	-> Printing at chr: NW_006804079.1 pos:1498967 chunknumber 3100 contains 50 sites
+	-> Printing at chr: NW_006804087.1 pos:1555486 chunknumber 3200 contains 50 sites
+	-> Printing at chr: NW_006804094.1 pos:3878434 chunknumber 3300 contains 1 sites
+	-> Printing at chr: NW_006804103.1 pos:529248 chunknumber 3400 contains 50 sites
+	-> Printing at chr: NW_006804111.1 pos:175532 chunknumber 3500 contains 50 sites
+	-> Printing at chr: NW_006804119.1 pos:2562523 chunknumber 3600 contains 50 sites
+	-> Printing at chr: NW_006804128.1 pos:1972010 chunknumber 3700 contains 50 sites
+	-> Printing at chr: NW_006804138.1 pos:1047427 chunknumber 3800 contains 50 sites
+	-> Printing at chr: NW_006804146.1 pos:3219887 chunknumber 3900 contains 50 sites
+	-> Printing at chr: NW_006804155.1 pos:987151 chunknumber 4000 contains 50 sites
+	-> Printing at chr: NW_006804165.1 pos:3133678 chunknumber 4100 contains 2 sites
+	-> Printing at chr: NW_006804176.1 pos:2037900 chunknumber 4200 contains 50 sites
+	-> Printing at chr: NW_006804188.1 pos:641160 chunknumber 4300 contains 50 sites
+	-> Printing at chr: NW_006804199.1 pos:9883 chunknumber 4400 contains 50 sites
+	-> Printing at chr: NW_006804210.1 pos:2412185 chunknumber 4500 contains 50 sites
+	-> Printing at chr: NW_006804223.1 pos:294501 chunknumber 4600 contains 50 sites
+	-> Printing at chr: NW_006804234.1 pos:995282 chunknumber 4700 contains 50 sites
+	-> Printing at chr: NW_006804246.1 pos:1524967 chunknumber 4800 contains 50 sites
+	-> Printing at chr: NW_006804258.1 pos:1497610 chunknumber 4900 contains 50 sites
+	-> Printing at chr: NW_006804273.1 pos:1520981 chunknumber 5000 contains 50 sites
+	-> Printing at chr: NW_006804288.1 pos:27381 chunknumber 5100 contains 50 sites
+	-> Printing at chr: NW_006804303.1 pos:1574403 chunknumber 5200 contains 50 sites
+	-> Printing at chr: NW_006804317.1 pos:2132074 chunknumber 5300 contains 47 sites
+	-> Printing at chr: NW_006804333.1 pos:1066726 chunknumber 5400 contains 50 sites
+	-> Printing at chr: NW_006804349.1 pos:12195 chunknumber 5500 contains 50 sites
+	-> Printing at chr: NW_006804365.1 pos:2014325 chunknumber 5600 contains 8 sites
+	-> Printing at chr: NW_006804381.1 pos:847365 chunknumber 5700 contains 50 sites
+	-> Printing at chr: NW_006804402.1 pos:690286 chunknumber 5800 contains 50 sites
+	-> Printing at chr: NW_006804424.1 pos:446657 chunknumber 5900 contains 50 sites
+	-> Printing at chr: NW_006804442.1 pos:332468 chunknumber 6000 contains 50 sites
+	-> Printing at chr: NW_006804462.1 pos:1037122 chunknumber 6100 contains 50 sites
+	-> Printing at chr: NW_006804484.1 pos:37868 chunknumber 6200 contains 50 sites
+	-> Printing at chr: NW_006804505.1 pos:962753 chunknumber 6300 contains 50 sites
+	-> Printing at chr: NW_006804528.1 pos:604525 chunknumber 6400 contains 50 sites
+	-> Printing at chr: NW_006804553.1 pos:1053004 chunknumber 6500 contains 39 sites
+	-> Printing at chr: NW_006804580.1 pos:496685 chunknumber 6600 contains 50 sites
+	-> Printing at chr: NW_006804605.1 pos:318963 chunknumber 6700 contains 50 sites
+	-> Printing at chr: NW_006804634.1 pos:767897 chunknumber 6800 contains 50 sites
+	-> Printing at chr: NW_006804667.1 pos:274755 chunknumber 6900 contains 50 sites
+	-> Printing at chr: NW_006804698.1 pos:952581 chunknumber 7000 contains 14 sites
+	-> Printing at chr: NW_006804731.1 pos:788258 chunknumber 7100 contains 31 sites
+	-> Printing at chr: NW_006804766.1 pos:3204 chunknumber 7200 contains 50 sites
+	-> Printing at chr: NW_006804809.1 pos:560815 chunknumber 7300 contains 32 sites
+	-> Printing at chr: NW_006804851.1 pos:33046 chunknumber 7400 contains 50 sites
+	-> Printing at chr: NW_006804900.1 pos:415974 chunknumber 7500 contains 27 sites
+	-> Printing at chr: NW_006804954.1 pos:540718 chunknumber 7600 contains 4 sites
+	-> Printing at chr: NW_006805011.1 pos:2732 chunknumber 7700 contains 50 sites
+	-> Printing at chr: NW_006805071.1 pos:26636 chunknumber 7800 contains 50 sites
+	-> Printing at chr: NW_006805143.1 pos:17468 chunknumber 7900 contains 50 sites
+	-> Printing at chr: NW_006805238.1 pos:3554 chunknumber 8000 contains 33 sites
+	-> Printing at chr: NW_006805337.1 pos:938 chunknumber 8100 contains 40 sites
+	-> Printing at chr: NW_006805440.1 pos:17923 chunknumber 8200 contains 14 sites
+	-> Printing at chr: NW_006805542.1 pos:26586 chunknumber 8300 contains 7 sites
+	-> Printing at chr: NW_006805659.1 pos:25145 chunknumber 8400 contains 3 sites
+	-> Printing at chr: NW_006805828.1 pos:9575 chunknumber 8500 contains 1 sites
+	-> Printing at chr: NW_006806018.1 pos:2832 chunknumber 8600 contains 2 sites
+	-> Printing at chr: NW_006806256.1 pos:472 chunknumber 8700 contains 3 sites
+	-> Printing at chr: NW_006806735.1 pos:116 chunknumber 8800 contains 1 sites
+	-> Printing at chr: NW_006807431.1 pos:1020 chunknumber 8900 contains 5 sites
+	-> Printing at chr: NW_006808103.1 pos:1313 chunknumber 9000 contains 3 sites
+	-> Printing at chr: NW_006808834.1 pos:749 chunknumber 9100 contains 1 sites
+	-> Done reading data waiting for calculations to finish
+	-> Done waiting for threads
+	-> Output filenames:
+		->"europaeus.arg"
+		->"europaeus.mafs.gz"
+	-> Tue Dec  7 18:07:48 2021
+	-> Arguments and parameters for all analysis are located in .arg file
+	-> Total number of sites analyzed: 374960
+	-> Number of sites retained after filtering: 374960 
+	[ALL done] cpu-time used =  16.81 sec
+	[ALL done] walltime used =  17.00 sec

@@ -1,3 +1,12 @@
+2021-12-06
+==========
+First try using ANGSD. It's terribly badly documented, but the methods
+implemented are very good. I managed to explore the allele frequencies
+and SFS. A dilema: whether to use SNPs pre-filtered in VCFs or to use
+bam files directly. 
+
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-12-06/README.html)
+
 2021-12-01
 ==========
 Using only forward reads does produce a more complete genotypes matrix, but
@@ -17,6 +26,8 @@ I produce two VCF with the best 75 samples, one with 175735 sites with at
 least 75% of samples covered at least 6 times, and one with 29252 sites with
 at least 75% of samples covered at least 8 times.
 
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-12-01/README.html)
+
 2021-11-22
 ==========
 I run again freebayes using only forward reads from all samples, with the hope
@@ -31,6 +42,8 @@ could be wasting some good SNPs in forward reads, while casually picking up
 SNPs from nearby reverse reads. Therefore, it is necessary to run freebayes
 again, but only with forward reads.
 
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-11-22/README.html)
+
 2021-11-17
 ==========
 While trying to understand why we are left with so few loci covered in a large
@@ -38,12 +51,16 @@ enough subset of samples, I realize that samples sequenced in the second batch
 are the ones missing most genotypes. The reason must be that those were sequenced
 with only single reads.
 
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-11-17/README.html)
+
 2021-11-16
 ==========
 Started working to address the reviewers' comments. I realize that to use ANGSD,
 which uses genotype likelihoods it may be important to estimate the likelihoods
 correctly, by informing freebayes of the morphological classification of samples.
 Thus, I run freebayes again.
+
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-11-16/README.html)
 
 2020-12-11
 ==========

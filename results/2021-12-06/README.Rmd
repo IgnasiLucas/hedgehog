@@ -1,0 +1,222 @@
+---
+title: "ANGSD"
+author: "J. Ignacio Lucas Lledó"
+date: "6/12/2021"
+output: html_document
+bibliography: references.bib
+---
+
+## Becoming familiar with ANGSD
+
+ANGSD [@Nielsen2012] can perform several analysis using genotype likelihoods, including the
+ABBA/BABA statistics. Because it does not require calling genotypes, the input
+data can be sequence data in BAM files. Alternatively, it accepts genotype
+likelihoods in Beagle format, and even VCF. But the ABBA/BABA test and others
+can only be performed from sequence files. I do not want to pass row BAM files
+to `angsd`, because it is unclear how it handles indels, which are abundant
+in our data set. I trust `freebayes` to align indels better, and that's why
+I prefer to use the genotype likelihoods for only binary SNPs stored in our
+VCFs.
+
+PCAngsd is a separate program in Python. Unfortunately, I was not able to
+install it system-wide, and I'm using below my local installation.
+
+## Estimate allele frequencies and site-frequency spectra.
+
+Allele frequencies can be estimated from VCF, for every site. But I don't
+see the way to filter by individuals. I must create a population-specific
+vcf, from the original `../2021-11-16/all.vcf`, so that variable sites are
+a representative sample of variation in each species. Recall that the filtered
+VCF in `2021-12-01` required sites to be variable overall, which introduces
+many fixed differences among species that would bias their SFS.
+
+ANGSD does not accept just any VCF. From what I experienced it occasionally
+stops at an intermediate point of a VCF when estimating allele frequencies or
+site-frequency spectra. This is a sign of some sites not having the expected
+quality or amount of data. I solved the issue by requiring genotypes to be
+covered at least 5 times (`--minDP 5`; maybe 4 would have been enough) and
+sites to have at least 1 minor allele counted (`--mac 1`).
+
+```{bash splitVCF}
+if [ ! -e popfile.txt ]; then ./make_popfile.sh; fi
+if [ ! -e lowest15.txt ]; then cp ../2021-12-01/lowest15.txt ./; fi
+
+VCF='../2021-11-16/all.vcf'
+for pop in roumanicus europaeus concolor; do
+   if [ ! -e $pop.txt ]; then
+      grep $pop popfile.txt | grep -v -f lowest15.txt | cut -f 1 > $pop.txt
+   fi
+   if [ ! -e $pop.recode.vcf ]; then
+      vcftools --vcf $VCF \
+               --keep $pop.txt \
+               --remove-indels \
+               --minQ 50 \
+               --minDP 5 \
+               --min-alleles 2 \
+               --max-alleles 2 \
+               --max-missing 0.75 \
+               --mac 1 \
+               --recode \
+               --out $pop &> $pop.recode.log &
+   fi
+done
+wait
+
+for pop in roumanicus europaeus concolor; do
+   if [ ! -e $pop.mafs ]; then
+      angsd -vcf-gl $pop.recode.vcf \
+            -fai ../../data/reference.fa.fai \
+            -doMaf 1 -doMajorMinor 1 -out $pop &> $pop.mafs.log
+      gunzip $pop.mafs.gz
+   fi
+   if [ ! -e $pop.sfs ]; then
+      if [ ! -e $pop.saf.idx ]; then
+         angsd -vcf-gl $pop.recode.vcf -doMajorMinor 1 -out $pop \
+               -doSaf 1 -anc ../../data/reference.fa &> $pop.saf.idx.log
+      fi
+      ~/bin/angsd/misc/realSFS $pop.saf.idx \
+            -maxIter 400 -P 4 -tole .00001 -fold 1 1> $pop.sfs 2> $pop.sfs.log
+   fi
+done
+```
+
+## VCF-derived site-frequency spectra
+
+```{r plots}
+concolor.sfs <- scan('concolor.sfs')
+europaeus.sfs <- scan('europaeus.sfs')
+roumanicus.sfs <- scan('roumanicus.sfs')
+barplot(concolor.sfs[1:((length(concolor.sfs) - 1) / 2)],
+        main = 'E. concolor', xlab = 'Minor allele count',
+        ylab = 'Number of SNPs')
+barplot(europaeus.sfs[1:((length(europaeus.sfs) - 1) / 2)],
+        main = 'E. europaeus', xlab = 'Minor allele count',
+        ylab = 'Number of SNPs')
+barplot(roumanicus.sfs[1:((length(roumanicus.sfs) - 1)/ 2)],
+        main = 'E. roumanicus', xlab = 'Minor allele count',
+        ylab = 'Number of SNPs')
+```
+
+Sites had been required to be bi-allelic. But the class of monomorphic sites is not
+empty in any of the SFS. The reason is just that even if sites look bi-allelic to
+`vcftools` some of them have a probability of actually being monomorphic, which adds
+up to several expected monomorphic sites in the whole data set. Actually,
+requiring sites to be bi-allelic must be causing the lack of very low frequency
+sites. This alone could be enough to explain the shape of the SFS in *E. roumanicus*.
+
+In the case of *E. europaeus*, the SFS is intriguing. The second peak is a huge excess
+of intermediate frequency SNPs. I suppose it could be caused by the presence of the
+two lineages. 
+
+The SFS in *E. concolor* is a complete mistery. I cannot make sense of it. I am manually
+running `angsd -doSaf` with different parameters, and starting from BAM files, just to
+see if the result is robust. The bootstrap already confirmed the shape.
+
+```{r mafs}
+library(ggplot2)
+concolor.mafs   <- read.table('concolor.mafs',   header = TRUE, as.is = TRUE)
+europaeus.mafs  <- read.table('europaeus.mafs',  header = TRUE, as.is = TRUE)
+roumanicus.mafs <- read.table('roumanicus.mafs', header = TRUE, as.is = TRUE)
+row.names(concolor.mafs)   <- paste(concolor.mafs$chromo,
+                                    concolor.mafs$position, sep = '_')
+row.names(europaeus.mafs)  <- paste(europaeus.mafs$chromo,
+                                    europaeus.mafs$position, sep = '_')
+row.names(roumanicus.mafs) <- paste(roumanicus.mafs$chromo,
+                                    roumanicus.mafs$position, sep = '_')
+concolor.mafs$first  <- pmin(concolor.mafs$major, concolor.mafs$minor)  # alphabetically first
+concolor.mafs$second <- pmax(concolor.mafs$major, concolor.mafs$minor)  # alphabetically second
+stopifnot(max(concolor.mafs$knownEM) <= 0.5)  # knownEM is the minor allele freq.
+concolor.mafs$firstFreq <- sapply(1:dim(concolor.mafs)[1], function(x) {
+  ifelse(concolor.mafs[x, 'minor'] < concolor.mafs[x, 'major'],
+         concolor.mafs[x, 'knownEM'], 1.0 - concolor.mafs[x, 'knownEM'])
+})
+
+europaeus.mafs$first  <- pmin(europaeus.mafs$major, europaeus.mafs$minor)
+europaeus.mafs$second <- pmax(europaeus.mafs$major, europaeus.mafs$minor)
+stopifnot(max(europaeus.mafs$knownEM) <= 0.5)
+europaeus.mafs$firstFreq <- sapply(1:dim(europaeus.mafs)[1], function(x) {
+  ifelse(europaeus.mafs[x, 'minor'] < europaeus.mafs[x, 'major'],
+         europaeus.mafs[x, 'knownEM'], 1.0 - europaeus.mafs[x, 'knownEM'])
+})
+
+roumanicus.mafs$first  <- pmin(roumanicus.mafs$major, roumanicus.mafs$minor)
+roumanicus.mafs$second <- pmax(roumanicus.mafs$major, roumanicus.mafs$minor)
+stopifnot(max(roumanicus.mafs$knownEM) <= 0.5)
+roumanicus.mafs$firstFreq <- sapply(1:dim(roumanicus.mafs)[1], function(x) {
+  ifelse(roumanicus.mafs[x, 'minor'] < roumanicus.mafs[x, 'major'],
+         roumanicus.mafs[x, 'knownEM'], 1.0 - roumanicus.mafs[x, 'knownEM'])
+})
+common.ce <- intersect(row.names(concolor.mafs),
+                       row.names(europaeus.mafs))
+ce.mafs <- data.frame(
+  c.first     = concolor.mafs[common.ce, 'first'],
+  c.second    = concolor.mafs[common.ce, 'second'],
+  c.firstFreq = concolor.mafs[common.ce, 'firstFreq'],
+  e.first     = europaeus.mafs[common.ce, 'first'],
+  e.second    = europaeus.mafs[common.ce, 'second'],
+  e.firstFreq = europaeus.mafs[common.ce, 'firstFreq'],
+  sameAlleles = concolor.mafs[common.ce, 'first'] == europaeus.mafs[common.ce, 'first'] &
+                concolor.mafs[common.ce, 'second'] == europaeus.mafs[common.ce, 'second']
+)
+
+common.er <- intersect(row.names(europaeus.mafs),
+                       row.names(roumanicus.mafs))
+er.mafs <- data.frame(
+  e.first     = europaeus.mafs[common.er, 'first'],
+  e.second    = europaeus.mafs[common.er, 'second'],
+  e.firstFreq = europaeus.mafs[common.er, 'firstFreq'],
+  r.first     = roumanicus.mafs[common.er, 'first'],
+  r.second    = roumanicus.mafs[common.er, 'second'],
+  r.firstFreq = roumanicus.mafs[common.er, 'firstFreq'],
+  sameAlleles = europaeus.mafs[common.er, 'first']  == roumanicus.mafs[common.er, 'first'] &&
+                europaeus.mafs[common.er, 'second'] == roumanicus.mafs[common.er, 'second']
+)
+
+common.cr <- intersect(row.names(concolor.mafs),
+                       row.names(roumanicus.mafs))
+cr.mafs <- data.frame(
+  c.first     = concolor.mafs[common.cr, 'first'],
+  c.second    = concolor.mafs[common.cr, 'second'],
+  c.firstFreq = concolor.mafs[common.cr, 'firstFreq'],
+  r.first     = roumanicus.mafs[common.cr, 'first'],
+  r.second    = roumanicus.mafs[common.cr, 'second'],
+  r.firstFreq = roumanicus.mafs[common.cr, 'firstFreq'],
+  sameAlleles = concolor.mafs[common.cr, 'first']  == roumanicus.mafs[common.cr, 'first'] &&
+                concolor.mafs[common.cr, 'second'] == roumanicus.mafs[common.cr, 'second']
+)
+
+ggplot(data = ce.mafs[ce.mafs$sameAlleles, ], mapping = aes(x = c.firstFreq, y = e.firstFreq)) +
+  geom_hex() + scale_fill_gradient(trans = 'log') +
+  xlab('Freq. in E. concolor') + ylab('Freq in E. europaeus')
+
+ggplot(data = er.mafs[er.mafs$sameAlleles, ], mapping = aes(x = r.firstFreq, y = e.firstFreq)) +
+  geom_hex() + scale_fill_gradient(trans = 'log') +
+  xlab('Freq. in E. roumanicus') + ylab('Freq. in E. europaeus')
+
+ggplot(data = cr.mafs[cr.mafs$sameAlleles, ], mapping = aes(x = c.firstFreq, y = r.firstFreq)) +
+  geom_hex() + scale_fill_gradient(trans = 'log') +
+  xlab('Freq. in E. concolor') + ylab('Freq. in E. roumanicus')
+
+```
+
+One difficulty to interprete the plots above is that they compare the frequency of
+the alphabetically first allele between species. That was easier than guessing the
+ancestral one. But, I will probably have to infer the ancestral alleles and unfold
+the SFS. Next folder.
+
+```{r densities}
+plot(density(roumanicus.mafs$knownEM), col = 'blue', lwd = 2, xlab = 'Minor allele freq.')
+lines(density(europaeus.mafs$knownEM), col = 'red',  lwd = 2)
+lines(density(concolor.mafs$knownEM), col = 'green', lwd = 2)
+``` 
+
+The smoothed densities of minor allele frequencies resemble the respective SFSs, but
+are not accurate. Just for comparison.
+
+## Session Info
+
+```{r sessioninfo}
+sessionInfo()
+```
+
+## References
