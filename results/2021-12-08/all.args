@@ -1,0 +1,7 @@
+PCAngsd v.1.03
+Time: 09/12/2021 11:43:23
+Directory: /gata/joiglu/hedgehog/results/2021-12-08
+Options:
+	-beagle all.beagle.gz
+	-threads 40
+	-out all

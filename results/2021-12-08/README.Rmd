@@ -1,0 +1,102 @@
+---
+title: "PCAngsd"
+author: "J. Ignacio Lucas Lledó"
+date: "8/12/2021"
+output: html_document
+bibliography: references.bib
+---
+
+Here I will use PCAngsd [@Meisner2018] and possibly also NGSadmix [@Skotte2013]
+to determine population structure. Both require genotype likelihoods for all
+individuals. I can generate them directly from BAM files with ANGSD.
+
+Because we already know that *Hemiechinus* and *Atelerix* are different genera,
+I'd rather exclude them from the analysis, so that we focus on the *Erinaceus*
+subjects.
+
+```{bash fromBAM}
+if [ ! -e popfile.txt ]; then
+   if [ ! -e make_popfile.sh ]; then cp ../2021-12-06/make_popfile.sh ./; fi
+   ./make_popfile.sh
+fi
+if [ ! -e lowest15.txt ]; then
+   cp ../2021-12-01/lowest15.txt ./
+fi
+if [ ! -e bestErinaceus.txt ]; then
+   grep -v -f lowest15.txt popfile.txt | \
+   grep -v -E "(atelerix|hemiechinus)" | cut -f 1 > bestErinaceus.txt
+fi
+
+# I will use only forward reads, to save time and memory
+BAMDIR='../2021-11-22'
+PCANGSD=~/bin/pcangsd/pcangsd.py
+
+if [ ! -e bam.filelist ]; then
+   ls -1 $BAMDIR/*.bam | grep -f bestErinaceus.txt > bam.filelist
+fi
+
+if [ ! -e all.beagle.gz ]; then
+   angsd -GL 1 -minInd 57 -doGlf 2 -minMapQ 30 -minQ 20 \
+         -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 \
+         -doMajorMinor 1 \
+         -out all -nThreads 40 -bam bam.filelist 1> all.beagle.log 2> all.beagle.err
+fi
+
+if [ ! -e all.cov ]; then
+   python $PCANGSD -beagle all.beagle.gz \
+                   -minMaf 0.05 \
+                   -threads 40 \
+                   -out all 1> all.cov.log 2> all.cov.err
+fi
+
+# Using K=5, expecting: 2 europaeus, 1 roumanicus, 1 concolor, 1 amurensis.
+if [ ! -e all.qopt ]; then
+   NGSadmix -likes all.beagle.gz \
+            -K 5 \
+            -minMaf 0.05 \
+            -outfiles all \
+            -P 40 1> all.ngsadmix.log 2> all.ngsadmix.err
+fi
+
+```
+
+I assume that the output of both PCAngsd and NgsAdmix keep the order of the
+samples as in the beagle-formated input file, which in turn should be the order
+in which BAM files were specified.
+
+```{r PCA}
+pop <- read.table('popfile.txt', col.names = c('ind','pop'),
+                  colClasses = c('character', 'factor'), row.names = 1)
+bamlist <- scan('bam.filelist', what = 'character')
+sampleList <- sapply(bamlist, function(x) {
+  sub('.bam', '', unlist(strsplit(x, '/', fixed = TRUE))[3], fixed = TRUE) 
+}, USE.NAMES = FALSE)
+
+Erinaceus <- pop[sampleList, , drop = FALSE]
+Erinaceus$pop <- droplevels(Erinaceus$pop)
+byPop <- order(Erinaceus$pop)
+
+COV <- as.matrix(read.table('all.cov'))
+E   <- eigen(COV)
+barplot(E$values[1:5] / sum(E$values), ylab = 'Explained variance', xlab = 'PC')
+plot(E$vectors[, 1:2], col = Erinaceus$pop, xlab = 'PC 1', ylab = 'PC 2')
+legend('bottomright', fill = 1:6, levels(Erinaceus$pop))
+```
+
+```{r NgsAdmix, fig.width=10}
+library('RColorBrewer')
+Q <- read.table('all.qopt')
+#row.names(Q) <- sampleList
+Q2 <- round(Q,3)
+row.names(Q) <- paste(sampleList, ' (', Erinaceus$pop, '?)', sep = '')
+# manually came up with this ordering...
+z <- order(rowSums(Q2[,c(5,1,3)]), Q2[,2], rowSums(Q2[,c(5,1)]), Q2[,5], Q2[,3], decreasing=TRUE)
+barplot(t(Q[z,c(5,1,3,2,4)]), col = brewer.pal(5, 'Set3'), border = NA,
+        xlab = '', ylab = 'Admixture proportions for K=5', las=2, cex.names=0.5)
+```
+
+Well, I need to check the effect of a more aggressive filtering of sites. This does not
+convince me yet.
+
+
+## References
