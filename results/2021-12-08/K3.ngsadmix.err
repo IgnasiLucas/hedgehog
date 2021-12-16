@@ -1,0 +1,17 @@
+Input: lname=all.beagle.gz nPop=3, fname=(null) qname=(null) outfiles=K3
+Setup: seed=1639611093 nThreads=40 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=47370574.352629
+iter[50] like is=-9309244.432013 thres=0.000038
+iter[100] like is=-9309224.328449 thres=0.000000
+iter[150] like is=-9309224.300495 thres=0.000000
+Convergence achived because log likelihooditer difference for 50 iteraction is less than 0.100000
+best like=-9309224.300495 after 150 iterations
+	-> Dumpedfiles are: K3.log
+	-> Dumpedfiles are: K3.qopt
+	-> Dumpedfiles are: K3.fopt.gz
+	[ALL done] cpu-time used =  1979.45 sec
+	[ALL done] walltime used =  144.00 sec

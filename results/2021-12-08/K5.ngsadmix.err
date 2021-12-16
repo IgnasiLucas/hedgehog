@@ -1,0 +1,31 @@
+Input: lname=all.beagle.gz nPop=5, fname=(null) qname=(null) outfiles=K5
+Setup: seed=1639611701 nThreads=40 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=44987327.124600
+iter[50] like is=-7990795.540090 thres=0.005304
+iter[100] like is=-7981104.351934 thres=0.001593
+iter[150] like is=-7980967.949509 thres=0.000011
+iter[200] like is=-7980963.241333 thres=0.000050
+iter[250] like is=-7980961.662185 thres=0.000006
+iter[300] like is=-7980961.240373 thres=0.000025
+iter[350] like is=-7980960.791682 thres=0.000098
+iter[400] like is=-7980955.709961 thres=0.000087
+iter[450] like is=-7843158.444497 thres=0.008282
+iter[500] like is=-7838961.234477 thres=0.000464
+iter[550] like is=-7834201.662996 thres=0.001040
+iter[600] like is=-7782905.276879 thres=0.004276
+iter[650] like is=-7780769.997147 thres=0.000221
+iter[700] like is=-7780675.171156 thres=0.000010
+iter[750] like is=-7780670.761639 thres=0.000000
+iter[800] like is=-7780670.603989 thres=0.000004
+iter[850] like is=-7780670.535696 thres=0.000126
+Convergence achived because log likelihooditer difference for 50 iteraction is less than 0.100000
+best like=-7780670.535696 after 850 iterations
+	-> Dumpedfiles are: K5.log
+	-> Dumpedfiles are: K5.qopt
+	-> Dumpedfiles are: K5.fopt.gz
+	[ALL done] cpu-time used =  10843.31 sec
+	[ALL done] walltime used =  593.00 sec

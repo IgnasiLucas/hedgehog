@@ -1,0 +1,43 @@
+Input: lname=all.beagle.gz nPop=7, fname=(null) qname=(null) outfiles=K7
+Setup: seed=1639612755 nThreads=40 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=43966088.176259
+iter[50] like is=-7508492.192839 thres=0.015321
+iter[100] like is=-7477978.520668 thres=0.012540
+iter[150] like is=-7467652.475416 thres=0.011029
+iter[200] like is=-7464361.795964 thres=0.006320
+iter[250] like is=-7462815.661131 thres=0.000981
+iter[300] like is=-7462231.501806 thres=0.000364
+iter[350] like is=-7461722.721997 thres=0.000119
+iter[400] like is=-7461693.930045 thres=0.000059
+iter[450] like is=-7461679.357323 thres=0.000013
+iter[500] like is=-7461659.877563 thres=0.000059
+iter[550] like is=-7461651.708316 thres=0.000035
+iter[600] like is=-7461649.087353 thres=0.000009
+iter[650] like is=-7461648.656414 thres=0.000002
+iter[700] like is=-7461648.273496 thres=0.000063
+iter[750] like is=-7461647.185869 thres=0.000006
+iter[800] like is=-7461640.244660 thres=0.000064
+iter[850] like is=-7461616.316997 thres=0.000503
+iter[900] like is=-7461505.320079 thres=0.008207
+iter[950] like is=-7461182.053615 thres=0.004021
+iter[1000] like is=-7460792.317849 thres=0.001011
+iter[1050] like is=-7460142.988840 thres=0.003230
+iter[1100] like is=-7459685.454070 thres=0.002897
+iter[1150] like is=-7459639.070776 thres=0.000240
+iter[1200] like is=-7459627.123578 thres=0.000019
+iter[1250] like is=-7459623.367863 thres=0.000023
+iter[1300] like is=-7459622.480582 thres=0.000004
+iter[1350] like is=-7459622.109438 thres=0.000002
+iter[1400] like is=-7459621.992024 thres=0.000000
+iter[1450] like is=-7459621.978055 thres=0.000000
+Convergence achived because log likelihooditer difference for 50 iteraction is less than 0.100000
+best like=-7459621.978055 after 1450 iterations
+	-> Dumpedfiles are: K7.log
+	-> Dumpedfiles are: K7.qopt
+	-> Dumpedfiles are: K7.fopt.gz
+	[ALL done] cpu-time used =  20637.76 sec
+	[ALL done] walltime used =  1089.00 sec

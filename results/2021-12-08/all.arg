@@ -1,6 +1,6 @@
 	-> angsd version: 0.935-53-gf475f10 (htslib: 1.14-7-g1d79f44) build(Nov 16 2021 12:06:02)
-	-> angsd -GL 1 -minInd 57 -doGlf 2 -minMapQ 30 -minQ 20 -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 -doMajorMinor 1 -out all -nThreads 40 -bam bam.filelist 
-	-> Wed Dec  8 13:18:17 2021
+	-> angsd -GL 2 -minInd 57 -doGlf 2 -minMapQ 30 -minQ 20 -setMinDepthInd 5 -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 -doMajorMinor 1 -out all -nThreads 40 -bam bam.filelist 
+	-> Mon Dec 13 18:52:54 2021
 ----------------
 multiReader.cpp:
 	-nLines	50	(Number of lines to read)
@@ -65,7 +65,7 @@ abcFilter.cpp:
 	-sites		(null)	(File containing sites to keep (chr pos major minor))
 	-sites		(null)	(File containing sites to keep (chr pos major minor af ac an))
 	-minInd		57	Only use site if atleast minInd of samples has data
-	-setMinDepthInd	1	Only use site if atleast minInd of samples has this minimum depth 
+	-setMinDepthInd	5	Only use site if atleast minInd of samples has this minimum depth 
 	-capDepth	-1	Only use the first capDepth bases
 	-strict	1	 (experimental)
 	1) You can force major/minor by -doMajorMinor 3
@@ -103,7 +103,7 @@ Filedumping:
 	-ffile	(null)	(Only for -iCounts 2)
 ---------------------
 abcGL.cpp:
-	-GL=1: 
+	-GL=2: 
 	1: SAMtools
 	2: GATK
 	3: SOAPsnp
@@ -126,7 +126,7 @@ Filedumping:
 
 ---------------------
 abcGL.cpp:
-	-GL=1: 
+	-GL=2: 
 	1: SAMtools
 	2: GATK
 	3: SOAPsnp
@@ -196,5 +196,5 @@ abcHetPlas.cpp:
 		->"all.beagle.gz"
 		->"all.mafs.gz"
 
-	[ALL done] cpu-time used =  38140.68 sec
-	[ALL done] walltime used =  18043.00 sec
+	[ALL done] cpu-time used =  30219.16 sec
+	[ALL done] walltime used =  17351.00 sec

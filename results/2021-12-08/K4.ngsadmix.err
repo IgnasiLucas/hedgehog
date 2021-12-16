@@ -1,0 +1,27 @@
+Input: lname=all.beagle.gz nPop=4, fname=(null) qname=(null) outfiles=K4
+Setup: seed=1639611237 nThreads=40 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=45828201.632108
+iter[50] like is=-8522571.503698 thres=0.033512
+iter[100] like is=-8514609.742831 thres=0.000090
+iter[150] like is=-8514590.354222 thres=0.000044
+iter[200] like is=-8514586.240210 thres=0.000033
+iter[250] like is=-8514560.161493 thres=0.000582
+iter[300] like is=-8374005.156411 thres=0.003297
+iter[350] like is=-8370575.006590 thres=0.036563
+iter[400] like is=-8365979.363791 thres=0.037873
+iter[450] like is=-8314507.426330 thres=0.001736
+iter[500] like is=-8314479.308305 thres=0.000046
+iter[550] like is=-8314478.701264 thres=0.000001
+iter[600] like is=-8314478.580909 thres=0.000000
+iter[650] like is=-8314478.568356 thres=0.000000
+Convergence achived because log likelihooditer difference for 50 iteraction is less than 0.100000
+best like=-8314478.568356 after 650 iterations
+	-> Dumpedfiles are: K4.log
+	-> Dumpedfiles are: K4.qopt
+	-> Dumpedfiles are: K4.fopt.gz
+	[ALL done] cpu-time used =  8310.98 sec
+	[ALL done] walltime used =  464.00 sec

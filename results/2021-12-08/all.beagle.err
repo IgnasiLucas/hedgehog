@@ -1,5 +1,5 @@
 	-> angsd version: 0.935-53-gf475f10 (htslib: 1.14-7-g1d79f44) build(Nov 16 2021 12:06:02)
-	-> angsd -GL 1 -minInd 57 -doGlf 2 -minMapQ 30 -minQ 20 -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 -doMajorMinor 1 -out all -nThreads 40 -bam bam.filelist 
+	-> angsd -GL 2 -minInd 57 -doGlf 2 -minMapQ 30 -minQ 20 -setMinDepthInd 5 -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 -doMajorMinor 1 -out all -nThreads 40 -bam bam.filelist 
 	-> Inputtype is BAM/CRAM
 [multiReader] 73 samples in 73 input files
 	-> Reading fasta: ../../data/reference.fa
@@ -9,14 +9,12 @@
 	-> Allocated ~ 10 million nodes to the nodepool, this is not an estimate of the memory usage
 
 	-> Allocated ~ 20 million nodes to the nodepool, this is not an estimate of the memory usage
-
-	-> Allocated ~ 30 million nodes to the nodepool, this is not an estimate of the memory usage
 	-> Printing at chr: NW_006803924.1 pos:1171420 chunknumber 100 contains 1818 sites
 	-> Printing at chr: NW_006803924.1 pos:2205856 chunknumber 200 contains 1499 sites
 	-> Printing at chr: NW_006803924.1 pos:3284706 chunknumber 300 contains 5443 sites
-	-> Printing at chr: NW_006803924.1 pos:4676168 chunknumber 400 contains 5419 sites
 
-	-> Allocated ~ 40 million nodes to the nodepool, this is not an estimate of the memory usage
+	-> Allocated ~ 30 million nodes to the nodepool, this is not an estimate of the memory usage
+	-> Printing at chr: NW_006803924.1 pos:4676168 chunknumber 400 contains 5419 sites
 	-> Printing at chr: NW_006803924.1 pos:6220257 chunknumber 500 contains 2208 sites
 	-> Printing at chr: NW_006803924.1 pos:7430513 chunknumber 600 contains 1714 sites
 	-> Printing at chr: NW_006803924.1 pos:8745988 chunknumber 700 contains 4824 sites
@@ -827,6 +825,8 @@
 	-> Printing at chr: NW_006804119.1 pos:55972 chunknumber 81200 contains 1958 sites
 	-> Printing at chr: NW_006804119.1 pos:1537142 chunknumber 81300 contains 3052 sites
 	-> Printing at chr: NW_006804119.1 pos:3221490 chunknumber 81400 contains 1465 sites
+
+	-> Allocated ~ 40 million nodes to the nodepool, this is not an estimate of the memory usage
 	-> Printing at chr: NW_006804120.1 pos:1127659 chunknumber 81500 contains 1571 sites
 	-> Printing at chr: NW_006804120.1 pos:2374479 chunknumber 81600 contains 1123 sites
 	-> Printing at chr: NW_006804120.1 pos:3669960 chunknumber 81700 contains 2059 sites
@@ -1033,8 +1033,6 @@
 	-> Printing at chr: NW_006804209.1 pos:1425947 chunknumber 101800 contains 1511 sites
 	-> Printing at chr: NW_006804209.1 pos:2737843 chunknumber 101900 contains 3863 sites
 	-> Printing at chr: NW_006804210.1 pos:1143773 chunknumber 102000 contains 1269 sites
-
-	-> Allocated ~ 50 million nodes to the nodepool, this is not an estimate of the memory usage
 	-> Printing at chr: NW_006804210.1 pos:2427369 chunknumber 102100 contains 5451 sites
 	-> Printing at chr: NW_006804211.1 pos:1059825 chunknumber 102200 contains 2503 sites
 	-> Printing at chr: NW_006804211.1 pos:2708354 chunknumber 102300 contains 1287 sites
@@ -1279,6 +1277,8 @@
 	-> Printing at chr: NW_006804357.1 pos:48523 chunknumber 126200 contains 1400 sites
 	-> Printing at chr: NW_006804357.1 pos:1966949 chunknumber 126300 contains 979 sites
 	-> Printing at chr: NW_006804358.1 pos:1392957 chunknumber 126400 contains 1623 sites
+
+	-> Allocated ~ 50 million nodes to the nodepool, this is not an estimate of the memory usage
 	-> Printing at chr: NW_006804359.1 pos:691911 chunknumber 126500 contains 1573 sites
 	-> Printing at chr: NW_006804360.1 pos:174900 chunknumber 126600 contains 4077 sites
 	-> Printing at chr: NW_006804360.1 pos:1142508 chunknumber 126700 contains 2851 sites
@@ -1300,6 +1300,16 @@
 	-> Printing at chr: NW_006804371.1 pos:404281 chunknumber 128300 contains 3495 sites
 	-> Printing at chr: NW_006804371.1 pos:1818972 chunknumber 128400 contains 1076 sites
 	-> Printing at chr: NW_006804372.1 pos:1031774 chunknumber 128500 contains 3723 sites
+
+	-> Allocated ~ 60 million nodes to the nodepool, this is not an estimate of the memory usage
+
+	-> Allocated ~ 70 million nodes to the nodepool, this is not an estimate of the memory usage
+
+	-> Allocated ~ 80 million nodes to the nodepool, this is not an estimate of the memory usage
+
+	-> Allocated ~ 90 million nodes to the nodepool, this is not an estimate of the memory usage
+
+	-> Allocated ~ 100 million nodes to the nodepool, this is not an estimate of the memory usage
 	-> Printing at chr: NW_006804373.1 pos:818403 chunknumber 128600 contains 3528 sites
 	-> Printing at chr: NW_006804373.1 pos:1751404 chunknumber 128700 contains 2321 sites
 	-> Printing at chr: NW_006804374.1 pos:1086512 chunknumber 128800 contains 2336 sites
@@ -1949,9 +1959,9 @@
 		->"all.arg"
 		->"all.beagle.gz"
 		->"all.mafs.gz"
-	-> Wed Dec  8 18:19:00 2021
+	-> Mon Dec 13 23:42:05 2021
 	-> Arguments and parameters for all analysis are located in .arg file
 	-> Total number of sites analyzed: 454034028
-	-> Number of sites retained after filtering: 2044040 
-	[ALL done] cpu-time used =  38140.68 sec
-	[ALL done] walltime used =  18043.00 sec
+	-> Number of sites retained after filtering: 714528 
+	[ALL done] cpu-time used =  30219.16 sec
+	[ALL done] walltime used =  17351.00 sec

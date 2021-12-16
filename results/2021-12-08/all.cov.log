@@ -2,21 +2,21 @@ PCAngsd v.1.03
 Using 40 thread(s).
 
 Parsing Beagle file.
-Loaded 2044040 sites and 73 individuals.
+Loaded 714528 sites and 73 individuals.
 Estimating minor allele frequencies.
-EM (MAF) converged at iteration: 8
-Number of sites after MAF filtering (0.05): 982789
+EM (MAF) converged at iteration: 5
+Number of sites after MAF filtering (0.05): 283889
 
 Estimating covariance matrix.
 Using 1 principal components (MAP test).
 Individual allele frequencies estimated (1).
-Individual allele frequencies estimated (2). RMSE=0.005425365428513205
-Individual allele frequencies estimated (3). RMSE=0.0017189820827222208
-Individual allele frequencies estimated (4). RMSE=0.0005567188945862374
-Individual allele frequencies estimated (5). RMSE=0.0001808663734286618
-Individual allele frequencies estimated (6). RMSE=6.0914210046423234e-05
-Individual allele frequencies estimated (7). RMSE=2.1973483906928283e-05
-Individual allele frequencies estimated (8). RMSE=8.52098329996844e-06
+Individual allele frequencies estimated (2). RMSE=0.00445096712626994
+Individual allele frequencies estimated (3). RMSE=0.0009720439210815263
+Individual allele frequencies estimated (4). RMSE=0.00025194249501635767
+Individual allele frequencies estimated (5). RMSE=7.319590227149356e-05
+Individual allele frequencies estimated (6). RMSE=2.6316773260816282e-05
+Individual allele frequencies estimated (7). RMSE=1.1864181699030903e-05
+Individual allele frequencies estimated (8). RMSE=6.452491812335955e-06
 PCAngsd converged.
 Saved covariance matrix as all.cov (Text).
 

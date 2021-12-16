@@ -1,3 +1,22 @@
+2021-12-08
+==========
+I run PCAngsd and NGSadmix. PCAngsd separates *E. europaeus* from *E. roumanicus*
+in the first component, which explains almost 90% of the variation. The second
+component differentiates *E. concolor* from *E. roumanicus*. The original misassignment
+of two *E. roumanicus* individuals to the *E. concolor* population is evident, and
+requires the exclusion of those samples from analysis, because we miss geographic
+data from them. The two *E. amurensis* cluster together, well separated from the
+other species.
+
+Different runs give slightly different results in NGSadmix. With K=6 I can
+reproduce the separation of species, the distinction of two lineages in 
+*E. europaeus* and in *E. roumanicus*, and the presence of hybrids or
+introgressed individuals. Results do not seem stable, though, with particular
+individuals apparently assigned to unexpected groups. It may require some
+more attention.
+
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-12-08/README.html)
+
 2021-12-06
 ==========
 First try using ANGSD. It's terribly badly documented, but the methods

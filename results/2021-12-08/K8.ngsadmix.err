@@ -1,0 +1,25 @@
+Input: lname=all.beagle.gz nPop=8, fname=(null) qname=(null) outfiles=K8
+Setup: seed=1639613844 nThreads=40 method=1
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=43795182.561373
+iter[50] like is=-6668594.559333 thres=0.017047
+iter[100] like is=-6646071.319577 thres=0.003199
+iter[150] like is=-6644930.929513 thres=0.005495
+iter[200] like is=-6642801.407078 thres=0.001238
+iter[250] like is=-6642747.655615 thres=0.000972
+iter[300] like is=-6642737.223003 thres=0.000048
+iter[350] like is=-6642732.690029 thres=0.000079
+iter[400] like is=-6642729.638311 thres=0.000216
+iter[450] like is=-6642728.601672 thres=0.000049
+iter[500] like is=-6642727.927957 thres=0.000014
+iter[550] like is=-6642727.687620 thres=0.000005
+EM accelerated Thread has reached convergence with tol 0.000010
+best like=-6642727.572934 after 562 iterations
+	-> Dumpedfiles are: K8.log
+	-> Dumpedfiles are: K8.qopt
+	-> Dumpedfiles are: K8.fopt.gz
+	[ALL done] cpu-time used =  8915.41 sec
+	[ALL done] walltime used =  508.00 sec

@@ -1,0 +1,52 @@
+Input: lname=all.beagle.gz nPop=6, fname=(null) qname=(null) outfiles=K6
+Setup: seed=1639645879 nThreads=40 method=0
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=714528 nind=73
+Input file has dim (AFTER filtering): nsites=438114 nind=73
+iter[start] like is=44343058.701198
+iter[50] like is=-8400554.312521 thres=0.028216
+iter[100] like is=-7711411.441011 thres=0.003471
+iter[150] like is=-7667953.005226 thres=0.003390
+iter[200] like is=-7651692.401152 thres=0.001918
+iter[250] like is=-7644166.415864 thres=0.001202
+iter[300] like is=-7639971.225066 thres=0.000832
+iter[350] like is=-7637631.296198 thres=0.000622
+iter[400] like is=-7636170.792032 thres=0.000494
+iter[450] like is=-7635062.434308 thres=0.000424
+iter[500] like is=-7634080.833011 thres=0.000467
+iter[550] like is=-7633264.336796 thres=0.000298
+iter[600] like is=-7632725.040669 thres=0.000233
+iter[650] like is=-7632369.197114 thres=0.000205
+iter[700] like is=-7632036.353993 thres=0.000463
+iter[750] like is=-7631674.473209 thres=0.000453
+iter[800] like is=-7631385.024478 thres=0.000374
+iter[850] like is=-7631108.114467 thres=0.000413
+iter[900] like is=-7630825.883109 thres=0.000439
+iter[950] like is=-7630549.371957 thres=0.000447
+iter[1000] like is=-7630254.121391 thres=0.000471
+iter[1050] like is=-7629896.435771 thres=0.000510
+iter[1100] like is=-7629437.977912 thres=0.000452
+iter[1150] like is=-7629110.540220 thres=0.000218
+iter[1200] like is=-7628942.485214 thres=0.000106
+iter[1250] like is=-7628860.498237 thres=0.000098
+iter[1300] like is=-7628814.062857 thres=0.000090
+iter[1350] like is=-7628782.046274 thres=0.000084
+iter[1400] like is=-7628756.517309 thres=0.000078
+iter[1450] like is=-7628734.284400 thres=0.000072
+iter[1500] like is=-7628713.962847 thres=0.000067
+iter[1550] like is=-7628694.705262 thres=0.000062
+iter[1600] like is=-7628676.007800 thres=0.000057
+iter[1650] like is=-7628657.299451 thres=0.000053
+iter[1700] like is=-7628638.203611 thres=0.000048
+iter[1750] like is=-7628618.671259 thres=0.000045
+iter[1800] like is=-7628599.140865 thres=0.000041
+iter[1850] like is=-7628580.277418 thres=0.000038
+iter[1900] like is=-7628562.566036 thres=0.000035
+iter[1950] like is=-7628546.083204 thres=0.000032
+best like=-7628530.949145 after 2000 iterations
+	-> Dumpedfiles are: K6.log
+	-> Dumpedfiles are: K6.qopt
+	-> Dumpedfiles are: K6.fopt.gz
+	[ALL done] cpu-time used =  9549.56 sec
+	[ALL done] walltime used =  602.00 sec
