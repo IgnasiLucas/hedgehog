@@ -1,0 +1,104 @@
+---
+title: "Refinement of the NGSadmix results"
+author: "J. Ignacio Lucas Lledó"
+date: "21/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+From a preliminar run of NGSadmix in `2021-12-08`, and after a conversation with
+Kristýna, it became clear to me that two samples originally adscribed to the
+*E. concolor* species are actually *E. roumanicus*: Er91_GR24 and Er92_GR28.
+The lack of correct geographic information on these two samples forces us to
+remove them from the data set.
+
+This invalidates my approach at filtering individuals, because I was aiming at
+75 individuals, and now I would be left with only 73. Plus, the goal is not
+to optimize the number of sites, but to reply to the reviwers. Thus, I will
+use the selection of samples made by Kristýna the last time she run Admixture.
+That is, 65 individuals included in her `2021-04-13/erinaceus_merged_2021_q20_excluded_bad.recode.vcf`.
+
+
+```{bash selections}
+ERI65=/data/kristyna/hedgehog/results_2021/2021-04-13/erinaceus_merged_2021_q20_excluded_bad.recode.vcf
+BAMDIR=/data/kristyna/hedgehog/results_2020/2020-01-30
+
+if [ ! -e popfile.txt ]; then ../../bin/make_popfile.sh; fi
+if [ ! -e eri65.txt ]; then
+   gawk '(/^#CHROM/){for (i = 10; i <= NF; i++) print $i; exit}' $ERI65 > eri65.txt
+fi
+
+if [ ! -e bam.filelist ]; then
+   ls -1 $BAMDIR/*.bam | grep -f eri65.txt > bam.filelist
+fi
+
+if [ ! -e eri65.beagle.gz ]; then
+   angsd -GL 2 -minInd 60 -doGlf 2 -minMapQ 30 -minQ 20 -setMinDepthInd 6 \
+         -doMaf 1 -ref ../../data/reference.fa -SNP_pval 1.0e-6 -rmTriallelic 0.05 \
+         -doMajorMinor 1 \
+         -out eri65 -nThreads 40 -bam bam.filelist 1> eri65.beagle.log 2> eri65.beagle.err
+fi
+# Expecting K=6: 2 europaeus, 2 roumanicus, 1 concolor, 1 amurensis.
+for k in 3 4 5 6 7 8; do
+   if [ ! -e K$k.qopt ]; then
+      NGSadmix -likes eri65.beagle.gz \
+               -K $k \
+               -minMaf 0.02 \
+               -method 0 \
+               -outfiles K$k \
+               -P 40 1> K$k.ngsadmix.log 2> K$k.ngsadmix.err
+   fi
+done
+```
+
+```{r plotting, fig.width=10}
+library('RColorBrewer')
+pop <- read.table('popfile.txt', col.names = c('ind','pop'),
+                  colClasses = c('character', 'factor'), row.names = 1)
+bamlist <- scan('bam.filelist', what = 'character', quiet = TRUE)
+sampleList <- sapply(bamlist, function(x) {
+  sub('_msnc.bam', '', unlist(strsplit(x, '/', fixed = TRUE))[7], fixed = TRUE) 
+}, USE.NAMES = FALSE)
+
+Q3 <- read.table('K3.qopt', row.names = sampleList)
+Q4 <- read.table('K4.qopt', row.names = sampleList)
+Q5 <- read.table('K5.qopt', row.names = sampleList)
+Q6 <- read.table('K6.qopt', row.names = sampleList)
+Q7 <- read.table('K7.qopt', row.names = sampleList)
+Q8 <- read.table('K8.qopt', row.names = sampleList)
+
+# The following is manually set, after checking that in the result at hand ancestries
+# in Q6 are ordered as: V1 = E. roumanicus Asian lineage, V2 = E. roumanicus Balkan lineage,
+# V3 = E. europaeus Apennine lineage, V4 = E. europaeus Iberian lineage, V5 = E. amurensis,
+# and V6 = E. concolor.
+
+arrangement <- order(round(Q6$V2, 2),
+                     round(Q6$V1, 2),
+                     round(Q6$V3, 2),
+                     round(Q6$V4, 2),
+                     round(Q6$V5, 2),
+                     decreasing = TRUE)
+barplot(t(Q6[arrangement,c(2,1,3,4,5,6)]), col = brewer.pal(6, 'Set1')[c(4,1,2,5,6,3)], border = NA,
+        xaxt = 'n', ylab = 'Ancestry', las = 2, cex.names = 0.5)
+XPositions <- c(0, 1.2 * cumsum(colSums(Q6[, c(2,1,3,4,5,6)])[1:5])) +
+              colSums(Q6[, c(2,1,3,4,5,6)]) / 2
+text(XPositions, -0.03, c('E. roumanicus\nBalkan lineage', 'E. roumanicus\nAsian lineage',
+                          'E. europaeus\nApennine lineage', 'E. europaeus\nIberian lineage',
+                          'E. amurensis', 'E. concolor'),
+     xpd = TRUE, srt = 65, adj = c(1,1), cex = 0.7)
+
+png(filename = 'K6.png', width=1000, height=800)
+par(mar = c(11, 5, 2, 0), cex.main = 2, cex.lab = 2)
+barplot(t(Q6[arrangement,c(2,1,3,4,5,6)]), col = brewer.pal(6, 'Set1')[c(4,1,2,5,6,3)], border = NA,
+        xaxt = 'n', ylab = 'Ancestry', las = 2, cex.axis = 1.5, main = 'K = 6')
+text(XPositions, -0.03, c('E. roumanicus\nBalkan lineage', 'E. roumanicus\nAsian lineage',
+                          'E. europaeus\nApennine lineage', 'E. europaeus\nIberian lineage',
+                          'E. amurensis', 'E. concolor'),
+     xpd = TRUE, srt = 65, adj = c(1,1), cex = 1.5)
+dev.off()
+```
+
+

@@ -1,0 +1,9 @@
+Input: lname=eri65.beagle.gz nPop=8, fname=(null) qname=(null) outfiles=K8
+Setup: seed=1640189643 nThreads=40 method=0
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=98353 nind=65
+Input file has dim (AFTER filtering): nsites=61425 nind=65
+	[ALL done] cpu-time used =  1223.40 sec
+	[ALL done] walltime used =  77.00 sec
+best like=-746170.517102 after 2000 iterations

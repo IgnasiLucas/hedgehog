@@ -1,0 +1,52 @@
+Input: lname=eri65.beagle.gz nPop=7, fname=(null) qname=(null) outfiles=K7
+Setup: seed=1640189569 nThreads=40 method=0
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=98353 nind=65
+Input file has dim (AFTER filtering): nsites=61425 nind=65
+iter[start] like is=5543080.496961
+iter[50] like is=-811703.029734 thres=0.015638
+iter[100] like is=-776716.494929 thres=0.004219
+iter[150] like is=-771022.484190 thres=0.002286
+iter[200] like is=-768966.276179 thres=0.000843
+iter[250] like is=-767971.022793 thres=0.000571
+iter[300] like is=-767483.237123 thres=0.000419
+iter[350] like is=-767238.209953 thres=0.000324
+iter[400] like is=-767101.425093 thres=0.000255
+iter[450] like is=-767019.109223 thres=0.000214
+iter[500] like is=-766966.850250 thres=0.000187
+iter[550] like is=-766932.265926 thres=0.000156
+iter[600] like is=-766907.696315 thres=0.000133
+iter[650] like is=-766889.725391 thres=0.000116
+iter[700] like is=-766876.273150 thres=0.000103
+iter[750] like is=-766865.917326 thres=0.000090
+iter[800] like is=-766857.628872 thres=0.000079
+iter[850] like is=-766850.954427 thres=0.000069
+iter[900] like is=-766845.493149 thres=0.000061
+iter[950] like is=-766840.941121 thres=0.000055
+iter[1000] like is=-766837.020943 thres=0.000050
+iter[1050] like is=-766833.682483 thres=0.000046
+iter[1100] like is=-766830.810186 thres=0.000043
+iter[1150] like is=-766828.353490 thres=0.000039
+iter[1200] like is=-766826.207426 thres=0.000036
+iter[1250] like is=-766824.343302 thres=0.000033
+iter[1300] like is=-766822.713772 thres=0.000031
+iter[1350] like is=-766821.287050 thres=0.000028
+iter[1400] like is=-766820.030771 thres=0.000026
+iter[1450] like is=-766818.917133 thres=0.000024
+iter[1500] like is=-766817.932239 thres=0.000022
+iter[1550] like is=-766817.058366 thres=0.000021
+iter[1600] like is=-766816.278995 thres=0.000019
+iter[1650] like is=-766815.582069 thres=0.000018
+iter[1700] like is=-766814.962102 thres=0.000017
+iter[1750] like is=-766814.408224 thres=0.000016
+iter[1800] like is=-766813.904813 thres=0.000015
+iter[1850] like is=-766813.453650 thres=0.000014
+iter[1900] like is=-766813.046636 thres=0.000013
+iter[1950] like is=-766812.673781 thres=0.000013
+best like=-766812.345612 after 2000 iterations
+	-> Dumpedfiles are: K7.log
+	-> Dumpedfiles are: K7.qopt
+	-> Dumpedfiles are: K7.fopt.gz
+	[ALL done] cpu-time used =  1314.86 sec
+	[ALL done] walltime used =  74.00 sec

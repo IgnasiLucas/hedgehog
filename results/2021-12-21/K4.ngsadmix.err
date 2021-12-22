@@ -1,0 +1,35 @@
+Input: lname=eri65.beagle.gz nPop=4, fname=(null) qname=(null) outfiles=K4
+Setup: seed=1640189390 nThreads=40 method=0
+Convergence: maxIter=2000 tol=0.000010 tolLike50=0.100000 dymBound=0
+Filters: misTol=0.050000 minMaf=0.020000 minLrt=0.000000 minInd=0
+Input file has dim: nsites=98353 nind=65
+Input file has dim (AFTER filtering): nsites=61425 nind=65
+iter[start] like is=5761128.116261
+iter[50] like is=-1082700.928155 thres=0.024886
+iter[100] like is=-992919.846924 thres=0.001825
+iter[150] like is=-987311.830760 thres=0.003711
+iter[200] like is=-982952.713351 thres=0.007917
+iter[250] like is=-970284.229774 thres=0.003483
+iter[300] like is=-968514.678958 thres=0.000134
+iter[350] like is=-968367.481271 thres=0.000436
+iter[400] like is=-968229.618165 thres=0.000413
+iter[450] like is=-968069.118130 thres=0.000678
+iter[500] like is=-966217.024850 thres=0.003270
+iter[550] like is=-961992.299601 thres=0.000708
+iter[600] like is=-961709.120772 thres=0.000179
+iter[650] like is=-961391.304006 thres=0.000141
+iter[700] like is=-961369.756926 thres=0.000049
+iter[750] like is=-961367.323671 thres=0.000028
+iter[800] like is=-961366.768393 thres=0.000017
+iter[850] like is=-961366.562722 thres=0.000010
+iter[900] like is=-961366.414271 thres=0.000007
+iter[950] like is=-961365.876200 thres=0.000006
+iter[1000] like is=-961365.690670 thres=0.000004
+iter[1050] like is=-961365.636649 thres=0.000003
+Convergence achived because log likelihooditer difference for 50 iteraction is less than 0.100000
+best like=-961365.636649 after 1050 iterations
+	-> Dumpedfiles are: K4.log
+	-> Dumpedfiles are: K4.qopt
+	-> Dumpedfiles are: K4.fopt.gz
+	[ALL done] cpu-time used =  649.39 sec
+	[ALL done] walltime used =  39.00 sec

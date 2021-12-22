@@ -1,3 +1,9 @@
+2021-12-21
+==========
+Reproduced with NGSadmix the distribution of ancestries with K=6 obtained before with Admixture.
+
+See the [report here](https://htmlpreview.github.io/?https://github.com/IgnasiLucas/hedgehog/blob/master/results/2021-12-21/README.html)
+
 2021-12-08
 ==========
 I run PCAngsd and NGSadmix. PCAngsd separates *E. europaeus* from *E. roumanicus*
