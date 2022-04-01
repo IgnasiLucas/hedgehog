@@ -1,0 +1,453 @@
+---
+title: "Check the results from BGC"
+author: "J. Ignacio Lucas Lledó"
+date: "8/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Genomic clines
+
+@Gompert2011 developed a hierarchical model of how ancestry in a locus vary
+across individuals as a function of the genome-wide fraction of the two assumed
+alternative ancestries. These *genomic clines* are described by two parameters
+in every locus, $\alpha$ and $\beta$. The first, determines the position of the
+cline and the second, its steepness. To estimate all locus-specific parameters
+we use the `bgc` program [@Gompert2012], which requires as inputs:
+
+- The allele counts in both parent populations, in all loci; and
+- The allele counts in the admixed population.
+
+Thus, individuals must be classified in advance in three populations: two parental
+and at least one admixed. We use previous Admixture results to classify individuals.
+
+## Previous runs
+
+In the `2018-12-15` folder, I run `bgc` with data from the Central Europe contact
+zone. But there were too few admixed individuals to properly estimate the cline parameters.
+On 2021-04-26, Kristýna run `bgc` with data from the Russian Baltic contact zone, where
+about 10 individuals were identified as admixed between *E. roumanicus* and *E. europaeus*
+with varying degrees of introgression.
+
+Below I load Kristýna's results for inspection. Unfortunately, I notice an anomaly in
+input file `alpha_chain1.txt` to her `plot_chains.R` script. So, I re-produce the files
+here first from the `bgc` output in her folder.
+
+```{bash chains}
+DATADIR=/data/kristyna/hedgehog/results_2021/2021-04-26
+for param in LnL alpha beta; do
+   for chain in 1 2; do
+      if [ ! -e ${param}_chain${chain}.txt ]; then
+         estpost -i $DATADIR/mcmcout_${chain}.hdf5 \
+                 -p $param \
+                 -o ${param}_chain${chain}.txt \
+                 -s 2 \
+                 -w 0
+      fi
+   done
+done
+```
+
+```{r PreviousRun}
+library('ggplot2')
+library('tidyr')
+DATADIR <- '/data/kristyna/hedgehog/results_2021/2021-04-26'
+
+# alpha.1 and alpha.2 will be large matrices with samples from the posterior
+# in rows and loci in columns.
+alpha.1 <- data.frame(t(as.matrix(read.table('alpha_chain1.txt', sep = ','))))
+alpha.2 <- data.frame(t(as.matrix(read.table('alpha_chain2.txt', sep = ','))))
+beta.1  <- data.frame(t(as.matrix(read.table('beta_chain1.txt',  sep = ','))))
+beta.2  <- data.frame(t(as.matrix(read.table('beta_chain2.txt',  sep = ','))))
+
+LnL     <- data.frame(chain1 = t(as.matrix(read.table('LnL_chain1.txt', sep = ','))),
+                      chain2 = t(as.matrix(read.table('LnL_chain2.txt', sep = ','))))
+LnL$pos <- 1:(length(LnL$chain1))
+LnL.long <- pivot_longer(LnL, cols = c('chain1','chain2'),
+                         names_to = 'chain',
+                         values_to = 'LnL')
+
+ggplot(data = LnL.long, mapping = aes(x = pos, y = LnL, color = chain)) +
+  geom_point()
+```
+
+The mixing of log-likelihood values between the two chains suggests that there
+is convergence. However, the distribution of alpha and beta values in the posterior
+should be compared between chains, rather than only global log-likelihood values.
+The problem is that there are $4909 \times 2$ parameters. In order to assess convergence
+of all parameter values between the two chains, I should accumulate 4909 images for
+alpha parameters and 4909 images for beta parameters and join them in two movies, for easy visualization. Otherwise, I could use a test for comparing distributions and gather the
+results for all loci in a vector. Let's use a Kolmogorov-Smirnov test.
+
+```{r tests}
+alpha.tests <- mapply(function(x, y) t.test(x, y, alternative = 'two.sided')$p.value,
+                      alpha.1, alpha.2)
+beta.tests  <- mapply(function(x, y) t.test(x, y, alternative = 'two.sided')$p.value,
+                      beta.1, beta.2)
+
+par(mfrow = c(2,2))
+   hist(alpha.tests, xlab = 'p-value of convergence', main = 'alpha')
+   plot(ecdf(alpha.tests), main = 'alpha')
+   abline(a = 0, b = 1, lty = 2, col = 'red')
+   hist(beta.tests,  xlab = 'p-value of convergence', main = 'beta')
+   plot(ecdf(beta.tests), main = 'beta')
+   abline(a = 0, b = 1, lty = 2, col = 'red')
+par(mfrow = c(1,1))
+```
+
+It seems that both chains converged in the same averages of $\alpha$ and $\beta$
+parameters for all 4909 loci.
+
+## Replication
+
+The VCF used in this analysis was a subset of Russian individuals from a complete
+VCF filtered before, in `2021-04-13`. The filter is a file called
+`popmap_bgc_russia_correct.txt`. Taking the same inputs, I need to reproduce the
+HDF5 results, because the `estpost` program complains about the format of the
+files produced by Kristyna. I also notice that the input files prepared with a 
+python script reduced drastically the number of sites, from 18786 to only 4909.
+The reason is that the `vcf2bgc.py` script used then skipped every site with any
+missing genotype (`./.`). The consequences of that decision should be evaluated.
+
+I found an alternative `vcf2bgc.py` in [this github repository](https://github.com/btmartin721/file_converters/blob/master/vcf2bgc.py#L199).
+I had to change a few things in order to make it produce the estimated error rates
+and also process the VCF not produced by ipyrad. I will try now to run `bgc` again
+with all 18786 sites obtained with the new `vcf2bgc.py` script.
+
+Unfortunately, the `hdf5` output seem to be corrupted and cannot be either opened
+in R (with the `rhdf5` package) or processed with `estpost`. Thus, I will request
+the text output.
+
+```{bash replicate}
+VCF=/data/kristyna/hedgehog/results_2021/2021-04-26/bgc_RB.recode.vcf
+POPMAP=/data/kristyna/hedgehog/results_2021/2021-04-26/popmap_bgc_russia_correct.txt
+if [ ! -d all_loci ]; then mkdir all_loci; fi
+
+if [ ! -e bgc_admixedin.txt ]; then
+   python vcf2bgc.py -v $VCF \
+                     --p1 roumanicus \
+                     --p2 europaeus \
+                     --admixed admixed \
+                     --popmap $POPMAP \
+                     --outprefix bgc
+fi
+
+if [ ! -e all_loci/chain1_.hdf5 ]; then
+   bgc -a bgc_p0in.txt \
+       -b bgc_p1in.txt \
+       -h bgc_admixedin.txt \
+       -F all_loci/chain1_ \
+       -O 1 \
+       -x 200000 \
+       -n  25000 \
+       -t     50 \
+       -p 1 \
+       -q 1 \
+       -N 1 \
+       -E 1 &> all_loci/chain1.log &
+fi
+
+if [ ! -e all_loci/chain2_.hdf5 ]; then
+   bgc -a bgc_p0in.txt \
+       -b bgc_p1in.txt \
+       -h bgc_admixedin.txt \
+       -F all_loci/chain2_ \
+       -O 1 \
+       -x 200000 \
+       -n  25000 \
+       -t     50 \
+       -p 1 \
+       -q 1 \
+       -N 1 \
+       -E 1 &> all_loci/chain2.log &
+fi
+```
+
+## The issue of linkage
+
+From the input files, I could get an idea of how large are the chuncks of chromosomes
+with alternative ancestry. First, from `bgc_p0in.txt` and `bgc_p1in.txt` I can estimate
+alternative allele frequencies. Then, for every individual in `bgc_admixedin.txt`, I
+should estimate the logarithm of the likelihood ratio of one ancestry to the other. To
+simplify, I will not account for sequencing errors. Thus, I will roughly call the
+genotypes on the fly.
+
+```{bash linkage}
+if [ ! -e Freq_roumanicus.txt ]; then
+   gawk --bignum 'BEGIN{
+      LOCUS = ""
+      ALT = 0
+      REF = 0
+      IND = 0
+   }(/^locus/){
+      if (ALT + REF > 0) {
+         print LOCUS "\t" ALT / (ALT + REF)
+      }
+      LOCUS = $1
+      ALT = 0.5
+      REF = 0.5
+   }($1 !~ /locus/){
+      if ($1 + $2 > 0) {
+         ALT += sprintf("%.0f", 2.0 * $2 / ($1 + $2))
+         REF += sprintf("%.0f", 2.0 * $1 / ($1 + $2))
+      }
+   }END{
+      print LOCUS "\t" ALT / (ALT + REF)
+   }' bgc_p0in.txt > Freq_roumanicus.txt
+fi
+
+if [ ! -e Freq_europaeus.txt ]; then
+   gawk --bignum 'BEGIN{
+      LOCUS = ""
+      ALT = 0
+      REF = 0
+      IND = 0
+   }(/^locus/){
+      if (ALT + REF > 0) {
+         print LOCUS "\t" ALT / (ALT + REF)
+      }
+      LOCUS = $1
+      ALT = 0.5
+      REF = 0.5
+   }($1 !~ /locus/){
+      if ($1 + $2 > 0) {
+         ALT += sprintf("%.0f", 2.0 * $2 / ($1 + $2))
+         REF += sprintf("%.0f", 2.0 * $1 / ($1 + $2))
+      }
+   }END{
+      print LOCUS "\t" ALT / (ALT + REF)
+   }' bgc_p1in.txt > Freq_europaeus.txt
+fi
+
+if [ ! -e AncestryBlocks.txt ]; then
+   gawk --bignum 'BEGIN{
+      N = 0
+   }(FILENAME ~ /Freq_roumanicus/){
+      FREQROU[$1] = $2
+   }(FILENAME ~ /Freq_europaeus/){
+      FREQEUR[$1] = $2
+   }(FILENAME ~ /bgc_admixedin/){
+      if ($1 ~ /locus/) {
+         if (N > 0) {
+            OUTLINE = LOCUS
+            for (i = 1; i <= 10; i++) {
+               OUTLINE = OUTLINE "\t" RATIO1[i] "\t" RATIO2[i]
+            }
+            print OUTLINE
+            delete RATIO1
+            delete RATIO2
+         }
+         N += 1
+         LOCUS = $1
+      }
+      if ($1 !~ /locus|pop/) {
+         IND = (NR - 2) % 12
+         if ($1 + $2 > 0) {
+            GENOTYPE = sprintf("%.0f", 2.0 * $2 / ($1 + $2))
+         } else {
+            GENOTYPE = "NA"
+         }
+         if (GENOTYPE == 0) {
+            LIKEROU = (1.0 - FREQROU[LOCUS]) ^ 2
+            LIKEEUR = (1.0 - FREQEUR[LOCUS]) ^ 2
+            LIKEMIX = (1.0 - FREQROU[LOCUS]) * (1.0 - FREQEUR[LOCUS])
+         } else {
+            if (GENOTYPE == 1) {
+               LIKEROU = 2.0 * FREQROU[LOCUS] * (1.0 - FREQROU[LOCUS])
+               LIKEEUR = 2.0 * FREQEUR[LOCUS] * (1.0 - FREQEUR[LOCUS])
+               LIKEHET = FREQROU[LOCUS] * (1.0 - FREQEUR[LOCUS]) + (1.0 - FREQROU[LOCUS]) * FREQEUR[LOCUS]
+            } else {
+               if (GENOTYPE == 2) {
+                  LIKEROU = FREQROU[LOCUS] ^ 2
+                  LIKEEUR = FREQEUR[LOCUS] ^ 2
+                  LIKEMIX = FREQROU[LOCUS] * FREQEUR[LOCUS]
+               }
+            }
+         }
+         if (GENOTYPE ~ /NA/) {
+            RATIO1[IND] = "NA"
+            RATIO2[IND] = "NA"
+         } else {
+            RATIO1[IND] = log(LIKEMIX / (LIKEROU + LIKEEUR))
+            RATIO2[IND] = log(LIKEROU / LIKEEUR)
+         }
+      }
+   }END{
+      OUTLINE = LOCUS
+      for (i = 1; i <= 10; i++) {
+         OUTLINE = OUTLINE "\t" RATIO1[i] "\t" RATIO2[i]
+      }
+      print OUTLINE
+      delete RATIO1
+      delete RATIO2
+   }' Freq_roumanicus.txt Freq_europaeus.txt bgc_admixedin.txt > AncestryBlocks.txt
+fi
+
+VCF=/data/kristyna/hedgehog/results_2021/2021-04-26/bgc_RB.recode.vcf
+POPMAP=/data/kristyna/hedgehog/results_2021/2021-04-26/popmap_bgc_russia_correct.txt
+
+if [ ! -e admixed_names.txt ]; then
+   grep CHROM $VCF | \
+   cut -f 1,2,3,4,5,6,7,8,9 --complement --output-delimiter=$'\n' > sample_order.txt
+   gawk '(FILENAME ~ /popmap/){
+      POP[$1] = $2
+   }(FILENAME ~ /sample_order/){
+      print $1 "\t" POP[$1]
+   }' $POPMAP sample_order.txt > popmap_ordered.txt
+   grep admixed popmap_ordered.txt | cut -f 1 > admixed_names.txt
+fi
+```
+
+```{r plots}
+ancestry <- read.table('AncestryBlocks.txt', row.names = 1)
+admixed_inds <- read.table('admixed_names.txt', stringsAsFactors = FALSE)[,1]
+names(ancestry) <- paste(rep(admixed_inds, each = 2), c('Mixed', 'Roumanicus'), sep = "_")
+loci <- read.table('bgc_loci.txt', col.names = c('CHROM', 'POS'))
+ancestry <- cbind(loci, ancestry)
+selected.chrom <- names(head( sort(table(ancestry$CHROM), decreasing = TRUE), n = 9))
+filterChrom <- ancestry$CHROM %in% selected.chrom
+
+for (i in seq(from = 3, to = 21, by = 2)) {
+   plot(density(ancestry[,i], na.rm = TRUE), main = names(ancestry)[i])
+}
+
+summary <- data.frame(
+   Sample = names(ancestry)[3:12],
+   PropRoumanicus = colSums(ancestry[,3:12] > 3, na.rm = TRUE) / dim(ancestry)[1],
+   PropEuropaeus  = colSums(ancestry[,3:12] < -3, na.rm = TRUE) / dim(ancestry)[1],
+   PropUncertain  = colSums(abs(ancestry[,3:12]) <= 3, na.rm = TRUE) / dim(ancestry)[1]
+)
+summary
+
+ggplot(data = ancestry[filterChrom,], mapping = aes(x = POS, y = Er97_ZBS1015_Mixed)) +
+   geom_line() + facet_wrap(~CHROM)
+```
+
+Basically, I wanted to visualize the distribution of ancestries with a log-likelihood ratio,
+along the contigs. But I need at least two log-likelihood ratios: the log of the ratio of the
+likelihood of being heterozygous for ancestry ("mixed") to the likelihood of having only one
+ancestry (either *E. roumanicus* or *E. europaeus*); and the log of the ratio of the likelihood
+of having only *E. roumanicus* ancestry to that of having only *E. europaeus* ancestry.
+
+But this is very messy, and it's consuming too much of my time right now. I need to stop.
+
+```{bash LD}
+VCF=/data/kristyna/hedgehog/results_2021/2021-04-26/bgc_RB.recode.vcf
+if [ ! -e bgc_RB.geno.ld ]; then
+   vcftools --vcf $VCF \
+            --out bgc_RB \
+            --geno-r2
+fi
+```
+
+```{r LDstats}
+LD <- read.table('bgc_RB.geno.ld', header = TRUE)
+plot(density(LD$R.2, na.rm = TRUE))
+```
+
+```{bash filterVCF}
+if [ ! -e highR2.txt ]; then
+   gawk '(NR > 1){
+      if ($5 > 0.4) {
+         print $1 "\t" $3
+      }
+   }' bgc_RB.geno.ld > highR2.txt
+fi
+
+VCF=/data/kristyna/hedgehog/results_2021/2021-04-26/bgc_RB.recode.vcf
+if [ ! -e RB_lowR2.recode.vcf ]; then
+   vcftools --vcf $VCF \
+            --out RB_lowR2 \
+            --exclude-positions highR2.txt \
+            --recode-INFO-all \
+            --recode
+fi
+
+POPMAP=/data/kristyna/hedgehog/results_2021/2021-04-26/popmap_bgc_russia_correct.txt
+if [ ! -d lowR2 ]; then mkdir lowR2; fi
+
+if [ ! -e lowR2/bgc_admixedin.txt ]; then
+   python vcf2bgc.py -v RB_lowR2.recode.vcf \
+                     --p1 roumanicus \
+                     --p2 europaeus \
+                     --admixed admixed \
+                     --popmap $POPMAP \
+                     --outprefix lowR2/bgc
+fi
+
+if [ ! -e lowR2/chain1.hdf5 ]; then
+   bgc -a lowR2/bgc_p0in.txt \
+       -b lowR2/bgc_p1in.txt \
+       -h lowR2/bgc_admixedin.txt \
+       -F lowR2/chain1 \
+       -O 2 \
+       -x 200000 \
+       -n  25000 \
+       -t     50 \
+       -p 1 \
+       -q 1 \
+       -N 1 \
+       -E 1 &> lowR2/chain1.log &
+fi
+
+sleep 3
+
+if [ ! -e lowR2/chain2.hdf5 ]; then
+   bgc -a lowR2/bgc_p0in.txt \
+       -b lowR2/bgc_p1in.txt \
+       -h lowR2/bgc_admixedin.txt \
+       -F lowR2/chain2 \
+       -O 2 \
+       -x 200000 \
+       -n  25000 \
+       -t     50 \
+       -p 1 \
+       -q 1 \
+       -N 1 \
+       -E 1 &> lowR2/chain2.log &
+fi
+```
+
+```{bash extraction}
+for param in alpha beta tau-alpha tau-beta; do
+   for chain in 1 2; do
+      if [ ! -e lowR2/$param.$chain.post.txt ]; then
+         estpost -i lowR2/chain$chain.hdf5 \
+                 -o lowR2/$param.$chain.post.txt \
+                 -p $param \
+                 -s 2 > /dev/null
+      fi
+      if [ ! -e lowR2/$param.$chain.summ.txt ]; then
+         estpost -i lowR2/chain$chain.hdf5 \
+                 -o lowR2/$param.$chain.summ.txt \
+                 -p $param \
+                 -s 0 > /dev/null
+      fi
+   done
+done
+```
+
+```{r convergence}
+alpha.1 <- data.frame(t(as.matrix(read.table('lowR2/alpha.1.post.txt', sep = ',', row.names = 1))))
+alpha.2 <- data.frame(t(as.matrix(read.table('lowR2/alpha.2.post.txt', sep = ',', row.names = 1))))
+beta.1  <- data.frame(t(as.matrix(read.table('lowR2/beta.1.post.txt',  sep = ',', row.names = 1))))
+beta.2  <- data.frame(t(as.matrix(read.table('lowR2/beta.2.post.txt',  sep = ',', row.names = 1))))
+tau.1 <- data.frame(
+   tau.alpha = t(as.matrix(read.table('lowR2/tau-alpha.1.post.txt', sep = ',', row.names = 1))),
+   tau.beta  = t(as.matrix(read.table('lowR2/tau-beta.1.post.txt',  sep = ',', row.names = 1)))
+)
+tau.2 <- data.frame(
+   tau.alpha = t(as.matrix(read.table('lowR2/tau-alpha.2.post.txt', sep = ',', row.names = 1))),
+   tau.beta  = t(as.matrix(read.table('lowR2/tau-beta.2.post.txt',  sep = ',', row.names = 1)))
+)
+```
+
+```{r estimates}
+alpha <- read.table('lowR2/alpha.1.summ.txt', sep = ',', header = TRUE)
+tau.alpha <- read.table('lowR2/tau-alpha.1.summ.txt', sep=',', header=TRUE)
+
+```
+
