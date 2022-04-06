@@ -151,7 +151,7 @@ if [ ! -e all_loci/chain1_.hdf5 ]; then
        -E 1 &> all_loci/chain1.log &
 fi
 
-wait 5
+sleep 5
 
 if [ ! -e all_loci/chain2_.hdf5 ]; then
    bgc -a bgc_p0in.txt \
@@ -167,6 +167,7 @@ if [ ! -e all_loci/chain2_.hdf5 ]; then
        -N 1 \
        -E 1 &> all_loci/chain2.log &
 fi
+wait
 ```
 
 ## The issue of linkage disequilibrium
@@ -221,6 +222,7 @@ first within the *E. roumanicus* population, to make sure that `vcftools` is pro
 reasonable results.
 
 ```{r LDrou}
+library(plyr)
 # The .geno.ld files give r^2 values for all pairs of sites within a contig.
 LDr <- read.table('roumanicus.geno.ld', header = TRUE)
 LDr$Dist <- LDr$POS2 - LDr$POS1
@@ -303,7 +305,7 @@ POPMAP=/data/kristyna/hedgehog/results_2021/2021-04-26/popmap_bgc_russia_correct
 if [ ! -d lowR2 ]; then mkdir lowR2; fi
 
 if [ ! -e lowR2/bgc_admixedin.txt ]; then
-   python vcf2bgc.py -v RB_lowR2.recode.vcf \
+   python vcf2bgc.py -v lowR2.recode.vcf \
                      --p1 roumanicus \
                      --p2 europaeus \
                      --admixed admixed \
@@ -342,6 +344,7 @@ if [ ! -e lowR2/chain2.hdf5 ]; then
        -N 1 \
        -E 1 &> lowR2/chain2.log &
 fi
+wait
 ```
 
 ```{bash extraction}

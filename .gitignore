@@ -180,3 +180,8 @@ results/2021-11-17/all.gdepth
 results/2021-12-01/*.gdepth
 results/2021-12-06/*.saf.gz
 results/2021-12-06/*.saf.pos.gz
+results/2022-02-08/k/
+results/2022-02-08/all_loci/
+results/2022-02-08/lowR2/*.hdf5
+results/2022-02-08/lowR2/*post.txt
+
